@@ -78,7 +78,7 @@ public:
         - LINE_PARALLEL_TO_PLANE (Failure: No intersection with the plane)
         - LINE_INTERSECTS_PLANE (Success)
     */
-    int lineIntersection ( Line& l, Vector& intersect, double* factor = NULL );
+    int lineIntersection ( Line& l, Vector& intersect, double* factor = nullptr );
 
     /*
     Reflect a line on the plane

@@ -1,8 +1,6 @@
 #ifndef LINE_H
 #define LINE_H
 
-#include <math.h>
-
 #include "vector.h"
 #include "utils.h"
 #include "status_codes.h"
@@ -82,7 +80,7 @@ public:
         - LINES_NO_INTERSECT (Failure -> No intersection)
         - LINES_INTERSECT (Success)
     */
-    int lineIntersect ( Line& l, Vector& intersect, double* factor = NULL );
+    int lineIntersect ( Line& l, Vector& intersect, double* factor = nullptr );
 
     /*
     Check if two lines are equal

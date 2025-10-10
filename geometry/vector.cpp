@@ -1,5 +1,8 @@
 #include "vector.h"
 
+#include <cmath>
+
+
 /*---------------------------------------------------------------*/
 
 Vector::Vector ( const double x, const double y, const double z ):

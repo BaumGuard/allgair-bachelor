@@ -1,8 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <cmath>
-
 #define NUM_DECIMAL_PLACES 10
 
 /*

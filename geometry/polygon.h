@@ -1,12 +1,12 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
-#include <vector>
-
 #include "vector.h"
 #include "line.h"
 #include "plane.h"
 #include "status_codes.h"
+
+#include <vector>
 
 /*
 Class to represent polygons lying on a plane

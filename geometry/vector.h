@@ -1,8 +1,6 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include <cmath>
-
 /*
 Class to represent 3D vectors with vector arithmetics
 */

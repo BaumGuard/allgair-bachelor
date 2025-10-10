@@ -1,5 +1,4 @@
 #include "plane.h"
-#include <stdio.h>
 
 /*---------------------------------------------------------------*/
 
@@ -116,7 +115,7 @@ int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) {
 
     intersect = base_vec + u * dir_vec;
 
-    if ( factor != NULL ) {
+    if ( factor != nullptr ) {
         *factor = u;
     }
 

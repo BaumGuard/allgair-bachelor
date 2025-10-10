@@ -35,7 +35,6 @@ public:
     void operator /= ( const double n );
 
     friend Vector operator * ( double n, const Vector& v );
-    friend Vector operator / ( double n, const Vector& v );
 
     Vector& operator = ( const Vector& v ) = default;
 

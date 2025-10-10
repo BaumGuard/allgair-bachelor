@@ -8,6 +8,7 @@
 Vector::Vector ( const double x, const double y, const double z ):
     x(x), y(y), z(z)
 {} /* Vector::Vector ( const double x, const double y, const double z ) */
+
 Vector::Vector () {}
 
 /*---------------------------------------------------------------*/
@@ -105,15 +106,6 @@ Vector operator * ( double n, const Vector& v ) {
 
     return Vector( x, y, z );
 } /* Vector operator * ( double n, const Vector& v ) */
-
-Vector operator / ( double n, const Vector& v ) {
-    double
-        x = v.getX() / n,
-        y = v.getY() / n,
-        z = v.getZ() / n;
-
-    return Vector( x, y, z );
-} /* Vector operator / ( double n, const Vector& v ) */
 
 
 /*---------------------------------------------------------------*/

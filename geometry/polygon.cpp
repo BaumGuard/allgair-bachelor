@@ -4,6 +4,7 @@
 
 void Polygon::initPolygonWithPlane ( Plane p ) {
     base_plane = p;
+    initialized = true;
 } /* void Polygon::initPolygonWithPlane ( Plane p ) */
 
 /*---------------------------------------------------------------*/
@@ -27,6 +28,10 @@ bool Polygon::isPointAlreadyInPolygon ( Vector& p ) {
 /*---------------------------------------------------------------*/
 
 int Polygon::addPoint ( Vector point ) {
+    if ( !initialized ) {
+        return POLYGON_NOT_INITIALIZED;
+    }
+
     if ( !base_plane.isPointOnPlane(point) ) {
         return POINT_NOT_ON_BASE_PLANE;
     }

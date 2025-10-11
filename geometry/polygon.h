@@ -54,6 +54,8 @@ private:
     std::vector<Vector> points;
     Plane base_plane;
 
+    bool initialized = false;
+
     /*
     Check if a point is already in the polygon
     (Used by the function addPoint)

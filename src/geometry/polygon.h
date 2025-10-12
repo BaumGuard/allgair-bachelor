@@ -2,9 +2,7 @@
 #define POLYGON_H
 
 #include "vector.h"
-#include "line.h"
 #include "plane.h"
-#include "../status_codes.h"
 
 #include <vector>
 

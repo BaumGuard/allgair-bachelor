@@ -1,5 +1,7 @@
 #include "plane.h"
 
+#include "../status_codes.h"
+
 /*---------------------------------------------------------------*/
 
 int Plane::buildPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) {

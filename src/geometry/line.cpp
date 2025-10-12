@@ -1,5 +1,8 @@
 #include "line.h"
 
+#include "../utils.h"
+#include "../status_codes.h"
+
 #include <cmath>
 
 

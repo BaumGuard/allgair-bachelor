@@ -1,5 +1,8 @@
 #include "polygon.h"
 
+#include "line.h"
+#include "../status_codes.h"
+
 /*---------------------------------------------------------------*/
 
 void Polygon::initPolygonWithPlane ( Plane p ) {

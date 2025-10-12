@@ -22,7 +22,13 @@ enum Statuscodes {
     POINT_ADDED             =  12, // Point added successfully to the point list
     POINT_NOT_ON_BASE_PLANE =  13, // If a point is not located on the base plane
     POLYGON_NOT_INITIALIZED =  14, // If a Polygon object is not initialized with a plane yet
-    TOO_FEW_POLYGON_POINTS  =  15  // Too few points for a polygon (must be at least 3)
+    TOO_FEW_POLYGON_POINTS  =  15, // Too few points for a polygon (must be at least 3)
+
+    // Downloader
+    INVALID_URL             =  16,
+    DOWNLOAD_SUCCESSFUL     =  17,
+    FILE_NOT_CREATABLE      =  18,
+    FILE_CREATED            =  19
 };
 
 #endif

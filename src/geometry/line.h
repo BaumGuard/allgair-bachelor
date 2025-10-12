@@ -2,8 +2,8 @@
 #define LINE_H
 
 #include "vector.h"
-#include "utils.h"
-#include "status_codes.h"
+#include "../utils.h"
+#include "../status_codes.h"
 
 /*
 Class to represent lines in 3D space which consist of a base point

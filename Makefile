@@ -1,38 +1,43 @@
 CC = g++
 CFLAGS = -c -Wall -g --std=c++23
+LDFLAGS = -lcurl
 
 TARGET = main
 
+SRCDIR = src
 BUILDDIR = build
 
 all: $(TARGET)
 
-$(TARGET): $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/surface.o $(BUILDDIR)/main.o
-	$(CC) $(BUILDDIR)/main.o $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o  $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/surface.o -o $(TARGET)
+$(TARGET): $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/main.o
+	$(CC) $(LDFLAGS) $(BUILDDIR)/main.o $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o  $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o -o $(TARGET)
 
-$(BUILDDIR)/vector.o: geometry/vector.h geometry/vector.cpp
-	$(CC) $(CFLAGS) geometry/vector.cpp -o $(BUILDDIR)/vector.o
+$(BUILDDIR)/vector.o: $(SRCDIR)/geometry/vector.h $(SRCDIR)/geometry/vector.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/geometry/vector.cpp -o $(BUILDDIR)/vector.o
 
-$(BUILDDIR)/line.o: geometry/line.h geometry/line.cpp geometry/status_codes.h
-	$(CC) $(CFLAGS) geometry/line.cpp -o $(BUILDDIR)/line.o
+$(BUILDDIR)/line.o: $(SRCDIR)/geometry/line.h $(SRCDIR)/geometry/line.cpp $(SRCDIR)/status_codes.h
+	$(CC) $(CFLAGS) $(SRCDIR)/geometry/line.cpp -o $(BUILDDIR)/line.o
 
-$(BUILDDIR)/plane.o: geometry/plane.h geometry/plane.cpp geometry/status_codes.h
-	$(CC) $(CFLAGS) geometry/plane.cpp -o $(BUILDDIR)/plane.o
+$(BUILDDIR)/plane.o: $(SRCDIR)/geometry/plane.h $(SRCDIR)/geometry/plane.cpp $(SRCDIR)/status_codes.h
+	$(CC) $(CFLAGS) $(SRCDIR)/geometry/plane.cpp -o $(BUILDDIR)/plane.o
 
-$(BUILDDIR)/polygon.o: geometry/polygon.h geometry/polygon.cpp geometry/status_codes.h
-	$(CC) $(CFLAGS) geometry/polygon.cpp -o $(BUILDDIR)/polygon.o
+$(BUILDDIR)/polygon.o: $(SRCDIR)/geometry/polygon.h $(SRCDIR)/geometry/polygon.cpp $(SRCDIR)/status_codes.h
+	$(CC) $(CFLAGS) $(SRCDIR)/geometry/polygon.cpp -o $(BUILDDIR)/polygon.o
 
-$(BUILDDIR)/utils.o: geometry/utils.h geometry/utils.cpp
-	$(CC) $(CFLAGS) geometry/utils.cpp -o $(BUILDDIR)/utils.o
+$(BUILDDIR)/utils.o: $(SRCDIR)/utils.h $(SRCDIR)/utils.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/utils.cpp -o $(BUILDDIR)/utils.o
 
-$(BUILDDIR)/gmlfile.o: gml/gmlfile.h gml/gmlfile.cpp
-	$(CC) $(CFLAGS) gml/gmlfile.cpp -o $(BUILDDIR)/gmlfile.o
+$(BUILDDIR)/gmlfile.o: $(SRCDIR)/gml/gmlfile.h $(SRCDIR)/gml/gmlfile.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/gml/gmlfile.cpp -o $(BUILDDIR)/gmlfile.o
 
-$(BUILDDIR)/surface.o: gml/surface.h gml/surface.cpp
-	$(CC) $(CFLAGS) gml/surface.cpp -o $(BUILDDIR)/surface.o
+$(BUILDDIR)/surface.o: $(SRCDIR)/gml/surface.h $(SRCDIR)/gml/surface.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/gml/surface.cpp -o $(BUILDDIR)/surface.o
 
-$(BUILDDIR)/main.o: main.cpp
-	$(CC) $(CFLAGS) main.cpp -o $(BUILDDIR)/main.o
+$(BUILDDIR)/download.o: $(SRCDIR)/web/download.h $(SRCDIR)/web/download.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/web/download.cpp -o $(BUILDDIR)/download.o
+
+$(BUILDDIR)/main.o: $(SRCDIR)/main.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/main.cpp -o $(BUILDDIR)/main.o
 
 test:
 	$(CC) -c -g tests/test.cpp -o $(BUILDDIR)/test.o

@@ -18,7 +18,7 @@ size_t saveFile ( char* buf, size_t itemsize, size_t n_items, void* arg ) {
 
 /*---------------------------------------------------------------*/
 
-int downloadFile ( char* url, char* dir, bool force = false ) {
+int downloadFile ( char* url, char* dir, bool force ) {
     char file_name [32];
     char out_path [256];
 

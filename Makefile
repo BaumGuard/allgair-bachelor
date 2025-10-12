@@ -9,8 +9,8 @@ BUILDDIR = build
 
 all: $(TARGET)
 
-$(TARGET): $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h
-	$(CC) $(LDFLAGS) $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o -o $(TARGET)
+$(TARGET): $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h
+	$(CC) $(LDFLAGS) $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o -o $(TARGET)
 
 $(BUILDDIR)/vector.o: $(SRCDIR)/geometry/vector.h $(SRCDIR)/geometry/vector.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/geometry/vector.cpp -o $(BUILDDIR)/vector.o
@@ -30,8 +30,8 @@ $(BUILDDIR)/utils.o: $(SRCDIR)/utils.h $(SRCDIR)/utils.cpp
 $(BUILDDIR)/gmlfile.o: $(SRCDIR)/gml/gmlfile.h $(SRCDIR)/gml/gmlfile.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/gml/gmlfile.cpp -o $(BUILDDIR)/gmlfile.o
 
-$(BUILDDIR)/geotiff.o: $(SRCDIR)/geotiff/geotiff.h $(SRCDIR)/geotiff/geotiff.cpp
-	$(CC) $(CFLAGS) $(SRCDIR)/geotiff/geotiff.cpp -o $(BUILDDIR)/geotiff.o
+$(BUILDDIR)/tile.o: $(SRCDIR)/geotiff/tile.h $(SRCDIR)/geotiff/tile.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/geotiff/tile.cpp -o $(BUILDDIR)/tile.o
 
 $(BUILDDIR)/surface.o: $(SRCDIR)/gml/surface.h $(SRCDIR)/gml/surface.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/gml/surface.cpp -o $(BUILDDIR)/surface.o

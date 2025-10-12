@@ -1,5 +1,6 @@
 build/*
 main
+src/main.cpp
 test
 geometry/speed_test
 geometry/speed_test.*

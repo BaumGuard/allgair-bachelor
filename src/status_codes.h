@@ -27,9 +27,10 @@ enum Statuscodes {
     // Downloader
     INVALID_URL             =  16,
     DOWNLOAD_SUCCESSFUL     =  17,
-    FILE_NOT_CREATABLE      =  18,
-    FILE_ALREADY_EXISTS     =  19,
-    FILE_CREATED            =  20
+    FILE_NOT_FOUND          =  18,
+    FILE_NOT_CREATABLE      =  19,
+    FILE_ALREADY_EXISTS     =  20,
+    FILE_CREATED            =  21
 };
 
 #endif

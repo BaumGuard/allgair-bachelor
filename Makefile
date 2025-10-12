@@ -9,19 +9,19 @@ BUILDDIR = build
 
 all: $(TARGET)
 
-$(TARGET): $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/main.o
-	$(CC) $(LDFLAGS) $(BUILDDIR)/main.o $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o  $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o -o $(TARGET)
+$(TARGET): $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h
+	$(CC) $(LDFLAGS) $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o  $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o -o $(TARGET)
 
 $(BUILDDIR)/vector.o: $(SRCDIR)/geometry/vector.h $(SRCDIR)/geometry/vector.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/geometry/vector.cpp -o $(BUILDDIR)/vector.o
 
-$(BUILDDIR)/line.o: $(SRCDIR)/geometry/line.h $(SRCDIR)/geometry/line.cpp $(SRCDIR)/status_codes.h
+$(BUILDDIR)/line.o: $(SRCDIR)/geometry/line.h $(SRCDIR)/geometry/line.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/geometry/line.cpp -o $(BUILDDIR)/line.o
 
-$(BUILDDIR)/plane.o: $(SRCDIR)/geometry/plane.h $(SRCDIR)/geometry/plane.cpp $(SRCDIR)/status_codes.h
+$(BUILDDIR)/plane.o: $(SRCDIR)/geometry/plane.h $(SRCDIR)/geometry/plane.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/geometry/plane.cpp -o $(BUILDDIR)/plane.o
 
-$(BUILDDIR)/polygon.o: $(SRCDIR)/geometry/polygon.h $(SRCDIR)/geometry/polygon.cpp $(SRCDIR)/status_codes.h
+$(BUILDDIR)/polygon.o: $(SRCDIR)/geometry/polygon.h $(SRCDIR)/geometry/polygon.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/geometry/polygon.cpp -o $(BUILDDIR)/polygon.o
 
 $(BUILDDIR)/utils.o: $(SRCDIR)/utils.h $(SRCDIR)/utils.cpp

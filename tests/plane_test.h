@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../geometry/plane.h"
+#include "../src/geometry/plane.h"
 
 TEST( PlaneTest, NormalVector ) {
     Vector

@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "../geometry/vector.h"
-#include "../geometry/line.h"
-#include "../geometry/status_codes.h"
+#include "../src/geometry/vector.h"
+#include "../src/geometry/line.h"
+#include "../src/status_codes.h"
 
 TEST( LineTests, IsPointOnLine ) {
     Line l;

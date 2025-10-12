@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "../geometry/vector.h"
-#include "../geometry/plane.h"
-#include "../geometry/polygon.h"
+#include "../src/geometry/vector.h"
+#include "../src/geometry/plane.h"
+#include "../src/geometry/polygon.h"
 
 TEST( PolygonTest, PointInPolygon ) {
     Vector

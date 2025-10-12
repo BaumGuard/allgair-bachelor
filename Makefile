@@ -39,7 +39,7 @@ $(BUILDDIR)/download.o: $(SRCDIR)/web/download.h $(SRCDIR)/web/download.cpp
 $(BUILDDIR)/main.o: $(SRCDIR)/main.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/main.cpp -o $(BUILDDIR)/main.o
 
-test:
+test: $(BUILDDIR)/*.o tests/*.cpp tests/*.h
 	$(CC) -c -g tests/test.cpp -o $(BUILDDIR)/test.o
 	$(CC) -std=c++17 -g -lgtest $(BUILDDIR)/test.o $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o -o test
 

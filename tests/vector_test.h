@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../geometry/vector.h"
+#include "../src/geometry/vector.h"
 
 TEST( VectorTest, VectorAddUnary ) {
     Vector

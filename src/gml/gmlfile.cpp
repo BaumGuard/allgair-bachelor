@@ -141,7 +141,7 @@ std::vector<Vector> valueListToVectorList ( std::string value_list ) {
 GmlFile::GmlFile ( std::string file_path ) {
     std::ifstream gmlfile ( file_path );
     if ( !gmlfile.is_open() ) {
-        std::cerr << "ERROR: The GML file '" << file_path << "' could not be found\n";
+        std::cerr << "ERROR: Cannot open the GML file '" << file_path << "'\n";
         return;
     }
 

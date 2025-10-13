@@ -170,3 +170,18 @@ Vector Plane::getVector1() const {
 Vector Plane::getVector2() const {
     return v2;
 } /* Vector Plane::getVector2() const */
+
+
+double Plane::distanceOfPointToPlane ( Vector& p ) {
+    Line plumb_line;
+
+    Vector nv = normalVector();
+
+    plumb_line.createLineFromBaseAndVector( p, nv );
+
+    Vector intersect;
+
+    lineIntersection( plumb_line, intersect );
+
+    return ( intersect - p ).length();
+}

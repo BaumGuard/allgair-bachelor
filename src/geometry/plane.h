@@ -93,6 +93,8 @@ public:
     */
     int reflectLine ( Line& old_line, Line& new_line );
 
+    double distanceOfPointToPlane ( Vector& p );
+
     /* GETTERS */
     Vector getBaseVector() const;
     Vector getVector1() const;

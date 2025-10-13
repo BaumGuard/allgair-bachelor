@@ -48,6 +48,8 @@ public:
     */
     bool isPointInPolygon ( Vector& p );
 
+    Plane getBasePlane();
+
 private:
     std::vector<Vector> points;
     Plane base_plane;

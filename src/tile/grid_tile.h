@@ -4,22 +4,15 @@
 /*
 Class to represent a tile (e.g. from a GeoTIFF file)
 */
-class Tile {
+class GridTile {
 public:
     /* CONSTRUCTORS */
-    Tile ( unsigned int width );
-    Tile ();
+    GridTile ( unsigned int width );
+    GridTile ( unsigned int width, float* values );
+    GridTile ();
 
     /* DESTRUCTOR */
-    ~Tile ();
-
-    /*
-    Create a Tile object from a GeoTIFF file
-
-    Args:
-     - file_path : File path of the GeoTIFF file
-    */
-    int createTileFromGeoTIFF ( char* file_path );
+    ~GridTile ();
 
     /*
     Reduce the number of pixels in the tile by a given factor
@@ -37,11 +30,33 @@ public:
         float (*method)(float*,unsigned int)
     );
 
+
     /* GETTERS AND SETTERS */
+
+    /*
+    Return the value in the position (x,y) of the grid
+
+    Args:
+     - x : x coordinate
+     - y : y coordinate
+    */
     float getValue ( unsigned int x, unsigned int y );
+
+    /*
+    Return the width of the tile
+    */
+    unsigned int getTileWidth ();
+
+    /*
+    Set the value in the grid in the position (x,y)
+
+    Args:
+     - x     : x coordinate
+     - y     : y coordinate
+     - value : Value to set (x,y) to
+    */
     void setValue ( unsigned int x, unsigned int y, float value );
 
-    int getTileWidth ();
 
 private:
     float* tile;

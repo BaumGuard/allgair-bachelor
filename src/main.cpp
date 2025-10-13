@@ -1,10 +1,8 @@
-#include "geotiff/tile.h"
+#include "raw_data/gmlfile.h"
+#include "tile/vector_tile.h"
 
 int main () {
-    Tile tile;
-
-    tile.createTileFromGeoTIFF( "data/700_5312.tif" );
-    tile.downsampleTile( 5, max );
-
+    GmlFile gmlfile ( "data/670_5318.gml" );
+    VectorTile vt ( gmlfile );
     return 0;
 }

@@ -1,102 +1,63 @@
-#include "tile.h"
+#include "grid_tile.h"
 
+#include "../exceptions/exception.h"
 #include "../status_codes.h"
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <tiffio.h>
 
 /*---------------------------------------------------------------*/
 
-union tiff_data {
-    float f32;
-
-    uint8_t bytes [8];
-};
-
-/*---------------------------------------------------------------*/
-
-Tile::Tile ( unsigned int width ) {
+GridTile::GridTile ( unsigned int width ) {
     this->width = width;
 
     tile = new float [width*width];
-} /* Tile::Tile ( unsigned int width ) */
+} /* GridTile::GridTile ( unsigned int width ) */
 
-Tile::Tile () {}
-
-/*---------------------------------------------------------------*/
-
-Tile::~Tile () {
-    delete tile;
-} /* Tile::~Tile () */
-
-/*---------------------------------------------------------------*/
-
-int Tile::createTileFromGeoTIFF ( char* file_path ) {
-    uint32_t
-        width,
-        buf_size;
-
-    TIFF* tif = TIFFOpen( file_path, "r" );
-    if ( !tif ) {
-        return FILE_NOT_FOUND;
-    }
-
-    TIFFGetField( tif, TIFFTAG_IMAGEWIDTH, &width );
+GridTile::GridTile ( unsigned int width, float* values ) {
+    this->width = width;
 
     tile = new float [width*width];
 
-    buf_size = TIFFScanlineSize(tif);
-
-    uint8_t* buf = (uint8_t*)malloc( buf_size );
-
-    union tiff_data pixel;
-
-    int pixel_it = 0;
-    int x = 0;
-
-    for ( uint32_t i=0; i<width; i++ ) {
-        TIFFReadScanline( tif, buf, i, 0 );
-
-        for ( uint32_t j=0; j<buf_size; j++ ) {
-            pixel.bytes[pixel_it] = buf[j];
-            pixel_it++;
-
-            if ( pixel_it == 4 ) {
-                setValue( x, i, pixel.f32 );
-                pixel_it = 0;
-                x++;
-            }
-        }
-
-        x = 0;
+    int len = width * width;
+    for ( int i=0; i<len; i++ ) {
+        tile[i] = values[i];
     }
+} /* GridTile::GridTile ( unsigned int width, float* values ) */
 
-    TIFFClose( tif );
-    free( buf );
-
-    return CREATION_SUCCEEDED;
-} /* int Tile::createTileFromGeoTIFF ( char* file_path ) */
+GridTile::GridTile () {}
 
 /*---------------------------------------------------------------*/
 
-float Tile::getValue ( unsigned int x, unsigned int y ) {
+GridTile::~GridTile () {
+    delete tile;
+} /* GridTile::~GridTile () */
+
+/*---------------------------------------------------------------*/
+
+float GridTile::getValue ( unsigned int x, unsigned int y ) {
+    if ( x >= width || y >= width ) {
+        throw OutsideOfTileException( "test" );
+    }
     return tile[width*y+x];
-} /* float Tile::getValue ( unsigned int x, unsigned int y ) */
+} /* float GridTile::getValue ( unsigned int x, unsigned int y ) */
 
-void Tile::setValue ( unsigned int x, unsigned int y, float value ) {
+void GridTile::setValue ( unsigned int x, unsigned int y, float value ) {
+    if ( x >= width || y >= width ) {
+        //throw OutsideOfGridException();
+    }
     tile[width*y+x] = value;
-} /* void Tile::setValue ( unsigned int x, unsigned int y, float value ) */
+} /* void GridTile::setValue ( unsigned int x, unsigned int y, float value ) */
 
 /*---------------------------------------------------------------*/
 
-int Tile::getTileWidth () {
+unsigned int GridTile::getTileWidth () {
     return width;
-} /* int Tile::getTileWidth () */
+} /* int GridTile::getGridTileWidth () */
 
 /*---------------------------------------------------------------*/
 
-void Tile::getBlock (
+void GridTile::getBlock (
     float* block_buf, unsigned int block_width,
     unsigned int x, unsigned int y
 ) {
@@ -108,11 +69,11 @@ void Tile::getBlock (
             buf_it++;
         }
     }
-} /* void Tile::getBlock */
+} /* void GridTile::getBlock */
 
 /*---------------------------------------------------------------*/
 
-int Tile::downsampleTile (
+int GridTile::downsampleTile (
     unsigned int factor,
     float (*method)(float*,unsigned int)
 ) {
@@ -147,7 +108,7 @@ int Tile::downsampleTile (
     free( subblock );
 
     return 0;
-} /* int Tile::downsampleTile */
+} /* int GridTile::downsampleGridTile */
 
 /*---------------------------------------------------------------*/
 

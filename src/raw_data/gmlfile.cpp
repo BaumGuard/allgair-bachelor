@@ -2,6 +2,7 @@
 
 #include "gmlfile.h"
 #include "surface.h"
+#include "../status_codes.h"
 
 /*---------------------------------------------------------------*/
 
@@ -285,6 +286,7 @@ GmlFile::GmlFile ( std::string file_path ) {
         line = getNextLineWithXmlTag( gmlfile, "<gml:posList>" );
         line_content = getTextBetweenXmlTags( line );
         surface.pos_list = valueListToVectorList( line_content );
+        surface.pos_list.pop_back();
 
 
         surfaces.push_back( surface );
@@ -298,3 +300,8 @@ GmlFile::GmlFile ( std::string file_path ) {
     */
 
 } /* GmlFile::GmlFile ( std::string file_path ) */
+
+
+std::vector<Surface>& GmlFile::getSurfaces () {
+    return surfaces;
+}

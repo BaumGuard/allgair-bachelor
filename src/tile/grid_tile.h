@@ -1,14 +1,44 @@
 #ifndef TILE_H
 #define TILE_H
 
+#include "vector_tile.h"
+
 /*
 Class to represent a tile (e.g. from a GeoTIFF file)
 */
 class GridTile {
 public:
     /* CONSTRUCTORS */
+
+    /*
+    Create an empty grid tile
+
+    Args:
+    - width : Width and height of the grid
+    */
     GridTile ( unsigned int width );
-    GridTile ( unsigned int width, float* values );
+
+    /*
+    Create a grid from float values (read from a GeoTIFF file)
+
+    Args:
+     - values : Array of the float values
+     - width  : Width and height of the grid
+    */
+    GridTile ( float* values, unsigned int width );
+
+    /*
+    Transform a vector tile into a grid tile using raycasting
+
+    Args:
+     - vector_tile : Reference to the vector tile to be transformed
+     - width       : Width and height of the grid
+    */
+    GridTile ( VectorTile& vector_tile, unsigned int width );
+
+    /*
+    Default constructor
+    */
     GridTile ();
 
     /* DESTRUCTOR */

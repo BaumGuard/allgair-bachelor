@@ -14,7 +14,7 @@ GridTile::GridTile ( unsigned int width ) {
     tile = new float [width*width];
 } /* GridTile::GridTile ( unsigned int width ) */
 
-GridTile::GridTile ( unsigned int width, float* values ) {
+GridTile::GridTile ( float* values, unsigned int width ) {
     this->width = width;
 
     tile = new float [width*width];
@@ -23,7 +23,68 @@ GridTile::GridTile ( unsigned int width, float* values ) {
     for ( int i=0; i<len; i++ ) {
         tile[i] = values[i];
     }
-} /* GridTile::GridTile ( unsigned int width, float* values ) */
+} /* GridTile::GridTile ( float* values, unsigned int width ) */
+
+GridTile::GridTile ( VectorTile& vector_tile, unsigned int width ) {
+    this->width = width;
+    tile = new float [width*width];
+
+    Vector
+        lower_corner = vector_tile.getLowerCorner(),
+        upper_corner = vector_tile.getUpperCorner();
+
+    float
+        x_step = ( upper_corner.getX() - lower_corner.getX() ) / (double)width,
+        y_step = ( upper_corner.getY() - lower_corner.getY() ) / (double)width;
+
+    float
+        x_end = upper_corner.getX(),
+        y_end = upper_corner.getY();
+
+    int
+        x_it = 0,
+        y_it = 0;
+
+    Line ray;
+
+    Vector
+        ray_start,
+        ray_dir ( 0.0, 0.0, 1.0 );
+
+    std::vector<Polygon>& polygons = vector_tile.getPolygons();
+    int len_polygons = polygons.size();
+
+    int status;
+    Vector intersect;
+
+    Plane base_plane;
+
+    for ( float y=0.0f; y<y_end; y+=y_step ) {
+        for ( float x=0.0f; x<x_end; x+=x_step ) {
+            for ( int i=0; i<len_polygons; i++ ) {
+                ray_start = Vector( x, y, 0.0 );
+
+                ray.createLineFromBaseAndVector( ray_start, ray_dir );
+
+                base_plane = polygons[i].getBasePlane();
+
+                status = base_plane.lineIntersection( ray, intersect );
+
+                if ( status == LINE_INTERSECTS_PLANE ) {
+                    if ( polygons[i].isPointInPolygon(intersect) ) {
+                        tile[y_it*width+x_it] = intersect.getZ();
+                        break;
+                    }
+                }
+                else {
+                    tile[y_it*width+x_it] = -1.0;
+                }
+            }
+            x_it++;
+        }
+        y_it++;
+    }
+} /* GridTile::GridTile ( VectorTile& vector_tile, unsigned int width ) */
 
 GridTile::GridTile () {}
 

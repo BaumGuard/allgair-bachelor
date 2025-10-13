@@ -301,7 +301,20 @@ GmlFile::GmlFile ( std::string file_path ) {
 
 } /* GmlFile::GmlFile ( std::string file_path ) */
 
+/*---------------------------------------------------------------*/
 
 std::vector<Surface>& GmlFile::getSurfaces () {
     return surfaces;
-}
+} /* std::vector<Surface>& GmlFile::getSurfaces () */
+
+/*---------------------------------------------------------------*/
+
+Vector GmlFile::getLowerCorner () {
+    return lower_corner;
+} /* Vector GmlFile::getLowerCorner () */
+
+/*---------------------------------------------------------------*/
+
+Vector GmlFile::getUpperCorner () {
+    return upper_corner;
+} /* Vector GmlFile::getUpperCorner () */

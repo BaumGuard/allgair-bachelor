@@ -21,10 +21,36 @@ public:
      - gmlfile : GmlFile instance
     */
     VectorTile ( GmlFile& gmlfile );
+
+    /*
+    Default constructor
+    */
     VectorTile ();
+
+
+    /* GETTERS */
+
+    /*
+    Return the lower left corner of the tile as a Vector
+    */
+    Vector getLowerCorner ();
+
+    /*
+    Return the upper right corner of the tile as a Vector
+    */
+    Vector getUpperCorner ();
+
+    /*
+    Return a reference to the std::vector with the Polygon objects
+    */
+    std::vector<Polygon>& getPolygons ();
 
 private:
     std::vector<Polygon> polygons;
+
+    Vector
+        lower_corner,
+        upper_corner;
 };
 
 #endif

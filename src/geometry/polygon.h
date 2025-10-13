@@ -48,6 +48,12 @@ public:
     */
     bool isPointInPolygon ( Vector& p );
 
+
+    /* GETTERS */
+
+    /*
+    Return the base plane of the polygon as a Plane object
+    */
     Plane getBasePlane();
 
 private:

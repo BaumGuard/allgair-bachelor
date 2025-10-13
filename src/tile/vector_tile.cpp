@@ -4,6 +4,8 @@
 #include "../geometry/plane.h"
 #include "../raw_data/surface.h"
 
+/*---------------------------------------------------------------*/
+
 VectorTile::VectorTile ( GmlFile& gmlfile ) {
     Vector p1, p2, p3;
     Plane base_plane;
@@ -14,6 +16,12 @@ VectorTile::VectorTile ( GmlFile& gmlfile ) {
     int len_pos_list;
 
     int err;
+
+    Vector
+        pos,
+        subtrahend = gmlfile.getLowerCorner();
+
+    subtrahend.setZ( 0.0 );
 
     for ( int i=0; i<len; i++ ) {
         p1 = surfaces[i].pos_list[0];
@@ -27,7 +35,10 @@ VectorTile::VectorTile ( GmlFile& gmlfile ) {
 
         len_pos_list = surfaces[i].pos_list.size();
         for ( int j=0; j<len_pos_list; j++ ) {
-            err = polygon.addPoint( surfaces[i].pos_list[j] );
+            pos = surfaces[i].pos_list[j];
+            pos = pos - subtrahend;
+
+            err = polygon.addPoint( pos );
 
             if ( err == 13 ) {
                 double dist = polygon.getBasePlane().distanceOfPointToPlane( surfaces[i].pos_list[j] );
@@ -37,4 +48,22 @@ VectorTile::VectorTile ( GmlFile& gmlfile ) {
 
         polygons.push_back( polygon );
     }
-}
+} /* VectorTile::VectorTile ( GmlFile& gmlfile ) */
+
+/*---------------------------------------------------------------*/
+
+Vector VectorTile::getLowerCorner () {
+    return lower_corner;
+} /* Vector VectorTile::getLowerCorner () */
+
+/*---------------------------------------------------------------*/
+
+Vector VectorTile::getUpperCorner () {
+    return upper_corner;
+} /* Vector VectorTile::getUpperCorner () */
+
+/*---------------------------------------------------------------*/
+
+std::vector<Polygon>& VectorTile::getPolygons () {
+    return polygons;
+} /* std::vector<Polygon>& VectorTile::getPolygons () */

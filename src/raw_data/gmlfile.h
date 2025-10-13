@@ -29,6 +29,16 @@ public:
     */
     std::vector<Surface>& getSurfaces ();
 
+    /*
+    Return the lower left corner of the tile as a Vector
+    */
+    Vector getLowerCorner ();
+
+    /*
+    Return the upper right corner of the tile as a Vector
+    */
+    Vector getUpperCorner ();
+
 private:
     Vector
         lower_corner,

@@ -100,7 +100,8 @@ bool Polygon::isPointInPolygon ( Vector& p ) {
     return intersect_count % 2 == 1;
 } /* bool Polygon::isPointInPolygon ( Vector& p ) */
 
+/*---------------------------------------------------------------*/
 
 Plane Polygon::getBasePlane () {
     return base_plane;
-}
+} /* Plane Polygon::getBasePlane () */

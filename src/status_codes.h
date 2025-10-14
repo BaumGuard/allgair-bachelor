@@ -30,7 +30,11 @@ enum Statuscodes {
     FILE_NOT_FOUND          =  18,
     FILE_NOT_CREATABLE      =  19,
     FILE_ALREADY_EXISTS     =  20,
-    FILE_CREATED            =  21
+    FILE_CREATED            =  21,
+
+    // Tiles
+    TILE_SIZES_UNEQUAL      =  22,
+    TILES_MASKED            =  23
 };
 
 #endif

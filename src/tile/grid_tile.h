@@ -22,7 +22,7 @@ public:
     Create a grid from float values (read from a GeoTIFF file)
 
     Args:
-     - values : Array of the float values
+     - values : Array of the float values (must have the size of width²)
      - width  : Width and height of the grid
     */
     GridTile ( float* values, unsigned int width );

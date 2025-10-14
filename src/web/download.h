@@ -1,6 +1,8 @@
 #ifndef DOWNLOAD_H
 #define DOWNLOAD_H
 
+#include "urls.h"
+
 #define DATA_DIR "data"
 
 /*

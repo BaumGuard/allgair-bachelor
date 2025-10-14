@@ -9,8 +9,8 @@ BUILDDIR = build
 
 all: $(TARGET)
 
-$(TARGET): $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/exception.o $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h
-	$(CC) $(LDFLAGS) $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/exception.o -o $(TARGET)
+$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/masker.o $(BUILDDIR)/exception.o $(BUILDDIR)/UTM.o $(BUILDDIR)/tile_name.o
+	$(CC) $(LDFLAGS) $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/masker.o $(BUILDDIR)/exception.o $(BUILDDIR)/UTM.o $(BUILDDIR)/tile_name.o -o $(TARGET)
 
 $(BUILDDIR)/vector.o: $(SRCDIR)/geometry/vector.h $(SRCDIR)/geometry/vector.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/geometry/vector.cpp -o $(BUILDDIR)/vector.o
@@ -42,8 +42,17 @@ $(BUILDDIR)/surface.o: $(SRCDIR)/raw_data/surface.h $(SRCDIR)/raw_data/surface.c
 $(BUILDDIR)/download.o: $(SRCDIR)/web/download.h $(SRCDIR)/web/download.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/web/download.cpp -o $(BUILDDIR)/download.o
 
+$(BUILDDIR)/masker.o: $(SRCDIR)/tile/masker.h $(SRCDIR)/tile/masker.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/tile/masker.cpp -o $(BUILDDIR)/masker.o
+
 $(BUILDDIR)/exception.o: $(SRCDIR)/exceptions/exception.h $(SRCDIR)/exceptions/exception.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/exceptions/exception.cpp -o $(BUILDDIR)/exception.o
+
+$(BUILDDIR)/UTM.o: $(SRCDIR)/lib/UTM.h $(SRCDIR)/lib/UTM.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/lib/UTM.cpp -o $(BUILDDIR)/UTM.o
+
+$(BUILDDIR)/tile_name.o: $(SRCDIR)/tile/tile_name.h $(SRCDIR)/tile/tile_name.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/tile/tile_name.cpp -o $(BUILDDIR)/tile_name.o
 
 $(BUILDDIR)/main.o: $(SRCDIR)/main.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/main.cpp -o $(BUILDDIR)/main.o
@@ -53,6 +62,6 @@ test: $(BUILDDIR)/*.o tests/*.cpp tests/*.h
 	$(CC) -std=c++17 -g -lgtest $(BUILDDIR)/test.o $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o -o test
 
 clean:
-	rm -rf $(BUILDDIR)/*.o
+	rm -rf $(BUILDDIR)/*
 	rm -rf *.o
 	rm -f test main

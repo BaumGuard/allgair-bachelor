@@ -1,8 +1,8 @@
-#include "raw_data/gmlfile.h"
-#include "tile/vector_tile.h"
+#include "tile/tile_name.h"
+
+#include <iostream>
 
 int main () {
-    GmlFile gmlfile ( "data/670_5318.gml" );
-    VectorTile vt ( gmlfile );
+    std::cout << latLonToTileName(47.6222,10.6315) << '\n';
     return 0;
 }

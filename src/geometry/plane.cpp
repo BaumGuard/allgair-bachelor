@@ -171,6 +171,7 @@ Vector Plane::getVector2() const {
     return v2;
 } /* Vector Plane::getVector2() const */
 
+/*---------------------------------------------------------------*/
 
 double Plane::distanceOfPointToPlane ( Vector& p ) {
     Line plumb_line;
@@ -184,4 +185,4 @@ double Plane::distanceOfPointToPlane ( Vector& p ) {
     lineIntersection( plumb_line, intersect );
 
     return ( intersect - p ).length();
-}
+} /* double Plane::distanceOfPointToPlane ( Vector& p ) */

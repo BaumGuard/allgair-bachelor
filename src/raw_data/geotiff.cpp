@@ -58,7 +58,7 @@ GeoTiffFile::GeoTiffFile ( char* file_path ) {
     }
 
     TIFFClose( tif );
-    delete buf;
+    delete[] buf;
 
     return CREATION_SUCCEEDED;
 } /* GeoTiffFile::GeoTiffFile ( char* file_path ) */
@@ -66,7 +66,7 @@ GeoTiffFile::GeoTiffFile ( char* file_path ) {
 /*---------------------------------------------------------------*/
 
 GeoTiffFile::~GeoTiffFile () {
-    delete data;
+    delete[] data;
 }
 
 /*---------------------------------------------------------------*/

@@ -17,9 +17,9 @@ GridTile::GridTile ( unsigned int width ) {
 GridTile::GridTile ( float* values, unsigned int width ) {
     this->width = width;
 
-    tile = new float [width*width];
-
     int len = width * width;
+    tile = new float [len];
+
     for ( int i=0; i<len; i++ ) {
         tile[i] = values[i];
     }
@@ -91,13 +91,14 @@ GridTile::GridTile () {}
 /*---------------------------------------------------------------*/
 
 GridTile::~GridTile () {
-    delete tile;
+    delete[] tile;
 } /* GridTile::~GridTile () */
 
 /*---------------------------------------------------------------*/
 
 float GridTile::getValue ( unsigned int x, unsigned int y ) {
     if ( x >= width || y >= width ) {
+        // TODO
         throw OutsideOfTileException( "test" );
     }
     return tile[width*y+x];
@@ -144,9 +145,11 @@ int GridTile::downsampleTile (
 
     uint32_t step = width / factor;
 
-    float* subblock = (float*) malloc( step*step*sizeof(float) );
+    int len = step * step;
 
-    static float* new_tile = new float [step*step];
+    float* subblock = new float [len];
+    float* new_tile = new float [len];
+
     int new_tile_it = 0;
 
     float new_value;
@@ -161,12 +164,13 @@ int GridTile::downsampleTile (
         }
     }
 
-
-    delete tile;
-    tile = new_tile;
+    for ( int i = 0; i<len; i++ ) {
+        tile[i] = new_tile[i];
+    }
     width = step;
 
-    free( subblock );
+    delete[] new_tile;
+    delete[] subblock;
 
     return 0;
 } /* int GridTile::downsampleGridTile */

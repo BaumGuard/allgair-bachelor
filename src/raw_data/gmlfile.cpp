@@ -165,61 +165,6 @@ GmlFile::GmlFile ( std::string file_path ) {
 
 
     while ( true ) {
-        /*
-        getNextLineWithXmlTag( "<gen:stringAttribute name=\"DatenquelleBodenhoehe\">" );
-        line = getNextLineWithXmlTag( "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        DataSrcGroundLevel = stoi( line_content );
-
-        getNextLineWithXmlTag( "<gen:stringAttribute name=\"DatenquelleDachhoehe\">" );
-        line = getNextLineWithXmlTag( "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        DataSrcRoofLevel = stoi( line_content );
-
-        getNextLineWithXmlTag( "<gen:stringAttribute name=\"DatenquelleLage\">" );
-        line = getNextLineWithXmlTag( "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        DataSrcPosition = stoi( line_content );
-
-        getNextLineWithXmlTag( "<gen:stringAttribute name=\"Gemeindeschluessel\">" );
-        line = getNextLineWithXmlTag( "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        MunicipalityCode = stoi( line_content );
-
-        getNextLineWithXmlTag( "<gen:stringAttribute name=\"HoeheDach\">" );
-        line = getNextLineWithXmlTag( "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        roofHeight = stod( line_content );
-
-        getNextLineWithXmlTag( "<gen:stringAttribute name=\"HoeheGrund\">" );
-        line = getNextLineWithXmlTag( "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        groundHeight = stod( line_content );
-
-        getNextLineWithXmlTag( "<gen:stringAttribute name=\"Methode\">" );
-        line = getNextLineWithXmlTag( "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        method = stoi( line_content );
-
-        getNextLineWithXmlTag( "<gen:stringAttribute name=\"NiedrigsteTraufeDesGebaeudes\">" );
-        line = getNextLineWithXmlTag( "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        lowestBuildingEaves = stod( line_content );
-
-        getNextLineWithXmlTag( "<gen:stringAttribute name=\"Geometrietyp2DReferenz\">" );
-        line = getNextLineWithXmlTag( "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        geo2dReference = stoi( line_content );
-
-        line = getNextLineWithXmlTag( "<bldg:roofType>" );
-        line_content = getTextBetweenXmlTags( line );
-        roofType = stoi( line_content );
-
-        line = getNextLineWithXmlTag( "<bldg:measuredHeight>" );
-        line_content = getTextBetweenXmlTags( line );
-        measuredHeight = stod( line_content );
-        */
-
 
         getNextLineWithXmlTag( gmlfile, "<bldg:boundedBy>" );
         line = getNextLineWithXmlTag( gmlfile, "<bldg:" );
@@ -291,13 +236,6 @@ GmlFile::GmlFile ( std::string file_path ) {
 
         surfaces.push_back( surface );
     }
-
-    /*
-    int len = surfaces.size();
-    for ( int i=0; i<len; i++ ) {
-        printSurfaceDescription( &surfaces[i] );
-    }
-    */
 
 } /* GmlFile::GmlFile ( std::string file_path ) */
 

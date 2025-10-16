@@ -26,7 +26,7 @@ public:
           (Failure: At least two points are on a line -> Points must form a triangle)
         - CREATION_SUCCEEDED (Success)
     */
-    int buildPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 );
+    int createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 );
 
     /*
     Create plane from a base point and a vector
@@ -44,7 +44,7 @@ public:
           (Failure: Vectors v1 and v2 are linear dependant -> Must be linear independant)
         - CREATION_SUCCEEDED (Success)
     */
-    int buildPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 );
+    int createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 );
 
     /*
     Return the normal vector of the plane as Vector

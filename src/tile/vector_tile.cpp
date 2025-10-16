@@ -28,7 +28,7 @@ VectorTile::VectorTile ( GmlFile& gmlfile ) {
         p2 = surfaces[i].pos_list[1];
         p3 = surfaces[i].pos_list[2];
 
-        base_plane.buildPlaneFromPoints( p1, p2, p3 );
+        base_plane.createPlaneFromPoints( p1, p2, p3 );
 
         Polygon polygon;
         polygon.initPolygonWithPlane( base_plane );

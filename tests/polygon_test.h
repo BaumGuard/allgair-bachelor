@@ -13,7 +13,7 @@ TEST( PolygonTest, PointInPolygon ) {
     Polygon polygon;
 
     Plane plane;
-    plane.buildPlaneFromBaseAndVectors( p, v1, v2 );
+    plane.createPlaneFromBaseAndVectors( p, v1, v2 );
 
     polygon.initPolygonWithPlane( plane );
 
@@ -39,7 +39,7 @@ TEST( PolygonTest, PointOutsidePolygon ) {
     Polygon polygon;
 
     Plane plane;
-    plane.buildPlaneFromBaseAndVectors( p, v1, v2 );
+    plane.createPlaneFromBaseAndVectors( p, v1, v2 );
 
     polygon.initPolygonWithPlane( plane );
 

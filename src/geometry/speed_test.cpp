@@ -49,8 +49,8 @@ void* own ( void* arg ) {
 /*
          l1.lineIntersect( l2, intersect );
 */
-         plane1.buildPlaneFromPoints( p1, p2, v1 );
-         plane2.buildPlaneFromBaseAndVectors( p1, v1, v2 );
+         plane1.createPlaneFromPoints( p1, p2, v1 );
+         plane2.createPlaneFromBaseAndVectors( p1, v1, v2 );
 /*
          plane1.normalVector();
 

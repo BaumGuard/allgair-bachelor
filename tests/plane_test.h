@@ -8,7 +8,7 @@ TEST( PlaneTest, NormalVector ) {
         v2 ( 3.0, -4.0, 0.0 );
 
     Plane plane;
-    plane.buildPlaneFromBaseAndVectors( p, v1, v2 );
+    plane.createPlaneFromBaseAndVectors( p, v1, v2 );
 
     Vector nv_exp ( 28.0, 21.0, 5.0 );
     Vector nv_res = plane.normalVector();
@@ -23,7 +23,7 @@ TEST( PlaneTest, PointOnPlane ) {
         v2 ( 3.0, -4.0, 0.0 );
 
     Plane plane;
-    plane.buildPlaneFromBaseAndVectors( p, v1, v2 );
+    plane.createPlaneFromBaseAndVectors( p, v1, v2 );
 
     Vector point ( 1.5, 1.0, 17.5 );
 
@@ -37,7 +37,7 @@ TEST( PlaneTest, PointNotOnPlane ) {
         v2 ( 3.0, -4.0, 0.0 );
 
     Plane plane;
-    plane.buildPlaneFromBaseAndVectors( p, v1, v2 );
+    plane.createPlaneFromBaseAndVectors( p, v1, v2 );
 
     Vector point ( 1.5, 0.0, 17.5 );
 
@@ -51,7 +51,7 @@ TEST( PlaneTest, LineParallelToPlane ) {
         v2( 0.0, 1.0, 3.0 );
 
     Plane plane;
-    plane.buildPlaneFromBaseAndVectors( p, v1, v2 );
+    plane.createPlaneFromBaseAndVectors( p, v1, v2 );
 
     Vector
         p_plane( 5.0, -1.0, 12.0 ),
@@ -74,7 +74,7 @@ TEST( PlaneTest, LineOnPlane ) {
         v2( 0.0, 1.0, 3.0 );
 
     Plane plane;
-    plane.buildPlaneFromBaseAndVectors( p, v1, v2 );
+    plane.createPlaneFromBaseAndVectors( p, v1, v2 );
 
     Vector
         p_line( 8.0, 7.0, -8.0 ),
@@ -97,7 +97,7 @@ TEST( PlaneTest, LineIntersectsPlane ) {
         v2( 0.0, 1.0, 3.0 );
 
     Plane plane;
-    plane.buildPlaneFromBaseAndVectors( p, v1, v2 );
+    plane.createPlaneFromBaseAndVectors( p, v1, v2 );
 
     Vector
         p_line( -10.0, -1.0, 12.0 ),
@@ -125,7 +125,7 @@ TEST( PlaneTest, LineReflect ) {
         v2( -1.0, 0.0, -1.0 );
 
     Plane plane;
-    plane.buildPlaneFromBaseAndVectors( p, v1, v2 );
+    plane.createPlaneFromBaseAndVectors( p, v1, v2 );
 
     Vector
         p_line( 0.0, 5.0, 0.0 ),

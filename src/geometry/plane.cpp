@@ -4,7 +4,7 @@
 
 /*---------------------------------------------------------------*/
 
-int Plane::buildPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) {
+int Plane::createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) {
     base = p1;
     v1 = p2 - p1;
     v2 = p3 - p1;
@@ -19,11 +19,11 @@ int Plane::buildPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) {
     toCoordinateForm();
 
     return CREATION_SUCCEEDED;
-} /* int Plane::buildPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) */
+} /* int Plane::createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) */
 
 /*---------------------------------------------------------------*/
 
-int Plane::buildPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 ) {
+int Plane::createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 ) {
     if ( v1.length() == 0.0 || v2.length() == 0.0 ) {
         return VECTOR_LENGTH_0;
     }
@@ -37,7 +37,7 @@ int Plane::buildPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 )
     toCoordinateForm();
 
     return CREATION_SUCCEEDED;
-} /* int Plane::buildPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 ) */
+} /* int Plane::createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 ) */
 
 /*---------------------------------------------------------------*/
 

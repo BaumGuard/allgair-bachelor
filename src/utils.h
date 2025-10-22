@@ -1,7 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#define NUM_DECIMAL_PLACES 10
+#include <cstring>
+
+#define STREQUAL(str1, str2) (!strcmp(str1, str2))
 
 enum MessageTypes {
     NORMAL,

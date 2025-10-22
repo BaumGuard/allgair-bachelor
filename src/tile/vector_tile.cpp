@@ -6,7 +6,6 @@
 #include "../raw_data/surface.h"
 #include "../utils.h"
 
-#include <cstring>
 #include <cstdint>
 
 /*---------------------------------------------------------------*/
@@ -246,7 +245,7 @@ int VectorTile::readBinaryFile ( const char* file_path ) {
 
     fread( data.bytes, 1, 4, file );
 
-    if ( strcmp(data.bytes, "DATA") != 0 ) {
+    if ( STREQUAL(data.bytes, "DATA")) {
         return BINARY_FILE_NOT_FOUND;
     }
 
@@ -265,7 +264,7 @@ int VectorTile::readBinaryFile ( const char* file_path ) {
 
     for ( uint32_t i = 0; i < n_polygons; i++ ) {
         fread( data.bytes, 1, 4, file );
-        if ( strcmp(data.bytes, "PLGN") != 0 ) {
+        if ( STREQUAL(data.bytes, "PLGN") ) {
             return CORRUPT_BINARY_FILE;
         }
 
@@ -275,7 +274,7 @@ int VectorTile::readBinaryFile ( const char* file_path ) {
 
 
         fread( data.bytes, 1, 4, file );
-        if ( strcmp(data.bytes, "PLAN") != 0 )
+        if ( STREQUAL(data.bytes, "PLAN") )
             return CORRUPT_BINARY_FILE;
 
         printMessage( DEBUG, "POLYGON %d\n", i );
@@ -299,7 +298,7 @@ int VectorTile::readBinaryFile ( const char* file_path ) {
         polygon.initPolygonWithPlane( base );
 
         fread( data.bytes, 1, 4, file );
-        if ( strcmp(data.bytes, "PNTS") != 0 )
+        if ( STREQUAL(data.bytes, "PNTS") )
             return CORRUPT_BINARY_FILE;
 
         fread( data.bytes, 1, 4, file );

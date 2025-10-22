@@ -64,6 +64,16 @@ public:
     double length ();
 
     /*
+    Transform the local vector to a unit vector
+    */
+    void toUnitVector ();
+
+    /*
+    Return the unit vector of the local vector
+    */
+    Vector getUnitVector ();
+
+    /*
     Print a description of the vector
     */
     void printVector ();

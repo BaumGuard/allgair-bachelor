@@ -113,24 +113,17 @@ Vector operator * ( double n, const Vector& v ) {
 
 bool Vector::linearDependant ( Vector v ) {
 
-    double
-        x1 = x,
-        y1 = y,
-        z1 = z,
-        x2 = v.getX(),
-        y2 = v.getY(),
-        z2 = v.getZ();
+    Vector
+        v1 = getUnitVector(),
+        v2 = v.getUnitVector();
 
     double
-        normalize1 = sqrt( x1*x1 + y1*y1 + z1*z1 ),
-        normalize2 = sqrt( x2*x2 + y2*y2 + z2*z2 );
-
-    x1 /= normalize1;
-    y1 /= normalize1;
-    z1 /= normalize1;
-    x2 /= normalize2;
-    y2 /= normalize2;
-    z2 /= normalize2;
+        x1 = v1.getX(),
+        y1 = v1.getY(),
+        z1 = v1.getZ(),
+        x2 = v2.getX(),
+        y2 = v2.getY(),
+        z2 = v2.getZ();
 
     if ( inRange(x1, 0.02) && inRange(x2, 0.02) ) {
         x1 = fabs( x1 );
@@ -169,6 +162,30 @@ bool Vector::linearDependant ( Vector v ) {
 double Vector::length () {
     return sqrt( x*x + y*y + z*z );
 } /* double Vector::length () */
+
+/*---------------------------------------------------------------*/
+
+void Vector::toUnitVector () {
+    if ( x == 0.0 && y == 0.0 && z == 0.0 ) return;
+
+    double divisor = sqrt( x*x + y*y + z*z );
+
+    x /= divisor;
+    y /= divisor;
+    z /= divisor;
+} /* void Vector::toUnitVector () */
+
+/*---------------------------------------------------------------*/
+
+Vector Vector::getUnitVector () {
+    if ( x == 0.0 && y == 0.0 && z == 0.0 ) {
+        return Vector( 0.0, 0.0, 0.0 );
+    }
+
+    double divisor = sqrt( x*x + y*y + z*z );
+
+    return Vector( x / divisor, y / divisor, z / divisor );
+} /* void Vector::getUnitVector () */
 
 /*---------------------------------------------------------------*/
 

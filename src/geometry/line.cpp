@@ -59,7 +59,7 @@ bool Line::pointIsOnLine ( Vector p ) {
         u_y = ( y_p - y_a ) / y_b,
         u_z = ( z_p - z_a ) / z_b;
 
-    if ( u_x == u_y && u_x == u_z && u_y == u_z ) {
+    if ( u_x == u_y && u_y == u_z ) {
         return true;
     }
     return false;

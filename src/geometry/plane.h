@@ -128,6 +128,9 @@ public:
     double getZ () const;
     double getN () const;
 
+    /*
+    Print a description of the plane
+    */
     void printPlane();
 
 private:

@@ -3,6 +3,7 @@
 #include "../status_codes.h"
 
 #include <cstdio>
+#include <cmath>
 
 /*---------------------------------------------------------------*/
 
@@ -64,8 +65,12 @@ int Plane::createPlaneFromCoordinates ( double x, double y, double z, double n )
 /*---------------------------------------------------------------*/
 
 Vector Plane::normalVector() {
-    Vector nv;
+    return Vector( x, y, z );
+} /* Vector Plane::normalVector() */
 
+/*---------------------------------------------------------------*/
+
+void Plane::toCoordinateForm() {
     double
         x_a = v1.getX(),
         y_a = v1.getY(),
@@ -75,26 +80,9 @@ Vector Plane::normalVector() {
         y_b = v2.getY(),
         z_b = v2.getZ();
 
-    double
-        x_nv = y_a * z_b - z_a * y_b,
-        y_nv = z_a * x_b - x_a * z_b,
-        z_nv = x_a * y_b - y_a * x_b;
-
-    nv.setX( x_nv );
-    nv.setY( y_nv );
-    nv.setZ( z_nv );
-
-    return nv;
-} /* Vector Plane::normalVector() */
-
-/*---------------------------------------------------------------*/
-
-void Plane::toCoordinateForm() {
-    Vector nv = normalVector();
-
-    x = nv.getX();
-    y = nv.getY();
-    z = nv.getZ();
+    x = y_a * z_b - z_a * y_b;
+    y = z_a * x_b - x_a * z_b;
+    z = x_a * y_b - y_a * x_b;
     n = -base.getX() * x - base.getY() * y - base.getZ() * z;
 } /* void Plane::toCoordinateForm() */
 
@@ -103,7 +91,7 @@ void Plane::toCoordinateForm() {
 bool Plane::isPointOnPlane ( Vector& p ) {
     double res = x * p.getX() + y * p.getY() + z * p.getZ() + n;
 
-    if ( res == 0.0 ) {
+    if ( fabs(res) < 0.01 ) {
         return true;
     }
     return false;
@@ -219,12 +207,23 @@ double Plane::distanceOfPointToPlane ( Vector& p ) {
     plumb_line.createLineFromBaseAndVector( p, nv );
 
     Vector intersect;
+    //intersect.printVector();
+
+
 
     lineIntersection( plumb_line, intersect );
 
-    return ( intersect - p ).length();
+    double dist = ( intersect - p ).length();
+    if ( dist > 5000000.0 ) {
+        printf("%f %f %f\n", x, y, z);
+        nv.printVector();
+    }
+
+    return dist;
 } /* double Plane::distanceOfPointToPlane ( Vector& p ) */
+
+/*---------------------------------------------------------------*/
 
 void Plane::printPlane() {
     printf("x=%f y=%f z=%f n=%f\n", x, y, z, n);
-}
+} /* void Plane::printPlane() */

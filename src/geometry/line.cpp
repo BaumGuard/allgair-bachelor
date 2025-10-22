@@ -162,3 +162,20 @@ bool Line::operator == ( Line& l ) {
     }
     return false;
 } /* bool Line::operator == ( Line& l ) */
+
+/*---------------------------------------------------------------*/
+
+void Line::printLine () {
+    printf(
+        "x_base=%f y_base=%f z_base=%f\n",
+        base.getX(),
+        base.getY(),
+        base.getZ()
+    );
+    printf(
+        "x_dir=%f y_dir=%f z_dir=%f\n",
+        direction.getX(),
+        direction.getY(),
+        direction.getZ()
+    );
+} /* void Line::printLine () */

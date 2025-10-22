@@ -4,9 +4,17 @@
 #include <iostream>
 
 int main () {
-    //GmlFile gmlfile ( "data/690_5336.gml" );
+
+    /*
+    GmlFile gmlfile ( "data/670_5318.gml" );
+    VectorTile tile ( gmlfile );
+    tile.createBinaryFile( "data/670_5318.data" );
+    */
+
+
     VectorTile tile;
-    //tile.createBinaryFile( "data/690_5336.data" );
-    tile.readBinaryFile( "data/690_5336.data" );
+    tile.readBinaryFile( "data/670_5318.data" );
+
+
     return 0;
 }

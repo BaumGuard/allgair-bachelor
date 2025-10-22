@@ -15,10 +15,23 @@ Returns:
 */
 double clampDouble ( double n, int precision = 2 );
 
-double roundDouble ( double n, int precision = 2 );
+/*
+Check if to variables are equal with a certain tolerance threshold
 
+Args:
+ - n1           : First number
+ - n2           : Second number
+ - threshold    : Tolerance threshold (must be positive)
+*/
 bool equalWithThreshold ( double n1, double n2, double threshold );
 
+/*
+Check if the absolute value of a variable n is less than a threshold
+
+Args:
+ - n            : Number to check
+ - threshold:   : Threshold (must be positive)
+*/
 bool inRange ( double n, double threshold );
 
 /*

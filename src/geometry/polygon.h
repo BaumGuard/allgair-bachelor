@@ -61,6 +61,8 @@ public:
     */
     std::vector<Vector> getPoints ();
 
+    unsigned int size () {return points.size();}
+
 private:
     std::vector<Vector> points;
     Plane base_plane;

@@ -85,6 +85,12 @@ public:
     */
     bool operator == ( Line& l );
 
+
+    /*
+    Print a description of the line
+    */
+    void printLine ();
+
 private:
     Vector
         base,

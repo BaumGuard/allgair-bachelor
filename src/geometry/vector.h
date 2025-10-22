@@ -1,6 +1,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include <cstdio>
 #define LINDEP_THRESHOLD 0.05
 
 /*
@@ -62,6 +63,11 @@ public:
      - Length of the local vector
     */
     double length ();
+
+    /*
+    Print a description of the vector
+    */
+    void printVector ();
 
 private:
     double

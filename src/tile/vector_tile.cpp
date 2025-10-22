@@ -6,8 +6,8 @@
 #include "../raw_data/surface.h"
 #include "../utils.h"
 
-#include <cmath>
 #include <cstring>
+#include <cstdint>
 
 /*---------------------------------------------------------------*/
 

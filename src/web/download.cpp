@@ -1,8 +1,7 @@
 #include "download.h"
 
 #include <curl/curl.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
 #include <unistd.h>
 
 #include "../status_codes.h"

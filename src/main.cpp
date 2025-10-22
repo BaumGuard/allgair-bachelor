@@ -1,8 +1,6 @@
 #include "raw_data/gmlfile.h"
 #include "tile/vector_tile.h"
 
-#include <iostream>
-
 int main () {
 
     /*

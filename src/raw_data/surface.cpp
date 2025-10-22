@@ -1,5 +1,7 @@
 #include "surface.h"
 
+#include <iostream>
+
 /*---------------------------------------------------------------*/
 
 void printSurfaceDescription ( Surface* surface ) {

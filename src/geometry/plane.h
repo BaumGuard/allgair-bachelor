@@ -3,7 +3,6 @@
 
 #include "vector.h"
 #include "line.h"
-#include "../utils.h"
 
 /*
 Class to represent planes in 3D space

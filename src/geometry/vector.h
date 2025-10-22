@@ -1,7 +1,6 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include <cstdio>
 #define LINDEP_THRESHOLD 0.05
 
 /*

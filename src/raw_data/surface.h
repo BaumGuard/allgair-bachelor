@@ -4,7 +4,6 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include "../geometry/vector.h"
 

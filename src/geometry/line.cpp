@@ -3,9 +3,6 @@
 #include "../utils.h"
 #include "../status_codes.h"
 
-#include <cmath>
-
-
 /*---------------------------------------------------------------*/
 
 int Line::createLineFromTwoPoints ( Vector& p1, Vector& p2 ) {
@@ -141,7 +138,7 @@ int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) {
     if ( avg == u_comp ) {
         intersect = base + u_comp * direction;
 
-        if ( factor != NULL ) {
+        if ( factor != nullptr ) {
             *factor = v;
         }
         return LINES_INTERSECT;

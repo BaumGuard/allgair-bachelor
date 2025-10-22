@@ -1,7 +1,6 @@
 #include "vector.h"
 
 #include <cmath>
-#include <cstdio>
 
 #include "../utils.h"
 

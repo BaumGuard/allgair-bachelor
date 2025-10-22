@@ -1,8 +1,12 @@
 #include <fstream>
 
 #include "gmlfile.h"
+
 #include "surface.h"
+#include "../geometry/polygon.h"
 #include "../status_codes.h"
+
+#include <iostream>
 
 /*---------------------------------------------------------------*/
 

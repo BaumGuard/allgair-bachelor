@@ -3,8 +3,7 @@
 #include "../exceptions/exception.h"
 #include "../status_codes.h"
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
 
 /*---------------------------------------------------------------*/
 

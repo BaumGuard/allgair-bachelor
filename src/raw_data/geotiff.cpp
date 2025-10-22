@@ -2,7 +2,6 @@
 
 #include "../status_codes.h"
 
-#include <stdint.h>
 #include <tiffio.h>
 
 /*---------------------------------------------------------------*/
@@ -21,10 +20,11 @@ GeoTiffFile::GeoTiffFile ( char* file_path ) {
         buf_size;
 
     TIFF* tif = TIFFOpen( file_path, "r" );
+    /*
     if ( !tif ) {
         return FILE_NOT_FOUND;
     }
-
+    */
     TIFFGetField( tif, TIFFTAG_IMAGEWIDTH, &width );
 
     buf_size = TIFFScanlineSize(tif);
@@ -60,7 +60,7 @@ GeoTiffFile::GeoTiffFile ( char* file_path ) {
     TIFFClose( tif );
     delete[] buf;
 
-    return CREATION_SUCCEEDED;
+    //return CREATION_SUCCEEDED;
 } /* GeoTiffFile::GeoTiffFile ( char* file_path ) */
 
 /*---------------------------------------------------------------*/
@@ -77,6 +77,6 @@ float* GeoTiffFile::getData () {
 
 /*---------------------------------------------------------------*/
 
-unsigned int getTileWidth () {
+unsigned int GeoTiffFile::getTileWidth () {
     return tile_width;
 }

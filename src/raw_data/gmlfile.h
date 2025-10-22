@@ -6,7 +6,7 @@
 
 #include "../geometry/vector.h"
 #include "surface.h"
-#include "../geometry/polygon.h"
+
 
 class GmlFile {
 public:

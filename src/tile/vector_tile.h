@@ -3,8 +3,12 @@
 
 #include "../geometry/polygon.h"
 #include "../raw_data/gmlfile.h"
+#include "../status_codes.h"
 
 #include <vector>
+
+
+#define PLANE_DISTANCE_THRESHOLD 0.1
 
 /*
 Class to save vector data (surfaces) read from a GML file
@@ -44,6 +48,40 @@ public:
     Return a reference to the std::vector with the Polygon objects
     */
     std::vector<Polygon>& getPolygons ();
+
+
+
+    /* INPUT / OUTPUT */
+
+    /*
+    Serialize the tile object and write it to a file in a binary
+    format
+
+    Args:
+     - file_path : Path to the binary file that should be created
+
+    Returns:
+     - Status code
+        - BINARY_FILE_NOT_CREATABLE
+        - BINARY_FILE_CREATED (Success)
+    */
+    int createBinaryFile ( char* file_path );
+
+    /*
+    Deserialize a binary file and initialize the tile object with
+    the data in the file
+
+    Args:
+     - file_path : Path to the binary file to be read and
+                   deserialized
+
+    Returns:
+     - Status code
+        - BINARY_FILE_NOT_FOUND
+        - CORRUPT_BINARY_FILE
+        - READ_BINARY_FILE_SUCCESS (Success)
+    */
+    int readBinaryFile ( char* file_path );
 
 private:
     std::vector<Polygon> polygons;

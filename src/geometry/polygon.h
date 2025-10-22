@@ -56,6 +56,11 @@ public:
     */
     Plane getBasePlane();
 
+    /*
+    Return a reference to the point list of the polygon
+    */
+    std::vector<Vector> getPoints ();
+
 private:
     std::vector<Vector> points;
     Plane base_plane;

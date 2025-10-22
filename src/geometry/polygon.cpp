@@ -105,3 +105,9 @@ bool Polygon::isPointInPolygon ( Vector& p ) {
 Plane Polygon::getBasePlane () {
     return base_plane;
 } /* Plane Polygon::getBasePlane () */
+
+/*---------------------------------------------------------------*/
+
+std::vector<Vector> Polygon::getPoints () {
+    return points;
+} /* std::vector<Vector>& getPoints () */

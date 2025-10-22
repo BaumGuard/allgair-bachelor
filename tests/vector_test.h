@@ -130,7 +130,7 @@ TEST( VectorTest, LinearDependant ) {
 TEST( VectorTest, LinearIndependant ) {
     Vector
         v1 ( 1.0, -3.0, 2.5 ),
-        v2 ( -3.0, 8.5, -7.5 );
+        v2 ( -3.0, 4.0, -7.5 );
 
     EXPECT_FALSE( v1.linearDependant(v2) );
 }

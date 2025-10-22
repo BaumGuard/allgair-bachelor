@@ -47,6 +47,23 @@ public:
     int createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 );
 
     /*
+    Create a plane from the coordinates x, y, z, n
+
+    Args:
+     - x : x coordinate
+     - y : y coordinate
+     - z : z coordinate
+     - n : n coordinate
+
+    Returns:
+     - Status code
+        - ALL_COORDINATES_ZERO
+          (At least one of the coordinates x, y and z must be != 0)
+        - CREATION_SUCCEEDED (Success)
+    */
+    int createPlaneFromCoordinates ( double x, double y, double z, double n );
+
+    /*
     Return the normal vector of the plane as Vector
     */
     Vector normalVector();
@@ -93,12 +110,25 @@ public:
     */
     int reflectLine ( Line& old_line, Line& new_line );
 
+    /*
+    Calculate the distance from a point to a plane
+
+    Args:
+     - p : Point as Vector
+    */
     double distanceOfPointToPlane ( Vector& p );
 
     /* GETTERS */
     Vector getBaseVector() const;
     Vector getVector1() const;
     Vector getVector2() const;
+
+    double getX () const;
+    double getY () const;
+    double getZ () const;
+    double getN () const;
+
+    void printPlane();
 
 private:
     double

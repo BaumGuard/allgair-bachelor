@@ -1,6 +1,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#define LINDEP_THRESHOLD 0.05
+
 /*
 Class to represent 3D vectors with vector arithmetics
 */

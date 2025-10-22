@@ -2,6 +2,8 @@
 
 #include "../status_codes.h"
 
+#include <cstdio>
+
 /*---------------------------------------------------------------*/
 
 int Plane::createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) {
@@ -38,6 +40,26 @@ int Plane::createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 
 
     return CREATION_SUCCEEDED;
 } /* int Plane::createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 ) */
+
+/*---------------------------------------------------------------*/
+
+int Plane::createPlaneFromCoordinates ( double x, double y, double z, double n ) {
+
+    if ( x == 0.0 && y == 0.0 && z == 0.0 ) {
+        return ALL_COORDINATES_ZERO;
+    }
+
+    this->x = x;
+    this->y = y;
+    this->z = z;
+    this->n = n;
+
+    base =  Vector( 0.0, 0.0, -n / z );
+    v1 =    Vector( 1.0, 0.0, -x / z );
+    v2 =    Vector( 0.0, 1.0, -y / z );
+
+    return CREATION_SUCCEEDED;
+}
 
 /*---------------------------------------------------------------*/
 
@@ -171,6 +193,22 @@ Vector Plane::getVector2() const {
     return v2;
 } /* Vector Plane::getVector2() const */
 
+double Plane::getX () const {
+    return x;
+} /* double getX () const */
+
+double Plane::getY () const {
+    return y;
+} /* double getY () const */
+
+double Plane::getZ () const {
+    return z;
+} /* double getZ () const */
+
+double Plane::getN () const {
+    return n;
+} /* double getX () const */
+
 /*---------------------------------------------------------------*/
 
 double Plane::distanceOfPointToPlane ( Vector& p ) {
@@ -186,3 +224,7 @@ double Plane::distanceOfPointToPlane ( Vector& p ) {
 
     return ( intersect - p ).length();
 } /* double Plane::distanceOfPointToPlane ( Vector& p ) */
+
+void Plane::printPlane() {
+    printf("x=%f y=%f z=%f n=%f\n", x, y, z, n);
+}

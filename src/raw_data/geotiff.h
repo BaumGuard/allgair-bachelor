@@ -25,7 +25,7 @@ public:
     /*
     Return the array with the data from the GeoTIFF file
     */
-    float getData ();
+    float* getData ();
 
     /*
     Return the width of the tile

@@ -13,7 +13,13 @@ Args:
 Returns:
  - Clamped double value
 */
-double clampDouble ( double n );
+double clampDouble ( double n, int precision = 2 );
+
+double roundDouble ( double n, int precision = 2 );
+
+bool equalWithThreshold ( double n1, double n2, double threshold );
+
+bool inRange ( double n, double threshold );
 
 /*
 Extract the file name from a given file path or URL

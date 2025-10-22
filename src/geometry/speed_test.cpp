@@ -35,6 +35,9 @@ void* own ( void* arg ) {
         plane1,
         plane2;
 
+    clock_t start, end;
+    start = clock();
+
     for ( int i=0; i<NUM_EXECUTIONS; i++ ) {
          p1 = Vector( random(25.0), random(4.2), random(97.36) );
          p2 = Vector( random(1.5), random(37.8), random(27.0) );
@@ -43,23 +46,17 @@ void* own ( void* arg ) {
          v2 = Vector( random(126.7), random(0.6), random(60.1) );
 
          l1.createLineFromTwoPoints( p1, p2 );
-         l2.createLineFromBaseAndVector( p1, v1 );
+         l2.createLineFromTwoPoints( p1, v1 );
 
-         l1.pointIsOnLine( p2 );
-/*
-         l1.lineIntersect( l2, intersect );
-*/
          plane1.createPlaneFromPoints( p1, p2, v1 );
-         plane2.createPlaneFromBaseAndVectors( p1, v1, v2 );
-/*
-         plane1.normalVector();
-
-         plane1.lineIntersection( l1, intersect );
-         plane2.reflectLine( l1, l2 );
-         */
+         plane2.createPlaneFromPoints( p1, v1, v2 );
     }
 
-    printf("own finished\n");
+    end = clock();
+
+
+
+    printf("own finished after %f s\n", (double)(end-start) / CLOCKS_PER_SEC);
     return NULL;
 }
 
@@ -79,6 +76,9 @@ void* eigen ( void* arg ) {
         plane1,
         plane2;
 
+    clock_t start, end;
+    start = clock();
+
     for ( int i=0; i<NUM_EXECUTIONS; i++ ) {
         p1 = Vector3d( random(25.0), random(4.2), random(97.36) );
         p2 = Vector3d( random(1.5), random(37.8), random(27.0) );
@@ -91,11 +91,11 @@ void* eigen ( void* arg ) {
 
         plane1 = Hyperplane<double, 3>::Through( p1, p2, v1 );
         plane2 = Hyperplane<double, 3>::Through( p1, v1, v2 );
-
-        l1.intersectionPoint( plane1 );
     }
 
-    printf("eigen finished\n");
+    end = clock();
+
+    printf("eigen finished after %f\n", (double)(end-start) / CLOCKS_PER_SEC);
     return NULL;
 }
 

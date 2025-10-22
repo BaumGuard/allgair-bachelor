@@ -166,13 +166,15 @@ bool Line::operator == ( Line& l ) {
 /*---------------------------------------------------------------*/
 
 void Line::printLine () {
-    printf(
+    printMessage(
+        NORMAL,
         "x_base=%f y_base=%f z_base=%f\n",
         base.getX(),
         base.getY(),
         base.getZ()
     );
-    printf(
+    printMessage(
+        NORMAL,
         "x_dir=%f y_dir=%f z_dir=%f\n",
         direction.getX(),
         direction.getY(),

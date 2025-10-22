@@ -3,6 +3,22 @@
 
 #define NUM_DECIMAL_PLACES 10
 
+enum MessageTypes {
+    NORMAL,
+    DEBUG,
+    ERROR
+};
+
+/*
+Print a message to a specified output sink
+
+Args:
+ - type     : Output type (NORMAL, DEBUG, ERROR)
+ - format   : printf format string
+ - ...      : Variable argument list for printf
+*/
+void printMessage ( int type, const char* format, ... );
+
 /*
 Clamp a double variable to a number of decimal places
 to prevent false negative comparisons

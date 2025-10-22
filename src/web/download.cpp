@@ -43,7 +43,7 @@ int downloadFile ( char* url, char* dir, bool force ) {
     CURLcode err = curl_easy_perform( curl );
 
     if ( err != CURLE_OK ) {
-        fprintf( stderr, "ERROR: Invalid URL '%s'\n", url );
+        printMessage( ERROR, "ERROR: Invalid URL '%s'\n", url );
         return INVALID_URL;
     }
 

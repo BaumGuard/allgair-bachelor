@@ -34,8 +34,10 @@ VectorTile::VectorTile ( GmlFile& gmlfile ) {
 
     subtrahend.setZ( 0.0 );
 
+    double dist;
+
     for ( int i=0; i<len; i++ ) {
-        bool point_to_far_away = false;
+        bool point_too_far_away = false;
 
         p1 = surfaces[i].pos_list[0];
 
@@ -80,19 +82,18 @@ VectorTile::VectorTile ( GmlFile& gmlfile ) {
 
             if ( !base_plane.isPointOnPlane(pos) ) {
 
-                double dist = base_plane.distanceOfPointToPlane(pos);
+                dist = base_plane.distanceOfPointToPlane(pos);
 
                 if ( dist < PLANE_DISTANCE_THRESHOLD ) {
                     corr_vec = base_plane.normalVector();
                     corr_line.createLineFromBaseAndVector( pos, corr_vec );
-
 
                     base_plane.lineIntersection( corr_line, corr_point );
 
                     polygon.addPoint( corr_point );
                 }
                 else {
-                    point_to_far_away = true;
+                    point_too_far_away = true;
                     break;
                 }
             } /* if ( !base_plane.isPointOnPlane(pos) ) */
@@ -101,7 +102,7 @@ VectorTile::VectorTile ( GmlFile& gmlfile ) {
             }
         } /* for ( int j=0; j<len_pos_list; j++ ) */
 
-        if ( !point_to_far_away ) {
+        if ( !point_too_far_away ) {
             polygons.push_back( polygon );
             yes++;
         }
@@ -110,7 +111,11 @@ VectorTile::VectorTile ( GmlFile& gmlfile ) {
         }
     } /* for ( int i=0; i<len; i++ ) */
 
-    printf( "yes=%d no=%d -> %f %%\n", yes, no, (double)yes*100.0 / (double)(yes+no) );
+    printMessage(
+        DEBUG,
+        "yes=%d no=%d -> %f %%\n", yes, no,
+        (double)yes*100.0 / (double)(yes+no)
+    );
 } /* VectorTile::VectorTile ( GmlFile& gmlfile ) */
 
 /*---------------------------------------------------------------*/
@@ -144,7 +149,7 @@ union data_block {
     char bytes [4];
 };
 
-int VectorTile::createBinaryFile ( char* file_path ) {
+int VectorTile::createBinaryFile ( const char* file_path ) {
     uint32_t byte_count = 0;
 
     union data_block data_sect;
@@ -234,7 +239,7 @@ int VectorTile::createBinaryFile ( char* file_path ) {
 
 /*---------------------------------------------------------------*/
 
-int VectorTile::readBinaryFile ( char* file_path ) {
+int VectorTile::readBinaryFile ( const char* file_path ) {
     FILE* file = fopen( file_path, "rb" );
 
     union data_block data;
@@ -273,7 +278,7 @@ int VectorTile::readBinaryFile ( char* file_path ) {
         if ( strcmp(data.bytes, "PLAN") != 0 )
             return CORRUPT_BINARY_FILE;
 
-        printf("POLYGON %d\n", i);
+        printMessage( DEBUG, "POLYGON %d\n", i );
 
         fread( data.bytes, 1, 4, file );
         x = data.f32;
@@ -287,7 +292,7 @@ int VectorTile::readBinaryFile ( char* file_path ) {
         fread( data.bytes, 1, 4, file );
         n = data.f32;
 
-        printf("Plane\n\tx=%f y=%f z=%f n=%f\n", x, y, z, n);
+        printMessage( DEBUG, "Plane\n\tx=%f y=%f z=%f n=%f\n", x, y, z, n );
 
         base.createPlaneFromCoordinates( x, y, z, n );
 
@@ -300,7 +305,7 @@ int VectorTile::readBinaryFile ( char* file_path ) {
         fread( data.bytes, 1, 4, file );
         n_points = data.u32;
 
-        printf("Points\n");
+        printMessage( DEBUG, "Points\n" );
 
         for ( uint32_t j = 0; j < n_points; j++ ) {
             fread( data.bytes, 1, 4, file );
@@ -312,14 +317,14 @@ int VectorTile::readBinaryFile ( char* file_path ) {
             fread( data.bytes, 1, 4, file );
             z = data.f32;
 
-            printf("\tx=%.03f y=%.03f z=%.03f\n", x, y, z);
+            printMessage( DEBUG, "\tx=%.03f y=%.03f z=%.03f\n", x, y, z );
 
             point = Vector( x, y, z );
 
             polygon.addPoint( point );
         }
 
-        printf("\n-------------------------\n\n");
+        printMessage( DEBUG, "\n-------------------------\n\n" );
 
         polygons.push_back( polygon );
     }

@@ -174,5 +174,5 @@ double Vector::length () {
 /*---------------------------------------------------------------*/
 
 void Vector::printVector () {
-    printf("x=%f y=%f z=%f\n", x, y, z);
+    printMessage( NORMAL, "x=%f y=%f z=%f\n", x, y, z );
 } /* void Vector::printVector () */

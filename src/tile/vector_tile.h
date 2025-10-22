@@ -65,7 +65,7 @@ public:
         - BINARY_FILE_NOT_CREATABLE
         - BINARY_FILE_CREATED (Success)
     */
-    int createBinaryFile ( char* file_path );
+    int createBinaryFile ( const char* file_path );
 
     /*
     Deserialize a binary file and initialize the tile object with
@@ -81,7 +81,7 @@ public:
         - CORRUPT_BINARY_FILE
         - READ_BINARY_FILE_SUCCESS (Success)
     */
-    int readBinaryFile ( char* file_path );
+    int readBinaryFile ( const char* file_path );
 
 private:
     std::vector<Polygon> polygons;

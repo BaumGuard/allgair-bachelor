@@ -200,30 +200,19 @@ double Plane::getN () const {
 /*---------------------------------------------------------------*/
 
 double Plane::distanceOfPointToPlane ( Vector& p ) {
-    Line plumb_line;
-
     Vector nv = normalVector();
 
+    Line plumb_line;
     plumb_line.createLineFromBaseAndVector( p, nv );
 
     Vector intersect;
-    //intersect.printVector();
-
-
-
     lineIntersection( plumb_line, intersect );
 
-    double dist = ( intersect - p ).length();
-    if ( dist > 5000000.0 ) {
-        printf("%f %f %f\n", x, y, z);
-        nv.printVector();
-    }
-
-    return dist;
+    return ( intersect - p ).length();
 } /* double Plane::distanceOfPointToPlane ( Vector& p ) */
 
 /*---------------------------------------------------------------*/
 
 void Plane::printPlane() {
-    printf("x=%f y=%f z=%f n=%f\n", x, y, z, n);
+    printMessage( NORMAL, "x=%f y=%f z=%f n=%f\n", x, y, z, n );
 } /* void Plane::printPlane() */

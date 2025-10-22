@@ -2,8 +2,35 @@
 #include "status_codes.h"
 
 #include <cmath>
-#include "string.h"
-#include "stdio.h"
+#include <cstring>
+#include <cstdio>
+#include <cstdarg>
+
+/*---------------------------------------------------------------*/
+
+void printMessage ( int type, const char* format, ... ) {
+    va_list argptr;
+
+    switch ( type ) {
+        case NORMAL:
+            va_start(argptr, format);
+            vfprintf(stdout, format, argptr);
+            va_end(argptr);
+            break;
+
+        case DEBUG:
+            va_start(argptr, format);
+            vfprintf(stdout, format, argptr);
+            va_end(argptr);
+            break;
+
+        case ERROR:
+            va_start(argptr, format);
+            vfprintf(stderr, format, argptr);
+            va_end(argptr);
+            break;
+    }
+} /* void printMessage ( int type, char* format, ... ) */
 
 /*---------------------------------------------------------------*/
 

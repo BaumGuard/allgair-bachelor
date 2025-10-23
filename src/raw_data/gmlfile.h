@@ -11,14 +11,18 @@
 class GmlFile {
 public:
     /*
-    CONSTRUCTOR
-
-    Extract the necessary data from a given GML file
+    Read a GML file and extract the surfaces and the coordinates
+    of the lower and upper corner
 
     Args:
     - file_path : Path to the GML file
+
+    Returns:
+     - Status code
+        - NO_SURFACES
+        - CREATION_SUCCEEDED (Success)
     */
-    GmlFile ( std::string file_path );
+    int readGmlFile ( std::string file_path );
 
 
     /* GETTERS */

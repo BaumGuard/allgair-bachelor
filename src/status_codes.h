@@ -40,7 +40,10 @@ enum Statuscodes {
     CORRUPT_BINARY_FILE,
     READ_BINARY_FILE_SUCCESS,
     BINARY_FILE_NOT_CREATABLE,
-    BINARY_FILE_CREATED
+    BINARY_FILE_CREATED,
+
+    // Raw data
+    NO_SURFACES
 };
 
 #endif

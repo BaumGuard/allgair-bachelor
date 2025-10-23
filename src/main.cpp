@@ -3,16 +3,18 @@
 
 int main () {
 
+
+    GmlFile gmlfile;
+    gmlfile.readGmlFile( "data/540_5552.gml" );
+    VectorTile tile;
+    tile.fromGmlFile( gmlfile );
+    //tile.createBinaryFile( "data/670_5318.data" );
+
+
     /*
-    GmlFile gmlfile ( "data/670_5318.gml" );
-    VectorTile tile ( gmlfile );
-    tile.createBinaryFile( "data/670_5318.data" );
-    */
-
-
     VectorTile tile;
     tile.readBinaryFile( "data/670_5318.data" );
-
+    */
 
     return 0;
 }

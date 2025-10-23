@@ -10,119 +10,6 @@
 
 /*---------------------------------------------------------------*/
 
-VectorTile::VectorTile ( GmlFile& gmlfile ) {
-    Vector p1, p2, p3;
-    Vector dv1, dv2;
-
-    Plane base_plane;
-
-    std::vector<Surface>& surfaces = gmlfile.getSurfaces();
-
-    int len = surfaces.size();
-    int len_pos_list;
-
-    Vector
-        pos,
-        subtrahend = gmlfile.getLowerCorner(),
-        corr_vec,
-        corr_point;
-
-    Line corr_line;
-
-    int yes = 0, no = 0;
-
-    subtrahend.setZ( 0.0 );
-
-    double dist;
-
-    for ( int i=0; i<len; i++ ) {
-        bool point_too_far_away = false;
-
-        p1 = surfaces[i].pos_list[0];
-
-        int p2_index = 0;
-
-
-        len_pos_list = surfaces[i].pos_list.size();
-
-        for ( int k = 1; k < len_pos_list; k++ ) {
-            p2 = surfaces[i].pos_list[k];
-            dv1 = p2 - p1;
-
-            if ( dv1.length() > 1.0 ) {
-                p2_index = k;
-                break;
-            }
-        }
-
-
-        for ( int k=1; k<len_pos_list; k++ ) {
-            if ( k == p2_index ) {
-                continue;
-            }
-            p3 = surfaces[i].pos_list[k];
-
-            dv2 = p3 - p1;
-
-            if ( !dv1.linearDependant(dv2) && dv2.length() > 0.05 ) {
-                break;
-            }
-        }
-
-        base_plane.createPlaneFromPoints( p1, p2, p3 );
-
-        Polygon polygon;
-        polygon.initPolygonWithPlane( base_plane );
-
-        len_pos_list = surfaces[i].pos_list.size();
-
-        for ( int j=0; j<len_pos_list; j++ ) {
-            pos = surfaces[i].pos_list[j];
-
-            if ( !base_plane.isPointOnPlane(pos) ) {
-
-                dist = base_plane.distanceOfPointToPlane(pos);
-
-                if ( dist < PLANE_DISTANCE_THRESHOLD ) {
-                    corr_vec = base_plane.normalVector();
-                    corr_line.createLineFromBaseAndVector( pos, corr_vec );
-
-                    base_plane.lineIntersection( corr_line, corr_point );
-
-                    polygon.addPoint( corr_point );
-                }
-                else {
-                    point_too_far_away = true;
-                    break;
-                }
-            } /* if ( !base_plane.isPointOnPlane(pos) ) */
-            else {
-                polygon.addPoint( pos );
-            }
-        } /* for ( int j=0; j<len_pos_list; j++ ) */
-
-        if ( !point_too_far_away ) {
-            polygons.push_back( polygon );
-            yes++;
-        }
-        else {
-            no++;
-        }
-    } /* for ( int i=0; i<len; i++ ) */
-
-    printMessage(
-        DEBUG,
-        "yes=%d no=%d -> %f %%\n", yes, no,
-        (double)yes*100.0 / (double)(yes+no)
-    );
-} /* VectorTile::VectorTile ( GmlFile& gmlfile ) */
-
-/*---------------------------------------------------------------*/
-
-VectorTile::VectorTile () {}
-
-/*---------------------------------------------------------------*/
-
 Vector VectorTile::getLowerCorner () {
     return lower_corner;
 } /* Vector VectorTile::getLowerCorner () */
@@ -332,3 +219,114 @@ int VectorTile::readBinaryFile ( const char* file_path ) {
 
     return READ_BINARY_FILE_SUCCESS;
 } /* int readBinaryFile ( char* file_path ) */
+
+/*---------------------------------------------------------------*/
+
+int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
+    Vector p1, p2, p3;
+    Vector dv1, dv2;
+
+    Plane base_plane;
+
+    std::vector<Surface>& surfaces = gmlfile.getSurfaces();
+
+    int len = surfaces.size();
+    int len_pos_list;
+
+    Vector
+        pos,
+        subtrahend = gmlfile.getLowerCorner(),
+        corr_vec,
+        corr_point;
+
+    Line corr_line;
+
+    int yes = 0, no = 0;
+
+    subtrahend.setZ( 0.0 );
+
+    double dist;
+
+    for ( int i=0; i<len; i++ ) {
+        bool point_too_far_away = false;
+
+        p1 = surfaces[i].pos_list[0];
+
+        int p2_index = 0;
+
+
+        len_pos_list = surfaces[i].pos_list.size();
+
+        for ( int k = 1; k < len_pos_list; k++ ) {
+            p2 = surfaces[i].pos_list[k];
+            dv1 = p2 - p1;
+
+            if ( dv1.length() > 1.0 ) {
+                p2_index = k;
+                break;
+            }
+        }
+
+
+        for ( int k=1; k<len_pos_list; k++ ) {
+            if ( k == p2_index ) {
+                continue;
+            }
+            p3 = surfaces[i].pos_list[k];
+
+            dv2 = p3 - p1;
+
+            if ( !dv1.linearDependant(dv2) && dv2.length() > 0.05 ) {
+                break;
+            }
+        }
+
+        base_plane.createPlaneFromPoints( p1, p2, p3 );
+
+        Polygon polygon;
+        polygon.initPolygonWithPlane( base_plane );
+
+        len_pos_list = surfaces[i].pos_list.size();
+
+        for ( int j=0; j<len_pos_list; j++ ) {
+            pos = surfaces[i].pos_list[j];
+
+            if ( !base_plane.isPointOnPlane(pos) ) {
+
+                dist = base_plane.distanceOfPointToPlane(pos);
+
+                if ( dist < PLANE_DISTANCE_THRESHOLD ) {
+                    corr_vec = base_plane.normalVector();
+                    corr_line.createLineFromBaseAndVector( pos, corr_vec );
+
+                    base_plane.lineIntersection( corr_line, corr_point );
+
+                    polygon.addPoint( corr_point );
+                }
+                else {
+                    point_too_far_away = true;
+                    break;
+                }
+            } /* if ( !base_plane.isPointOnPlane(pos) ) */
+            else {
+                polygon.addPoint( pos );
+            }
+        } /* for ( int j=0; j<len_pos_list; j++ ) */
+
+        if ( !point_too_far_away ) {
+            polygons.push_back( polygon );
+            yes++;
+        }
+        else {
+            no++;
+        }
+    } /* for ( int i=0; i<len; i++ ) */
+
+    printMessage(
+        DEBUG,
+        "yes=%d no=%d -> %f %%\n", yes, no,
+        (double)yes*100.0 / (double)(yes+no)
+    );
+
+    return CREATION_SUCCEEDED;
+} /* int VectorTile::fromGmlFile ( GmlFile& gmlfile ) */

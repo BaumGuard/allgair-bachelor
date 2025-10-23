@@ -15,22 +15,6 @@ Class to save vector data (surfaces) read from a GML file
 */
 class VectorTile {
 public:
-    /* CONSTRUCTORS */
-
-    /*
-    Read vector data from a GML file and convert it to an
-    std::vector of Polygon objects
-
-    Args:
-     - gmlfile : GmlFile instance
-    */
-    VectorTile ( GmlFile& gmlfile );
-
-    /*
-    Default constructor
-    */
-    VectorTile ();
-
 
     /* GETTERS */
 
@@ -54,18 +38,16 @@ public:
     /* INPUT / OUTPUT */
 
     /*
-    Serialize the tile object and write it to a file in a binary
-    format
+    Parse a GML file and initialize the tile with the data in the file
 
     Args:
-     - file_path : Path to the binary file that should be created
+     - file_path : Path to the binary file that should be read and parsed
 
     Returns:
      - Status code
-        - BINARY_FILE_NOT_CREATABLE
-        - BINARY_FILE_CREATED (Success)
+        - CREATION_SUCCEEDED
     */
-    int createBinaryFile ( const char* file_path );
+    int fromGmlFile ( GmlFile& gmlfile );
 
     /*
     Deserialize a binary file and initialize the tile object with
@@ -82,6 +64,22 @@ public:
         - READ_BINARY_FILE_SUCCESS (Success)
     */
     int readBinaryFile ( const char* file_path );
+
+    /*
+    Serialize the tile object and write it to a file in a binary
+    format
+
+    Args:
+     - file_path : Path to the binary file that should be created
+
+    Returns:
+     - Status code
+        - BINARY_FILE_NOT_CREATABLE
+        - BINARY_FILE_CREATED (Success)
+    */
+    int createBinaryFile ( const char* file_path );
+
+
 
 private:
     std::vector<Polygon> polygons;

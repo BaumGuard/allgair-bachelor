@@ -8,6 +8,24 @@
 
 #include <iostream>
 
+std::string trimString ( std::string str ) {
+    std::string trimmed;
+
+    bool found_start = false;
+    unsigned int len = str.length();
+    for ( unsigned int i=0; i<len; i++ ) {
+        if ( str[i] != ' ' ) {
+            found_start = true;
+        }
+
+        if ( found_start ) {
+            trimmed += str[i];
+        }
+    }
+
+    return trimmed;
+}
+
 /*---------------------------------------------------------------*/
 
 /*
@@ -84,7 +102,13 @@ Args:
 std::string getNextLineWithXmlTag( std::ifstream& file, std::string xml_tag ) {
     std::string line = "";
 
+    if ( xml_tag.back() == '>' ) {
+        xml_tag.pop_back();
+    }
+
     while ( getline(file, line) ) {
+        line = trimString( line );
+
         if ( line.starts_with(xml_tag) ) {
             return line;
         }
@@ -117,7 +141,9 @@ std::vector<Vector> valueListToVectorList ( std::string value_list ) {
             current_value = "";
         }
     }
-    values.push_back( stod(current_value) );
+    if ( current_value != "" ) {
+        values.push_back( stod(current_value) );
+    }
 
     if ( values.size() % 3 != 0 ) {
         // TODO: Fehler
@@ -143,11 +169,10 @@ std::vector<Vector> valueListToVectorList ( std::string value_list ) {
 /*---------------------------------------------------------------*/
 
 
-GmlFile::GmlFile ( std::string file_path ) {
+int GmlFile::readGmlFile ( std::string file_path ) {
     std::ifstream gmlfile ( file_path );
     if ( !gmlfile.is_open() ) {
-        std::cerr << "ERROR: Cannot open the GML file '" << file_path << "'\n";
-        return;
+        return FILE_NOT_FOUND;
     }
 
     std::string
@@ -240,6 +265,11 @@ GmlFile::GmlFile ( std::string file_path ) {
 
         surfaces.push_back( surface );
     }
+
+    if ( surfaces.size() == 0 ) {
+        return NO_SURFACES;
+    }
+    return CREATION_SUCCEEDED;
 
 } /* GmlFile::GmlFile ( std::string file_path ) */
 

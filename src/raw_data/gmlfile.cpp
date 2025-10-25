@@ -190,10 +190,9 @@ int GmlFile::readGmlFile ( std::string file_path ) {
     upper_corner = valueListToVectorList( line_content )[0];
 
 
-    Surface surface;
-
-
     while ( true ) {
+
+        Surface surface;
 
         getNextLineWithXmlTag( gmlfile, "<bldg:boundedBy>" );
         line = getNextLineWithXmlTag( gmlfile, "<bldg:" );
@@ -271,7 +270,7 @@ int GmlFile::readGmlFile ( std::string file_path ) {
     }
     return CREATION_SUCCEEDED;
 
-} /* GmlFile::GmlFile ( std::string file_path ) */
+} /* int GmlFile::readGmlFile ( std::string file_path ) */
 
 /*---------------------------------------------------------------*/
 

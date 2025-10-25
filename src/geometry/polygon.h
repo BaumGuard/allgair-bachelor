@@ -63,6 +63,8 @@ public:
 
     unsigned int size () {return points.size();}
 
+    void pointListReserveSpace ( int size );
+
 private:
     std::vector<Vector> points;
     Plane base_plane;

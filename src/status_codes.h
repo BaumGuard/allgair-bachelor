@@ -3,47 +3,47 @@
 
 enum Statuscodes {
     // Line
-    LINES_INTERSECT,
-    LINES_NO_INTERSECT,
-    LINES_IDENTICAL,
-    LINES_PARALLEL,
-    POINTS_IDENTICAL,
+    LINES_INTERSECT,            /*  0 */
+    LINES_NO_INTERSECT,         /*  1 */
+    LINES_IDENTICAL,            /*  2 */
+    LINES_PARALLEL,             /*  3 */
+    POINTS_IDENTICAL,           /*  4 */
 
     // Line / Plane
-    VECTOR_LENGTH_0,
-    ALL_COORDINATES_ZERO,
-    VECTORS_LINEAR_DEPENDANT,
-    LINE_INTERSECTS_PLANE,
-    LINE_PARALLEL_TO_PLANE,
-    LINE_ON_PLANE,
-    CREATION_SUCCEEDED,
+    VECTOR_LENGTH_0,            /*  5 */
+    ALL_COORDINATES_ZERO,       /*  6 */
+    VECTORS_LINEAR_DEPENDANT,   /*  7 */
+    LINE_INTERSECTS_PLANE,      /*  8 */
+    LINE_PARALLEL_TO_PLANE,     /*  9 */
+    LINE_ON_PLANE,              /* 10 */
+    CREATION_SUCCEEDED,         /* 11 */
 
     // Polygon
-    POINT_DUPLICATE,
-    POINT_ADDED,
-    POINT_NOT_ON_BASE_PLANE,
-    POLYGON_NOT_INITIALIZED,
-    TOO_FEW_POLYGON_POINTS,
+    POINT_DUPLICATE,            /* 12 */
+    POINT_ADDED,                /* 13 */
+    POINT_NOT_ON_BASE_PLANE,    /* 14 */
+    POLYGON_NOT_INITIALIZED,    /* 15 */
+    TOO_FEW_POLYGON_POINTS,     /* 16 */
 
     // Downloader
-    INVALID_URL,
-    DOWNLOAD_SUCCESSFUL,
-    FILE_NOT_FOUND,
-    FILE_NOT_CREATABLE,
-    FILE_ALREADY_EXISTS,
-    FILE_CREATED,
+    INVALID_URL,                /* 17 */
+    DOWNLOAD_SUCCESSFUL,        /* 18 */
+    FILE_NOT_FOUND,             /* 19 */
+    FILE_NOT_CREATABLE,         /* 20 */
+    FILE_ALREADY_EXISTS,        /* 21 */
+    FILE_CREATED,               /* 22 */
 
     // Tiles
-    TILE_SIZES_UNEQUAL,
-    TILES_MASKED,
-    BINARY_FILE_NOT_FOUND,
-    CORRUPT_BINARY_FILE,
-    READ_BINARY_FILE_SUCCESS,
-    BINARY_FILE_NOT_CREATABLE,
-    BINARY_FILE_CREATED,
+    TILE_SIZES_UNEQUAL,         /* 23 */
+    TILES_MASKED,               /* 24 */
+    BINARY_FILE_NOT_FOUND,      /* 25 */
+    CORRUPT_BINARY_FILE,        /* 26 */
+    READ_BINARY_FILE_SUCCESS,   /* 27 */
+    BINARY_FILE_NOT_CREATABLE,  /* 28 */
+    BINARY_FILE_CREATED,        /* 29 */
 
     // Raw data
-    NO_SURFACES
+    NO_SURFACES                 /* 30 */
 };
 
 #endif

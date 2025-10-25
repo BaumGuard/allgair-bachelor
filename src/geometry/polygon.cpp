@@ -31,16 +31,18 @@ bool Polygon::isPointAlreadyInPolygon ( Vector& p ) {
 /*---------------------------------------------------------------*/
 
 int Polygon::addPoint ( Vector point ) {
+
     if ( !initialized ) {
         return POLYGON_NOT_INITIALIZED;
     }
-
     if ( !base_plane.isPointOnPlane(point) ) {
         return POINT_NOT_ON_BASE_PLANE;
     }
+
     if ( isPointAlreadyInPolygon(point) ) {
         return POINT_DUPLICATE;
     }
+
     points.push_back( point );
 
     return POINT_ADDED;
@@ -111,3 +113,8 @@ Plane Polygon::getBasePlane () {
 std::vector<Vector> Polygon::getPoints () {
     return points;
 } /* std::vector<Vector>& getPoints () */
+
+
+void Polygon::pointListReserveSpace ( int size ) {
+    points.reserve( size );
+}

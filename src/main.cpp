@@ -1,13 +1,20 @@
 #include "raw_data/geotiff.h"
 #include "tile/grid_tile.h"
+#include "tile/tile_name.h"
 
-#include <stdio.h>
+#include <iostream>
+#include <string>
 #include <time.h>
 
 int main () {
     clock_t start = clock();
+    /*
     GeoTiffFile geotiff( "data/646_5319.tif" );
     GridTile tile ( geotiff );
+    */
+    std::string name = "646_5319";
+    std::cout << adjacentTile(name, LEFT_UPPER_CORNER) << '\n';
+
     //tile.writeBinaryFile( "data/646_5319.grid", FLOAT );
     /*
     GridTile tile;

@@ -14,7 +14,7 @@ union tiff_data {
 
 /*---------------------------------------------------------------*/
 
-GeoTiffFile::GeoTiffFile ( char* file_path ) {
+GeoTiffFile::GeoTiffFile ( const char* file_path ) {
     uint32_t
         width,
         buf_size;
@@ -28,6 +28,7 @@ GeoTiffFile::GeoTiffFile ( char* file_path ) {
     TIFFGetField( tif, TIFFTAG_IMAGEWIDTH, &width );
 
     buf_size = TIFFScanlineSize(tif);
+
     uint8_t* buf = new uint8_t[buf_size];
 
     data = new float [width*width];
@@ -61,7 +62,7 @@ GeoTiffFile::GeoTiffFile ( char* file_path ) {
     delete[] buf;
 
     //return CREATION_SUCCEEDED;
-} /* GeoTiffFile::GeoTiffFile ( char* file_path ) */
+} /* GeoTiffFile::GeoTiffFile ( const char* file_path ) */
 
 /*---------------------------------------------------------------*/
 

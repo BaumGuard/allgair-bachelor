@@ -2,6 +2,7 @@
 
 #include "../exceptions/exception.h"
 #include "../status_codes.h"
+#include "../utils.h"
 
 #include <cstdint>
 
@@ -20,7 +21,7 @@ GridTile::GridTile ( float* values, unsigned int width ) {
     tile = new float [len];
 
     for ( int i=0; i<len; i++ ) {
-        tile[i] = values[i];
+        tile[(width-(i/width)-1)*width+(i%width)] = values[i];
     }
 } /* GridTile::GridTile ( float* values, unsigned int width ) */
 
@@ -90,8 +91,103 @@ GridTile::GridTile () {}
 /*---------------------------------------------------------------*/
 
 GridTile::~GridTile () {
-    delete[] tile;
+    //delete[] tile;
 } /* GridTile::~GridTile () */
+
+/*---------------------------------------------------------------*/
+
+union output_data {
+    float f32;
+    int16_t i16;
+
+    char bytes [4];
+};
+
+int GridTile::writeBinaryFile ( const char* file_path, int output_type ) {
+
+    union output_data data;
+
+    FILE* file = fopen( file_path, "wb" );
+    if ( !file ) {
+        return BINARY_FILE_NOT_CREATABLE;
+    }
+
+    fprintf( file, "GRID" );
+
+    data.i16 = output_type;
+    fwrite( data.bytes, 1, 2, file );
+
+    data.i16 = (int16_t) width;
+    fwrite( data.bytes, 1, 2, file );
+
+    int len = width * width;
+
+    for ( int i=0; i<len; i++ ) {
+        switch ( output_type ) {
+            case INT:
+                data.i16 = (int16_t) tile[i];
+                fwrite( data.bytes, 1, 2, file );
+                break;
+
+            case FLOAT:
+                data.f32 = tile[i];
+                fwrite( data.bytes, 1, 4, file );
+                break;
+        }
+    }
+
+    fclose( file );
+
+    return BINARY_FILE_CREATED;
+} /* int GridTile::writeBinaryFile ( const char* file_path, int output_type ) */
+
+/*---------------------------------------------------------------*/
+
+int GridTile::readBinaryFile ( const char* file_path ) {
+    FILE* file = fopen( file_path, "rb" );
+    if ( !file ) {
+        return FILE_NOT_FOUND;
+    }
+
+    union output_data data;
+
+    fread( data.bytes, 1, 4, file );
+    if ( !STREQUAL(data.bytes, "GRID") ) {
+        return CORRUPT_BINARY_FILE;
+    }
+
+    fread( data.bytes, 1, 2, file );
+    int16_t pixel_type = data.i16;
+    if ( pixel_type != INT && pixel_type != FLOAT ) {
+        return CORRUPT_BINARY_FILE;
+    }
+
+    fread( data.bytes, 1, 2, file );
+    uint16_t w = (uint16_t) data.i16;
+    width = w;
+
+    tile = new float [width*width];
+
+    int len = width * width;
+
+    for ( int i=0; i<len; i++ ) {
+        switch ( pixel_type ) {
+            case INT:
+                fread( data.bytes, 1, 2, file );
+                tile[i] = data.i16;
+                break;
+
+            case FLOAT:
+                fread( data.bytes, 1, 4, file );
+                tile[i] = data.f32;
+                break;
+        }
+    }
+
+    fclose( file );
+
+    return READ_BINARY_FILE_SUCCESS;
+} /* int GridTile::readBinaryFile ( const char* file_path ) */
 
 /*---------------------------------------------------------------*/
 
@@ -100,7 +196,7 @@ float GridTile::getValue ( unsigned int x, unsigned int y ) {
         // TODO
         throw OutsideOfTileException( "test" );
     }
-    return tile[width*y+x];
+    return tile[width*(width-y-1)+x];
 } /* float GridTile::getValue ( unsigned int x, unsigned int y ) */
 
 void GridTile::setValue ( unsigned int x, unsigned int y, float value ) {

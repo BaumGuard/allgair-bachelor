@@ -14,7 +14,7 @@ public:
     Args:
      - file_path : File path to the GeoTIFF file
     */
-    GeoTiffFile( char* file_path );
+    GeoTiffFile( const char* file_path );
 
     /* DESTRUCTOR */
     ~GeoTiffFile();

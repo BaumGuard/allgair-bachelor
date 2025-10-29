@@ -3,6 +3,11 @@
 
 #include "vector_tile.h"
 
+enum PixelTypes {
+    INT,
+    FLOAT
+};
+
 /*
 Class to represent a tile (e.g. from a GeoTIFF file)
 */
@@ -43,6 +48,40 @@ public:
 
     /* DESTRUCTOR */
     ~GridTile ();
+
+
+    /* INPUT / OUTPUT */
+
+    /*
+    Create a binary file of the grid data
+
+    Args:
+     - file_path    : File path of the output file
+     - output_type  : Data type of the pixels
+                       - INT   : 16 bit signed integer
+                       - FLOAT : 32 bit float
+
+    Returns:
+    - Status code
+       - BINARY_FILE_NOT_CREATABLE
+       - BINARY_FILE_CREATED (Success)
+    */
+    int writeBinaryFile ( const char* file_path, int output_type );
+
+    /*
+    Read a binary grid file
+
+    Args:
+     - file_path : File path of the binary grid file
+
+    Returns:
+     - FILE_NOT_FOUND
+     - CORRUPT_BINARY_FILE
+     - READ_BINARY_FILE_SUCCESS (Success)
+    */
+    int readBinaryFile ( const char* file_path );
+
+
 
     /*
     Reduce the number of pixels in the tile by a given factor

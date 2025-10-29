@@ -45,11 +45,11 @@ double clampDouble ( double n, int precision ) {
 double roundDouble ( double n, int precision ) {
     int shift = pow( 10, precision );
     return round( n * shift ) / shift;
-}
+} /* double roundDouble ( double n, int precision ) */
 
 bool equalWithThreshold ( double n1, double n2, double threshold ) {
     return fabs( fabs( n1 ) - fabs( n2 ) ) < threshold;
-}
+} /* bool equalWithThreshold ( double n1, double n2, double threshold ) */
 
 void extractFilepath ( char* dst_path, char* path ) {
     int len = strlen( path );
@@ -78,7 +78,21 @@ void buildFilepath ( char* dst_path, char* dir, char* file_name ) {
     sprintf( dst_path, "%s%s", dir, file_name );
 } /* void buildFilepath ( char* dst_path, char* dir, char* file_name ) */
 
+/*---------------------------------------------------------------*/
 
 bool inRange ( double n, double threshold ) {
     return fabs(n) < threshold;
-}
+} /* bool inRange ( double n, double threshold ) */
+
+/*---------------------------------------------------------------*/
+
+void removeFileEnding ( char* dest, char* file_name, int max_len ) {
+    int i=0;
+    for ( ; i<max_len; i++ ) {
+        if ( file_name[i] == '.' ) {
+            break;
+        }
+        dest[i] = file_name[i];
+    }
+    dest[i] = '\0';
+} /* void removeFileEnding ( char* dest, char* file_name, int max_len ) */

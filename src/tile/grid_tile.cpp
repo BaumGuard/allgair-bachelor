@@ -14,10 +14,13 @@ GridTile::GridTile ( unsigned int width ) {
     tile = new float [width*width];
 } /* GridTile::GridTile ( unsigned int width ) */
 
-GridTile::GridTile ( float* values, unsigned int width ) {
-    this->width = width;
+GridTile::GridTile ( GeoTiffFile& geotiff ) {
+    this->width = geotiff.getTileWidth();
+    float* values = geotiff.getData();
+    strcpy( tile_name, geotiff.getTileName() );
 
     int len = width * width;
+
     tile = new float [len];
 
     for ( int i=0; i<len; i++ ) {

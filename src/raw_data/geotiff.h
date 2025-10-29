@@ -28,6 +28,11 @@ public:
     float* getData ();
 
     /*
+    Return the tile name
+    */
+    char* getTileName ();
+
+    /*
     Return the width of the tile
     */
     unsigned int getTileWidth ();
@@ -36,5 +41,6 @@ private:
     float* data;
     unsigned int tile_width;
 
+    char tile_name [9];
 };
 #endif

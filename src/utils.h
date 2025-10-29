@@ -73,4 +73,14 @@ Args:
 */
 void buildFilepath ( char* dst_path, char* dir, char* file_name );
 
+/*
+Remove the file ending from a file name including the .
+
+Args:
+ - dest      : Destination to write the file name without the ending to
+ - file_name : Pure file name without a preceding path
+ - max_len   : Maximum length of the destination string (to prevent segfaults)
+*/
+void removeFileEnding ( char* dest, char* file_name, int max_len );
+
 #endif

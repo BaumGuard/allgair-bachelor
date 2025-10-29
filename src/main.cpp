@@ -7,7 +7,7 @@
 int main () {
     clock_t start = clock();
     GeoTiffFile geotiff( "data/646_5319.tif" );
-    GridTile tile ( geotiff.getData(), 1000 );
+    GridTile tile ( geotiff );
     //tile.writeBinaryFile( "data/646_5319.grid", FLOAT );
     /*
     GridTile tile;

@@ -1,6 +1,7 @@
 #include "geotiff.h"
 
 #include "../status_codes.h"
+#include "../utils.h"
 
 #include <tiffio.h>
 
@@ -15,6 +16,11 @@ union tiff_data {
 /*---------------------------------------------------------------*/
 
 GeoTiffFile::GeoTiffFile ( const char* file_path ) {
+    char file_name [32];
+    extractFilepath( file_name, (char*)file_path );
+
+    removeFileEnding( tile_name, file_name, 8 );
+
     uint32_t
         width,
         buf_size;
@@ -26,6 +32,7 @@ GeoTiffFile::GeoTiffFile ( const char* file_path ) {
     }
     */
     TIFFGetField( tif, TIFFTAG_IMAGEWIDTH, &width );
+    tile_width = width;
 
     buf_size = TIFFScanlineSize(tif);
 
@@ -68,16 +75,22 @@ GeoTiffFile::GeoTiffFile ( const char* file_path ) {
 
 GeoTiffFile::~GeoTiffFile () {
     delete[] data;
-}
+} /* GeoTiffFile::~GeoTiffFile () */
 
 /*---------------------------------------------------------------*/
 
 float* GeoTiffFile::getData () {
     return data;
-}
+} /* float* GeoTiffFile::getData () */
+
+/*---------------------------------------------------------------*/
+
+char* GeoTiffFile::getTileName () {
+    return tile_name;
+} /* char* getTileName () */
 
 /*---------------------------------------------------------------*/
 
 unsigned int GeoTiffFile::getTileWidth () {
     return tile_width;
-}
+} /* unsigned int GeoTiffFile::getTileWidth () */

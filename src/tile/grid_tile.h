@@ -2,6 +2,7 @@
 #define TILE_H
 
 #include "vector_tile.h"
+#include "../raw_data/geotiff.h"
 
 enum PixelTypes {
     INT,
@@ -27,10 +28,10 @@ public:
     Create a grid from float values (read from a GeoTIFF file)
 
     Args:
-     - values : Array of the float values (must have the size of width²)
-     - width  : Width and height of the grid
+     - geotiff : GeoTiffFile object to transform into a GridTile
+     - width   : Width and height of the grid
     */
-    GridTile ( float* values, unsigned int width );
+    GridTile ( GeoTiffFile& geotiff );
 
     /*
     Transform a vector tile into a grid tile using raycasting
@@ -130,6 +131,8 @@ public:
 private:
     float* tile;
     unsigned int width;
+
+    char tile_name [9];
 
     void getBlock (
         float* block_buf,

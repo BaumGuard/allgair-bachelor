@@ -17,12 +17,12 @@ size_t saveFile ( char* buf, size_t itemsize, size_t n_items, void* arg ) {
 
 /*---------------------------------------------------------------*/
 
-int downloadFile ( char* url, char* dir, bool force ) {
+int downloadFile ( const char* url, const char* dir, bool force ) {
     char file_name [32];
     char out_path [256];
 
-    extractFilepath( file_name, url );
-    buildFilepath( out_path, dir, file_name );
+    extractFilepath( file_name, (char*)url );
+    buildFilepath( out_path, (char*)dir, file_name );
 
     if ( access(out_path, F_OK) == 0 && !force ) {
         return FILE_ALREADY_EXISTS;
@@ -39,6 +39,7 @@ int downloadFile ( char* url, char* dir, bool force ) {
     curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, saveFile );
     curl_easy_setopt( curl, CURLOPT_WRITEDATA, out_file );
 
+
     CURLcode err = curl_easy_perform( curl );
 
     if ( err != CURLE_OK ) {
@@ -48,6 +49,8 @@ int downloadFile ( char* url, char* dir, bool force ) {
 
 
     curl_easy_cleanup( curl );
+
+    fclose(out_file);
 
     return DOWNLOAD_SUCCESSFUL;
 } /* int downloadFile ( char* url, char* dir, bool force = false ) */

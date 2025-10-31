@@ -3,8 +3,6 @@
 
 #include "urls.h"
 
-#define DATA_DIR "data"
-
 /*
 Download the file from the given URL and save it in the
 given directory
@@ -21,6 +19,6 @@ Returns:
     - INVALID_URL
     - DOWNLOAD_SUCCESSFUL
 */
-int downloadFile ( char* url, char* dir, bool force = false );
+int downloadFile ( const char* url, const char* dir, bool force = false );
 
 #endif

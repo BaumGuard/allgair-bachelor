@@ -4,6 +4,7 @@
 #include "../utils.h"
 
 #include <tiffio.h>
+#include <iostream>
 
 /*---------------------------------------------------------------*/
 
@@ -26,11 +27,12 @@ GeoTiffFile::GeoTiffFile ( const char* file_path ) {
         buf_size;
 
     TIFF* tif = TIFFOpen( file_path, "r" );
-    /*
-    if ( !tif ) {
-        return FILE_NOT_FOUND;
+
+    if ( tif == NULL ) {
+        std::cout << "TIF not found\n";
+        //return FILE_NOT_FOUND;
     }
-    */
+
     TIFFGetField( tif, TIFFTAG_IMAGEWIDTH, &width );
     tile_width = width;
 

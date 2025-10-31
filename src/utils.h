@@ -4,6 +4,7 @@
 #include <cstring>
 
 #define STREQUAL(str1, str2) (!strcmp(str1, str2))
+#define FILE_EXISTS(file_path) (!access(file_path, F_OK))
 
 enum MessageTypes {
     NORMAL,

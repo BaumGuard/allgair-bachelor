@@ -9,7 +9,7 @@ BUILDDIR = build
 
 all: $(TARGET)
 
-$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/masker.o $(BUILDDIR)/exception.o $(BUILDDIR)/UTM.o $(BUILDDIR)/tile_name.o
+$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/masker.o $(BUILDDIR)/exception.o $(BUILDDIR)/UTM.o $(BUILDDIR)/tile_name.o $(BUILDDIR)/field.o
 	$(CC) $(LDFLAGS) $(BUILDDIR)/*.o $(SRCDIR)/status_codes.h -o $(TARGET)
 
 $(BUILDDIR)/vector.o: $(SRCDIR)/geometry/vector.h $(SRCDIR)/geometry/vector.cpp
@@ -56,6 +56,9 @@ $(BUILDDIR)/UTM.o: $(SRCDIR)/lib/UTM.h $(SRCDIR)/lib/UTM.cpp
 
 $(BUILDDIR)/tile_name.o: $(SRCDIR)/tile/tile_name.h $(SRCDIR)/tile/tile_name.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/tile/tile_name.cpp -o $(BUILDDIR)/tile_name.o
+
+$(BUILDDIR)/field.o: $(SRCDIR)/tile/field.h $(SRCDIR)/tile/field.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/tile/field.cpp -o $(BUILDDIR)/field.o
 
 $(BUILDDIR)/main.o: $(SRCDIR)/main.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/main.cpp -o $(BUILDDIR)/main.o

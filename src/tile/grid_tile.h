@@ -5,8 +5,8 @@
 #include "../raw_data/geotiff.h"
 
 enum PixelTypes {
-    INT,
-    FLOAT
+    INT_PIXEL,
+    FLOAT_PIXEL
 };
 
 /*

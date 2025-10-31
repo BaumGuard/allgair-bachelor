@@ -127,12 +127,12 @@ int GridTile::writeBinaryFile ( const char* file_path, int output_type ) {
 
     for ( int i=0; i<len; i++ ) {
         switch ( output_type ) {
-            case INT:
+            case INT_PIXEL:
                 data.i16 = (int16_t) tile[i];
                 fwrite( data.bytes, 1, 2, file );
                 break;
 
-            case FLOAT:
+            case FLOAT_PIXEL:
                 data.f32 = tile[i];
                 fwrite( data.bytes, 1, 4, file );
                 break;
@@ -161,7 +161,7 @@ int GridTile::readBinaryFile ( const char* file_path ) {
 
     fread( data.bytes, 1, 2, file );
     int16_t pixel_type = data.i16;
-    if ( pixel_type != INT && pixel_type != FLOAT ) {
+    if ( pixel_type != INT_PIXEL && pixel_type != FLOAT_PIXEL ) {
         return CORRUPT_BINARY_FILE;
     }
 
@@ -175,12 +175,12 @@ int GridTile::readBinaryFile ( const char* file_path ) {
 
     for ( int i=0; i<len; i++ ) {
         switch ( pixel_type ) {
-            case INT:
+            case INT_PIXEL:
                 fread( data.bytes, 1, 2, file );
                 tile[i] = data.i16;
                 break;
 
-            case FLOAT:
+            case FLOAT_PIXEL:
                 fread( data.bytes, 1, 4, file );
                 tile[i] = data.f32;
                 break;

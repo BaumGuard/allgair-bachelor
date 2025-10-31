@@ -38,12 +38,14 @@ enum Statuscodes {
     TILES_MASKED,               /* 24 */
     BINARY_FILE_NOT_FOUND,      /* 25 */
     CORRUPT_BINARY_FILE,        /* 26 */
-    READ_BINARY_FILE_SUCCESS,   /* 27 */
-    BINARY_FILE_NOT_CREATABLE,  /* 28 */
-    BINARY_FILE_CREATED,        /* 29 */
+    TILE_NOT_AVAILABLE,         /* 27 */
+    TILE_LOADED_SUCCESSFULLY,   /* 28 */
+    READ_BINARY_FILE_SUCCESS,   /* 29 */
+    BINARY_FILE_NOT_CREATABLE,  /* 30 */
+    BINARY_FILE_CREATED,        /* 31 */
 
     // Raw data
-    NO_SURFACES                 /* 30 */
+    NO_SURFACES                 /* 32 */
 };
 
 #endif

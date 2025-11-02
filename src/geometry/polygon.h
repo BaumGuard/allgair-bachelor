@@ -3,6 +3,7 @@
 
 #include "vector.h"
 #include "plane.h"
+#include "../utils.h"
 
 #include <vector>
 
@@ -61,7 +62,7 @@ public:
     */
     std::vector<Vector> getPoints ();
 
-    unsigned int size () {return points.size();}
+    uint size () {return points.size();}
 
     void pointListReserveSpace ( int size );
 

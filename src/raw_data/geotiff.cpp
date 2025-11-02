@@ -93,6 +93,6 @@ char* GeoTiffFile::getTileName () {
 
 /*---------------------------------------------------------------*/
 
-unsigned int GeoTiffFile::getTileWidth () {
+uint GeoTiffFile::getTileWidth () {
     return tile_width;
-} /* unsigned int GeoTiffFile::getTileWidth () */
+} /* uint GeoTiffFile::getTileWidth () */

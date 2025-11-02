@@ -1,6 +1,8 @@
 #ifndef GEOTIFF_H
 #define GEOTIFF_H
 
+#include "../utils.h"
+
 /*
 Class to read and save the content of a GeoTIFF file
 */
@@ -35,11 +37,11 @@ public:
     /*
     Return the width of the tile
     */
-    unsigned int getTileWidth ();
+    uint getTileWidth ();
 
 private:
     float* data;
-    unsigned int tile_width;
+    uint tile_width;
 
     char tile_name [9];
 };

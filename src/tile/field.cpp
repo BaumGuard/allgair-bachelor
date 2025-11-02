@@ -114,9 +114,9 @@ bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
 
 /*---------------------------------------------------------------*/
 
-std::string Field::buildTileName ( unsigned int x, unsigned int y ) {
+std::string Field::buildTileName ( uint x, uint y ) {
     return std::to_string(x) + "_" + std::to_string(y);
-} /* std::string Field::buildTileName ( unsigned int x, unsigned int y ) */
+} /* std::string Field::buildTileName ( uint x, uint y ) */
 
 /*---------------------------------------------------------------*/
 
@@ -124,9 +124,9 @@ float Field::getHeightAtLatLon ( float lat, float lon ) {
     double x, y;
     LatLonToUTMXY( lat, lon, 32, x, y );
 
-    unsigned int
-        tile_x = (unsigned int) ( x / 1000.0 ),
-        tile_y = (unsigned int) ( y / 1000.0 );
+    uint
+        tile_x = (uint) ( x / 1000.0 ),
+        tile_y = (uint) ( y / 1000.0 );
 
     std::string tile_name = buildTileName( tile_x, tile_y );
 
@@ -134,9 +134,9 @@ float Field::getHeightAtLatLon ( float lat, float lon ) {
         loadGridTile( tile_name );
     }
 
-    unsigned int
-        easting =  (unsigned int) fmod( x, 1000.0 ),
-        northing = (unsigned int) fmod( y, 1000.0 );
+    uint
+        easting =  (uint) fmod( x, 1000.0 ),
+        northing = (uint) fmod( y, 1000.0 );
 
     GridTile& tile = grid_tiles[tile_name];
 

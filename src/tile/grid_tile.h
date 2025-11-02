@@ -22,7 +22,7 @@ public:
     Args:
     - width : Width and height of the grid
     */
-    GridTile ( unsigned int width );
+    GridTile ( uint width );
 
     /*
     Create a grid from float values (read from a GeoTIFF file)
@@ -40,7 +40,7 @@ public:
      - vector_tile : Reference to the vector tile to be transformed
      - width       : Width and height of the grid
     */
-    GridTile ( VectorTile& vector_tile, unsigned int width );
+    GridTile ( VectorTile& vector_tile, uint width );
 
     /*
     Default constructor
@@ -96,8 +96,8 @@ public:
                  the subblock
     */
     int downsampleTile (
-        unsigned int factor,
-        float (*method)(float*,unsigned int)
+        uint factor,
+        float (*method)(float*,uint)
     );
 
 
@@ -110,12 +110,12 @@ public:
      - x : x coordinate
      - y : y coordinate
     */
-    float getValue ( unsigned int x, unsigned int y );
+    float getValue ( uint x, uint y );
 
     /*
     Return the width of the tile
     */
-    unsigned int getTileWidth ();
+    uint getTileWidth ();
 
     /*
     Set the value in the grid in the position (x,y)
@@ -125,27 +125,27 @@ public:
      - y     : y coordinate
      - value : Value to set (x,y) to
     */
-    void setValue ( unsigned int x, unsigned int y, float value );
+    void setValue ( uint x, uint y, float value );
 
 
 private:
     float* tile;
-    unsigned int width;
+    uint width;
 
     char tile_name [9];
 
     void getBlock (
         float* block_buf,
-        unsigned int block_width,
-        unsigned int x, unsigned int y
+        uint block_width,
+        uint x, uint y
     );
 };
 
 /*---------------------------------------------------------------*/
 
 /* Downsample methods to pass to the function downsampleTile */
-float max ( float* block, unsigned int width );
-float min ( float* block, unsigned int width );
-float avg ( float* block, unsigned int width );
+float max ( float* block, uint width );
+float min ( float* block, uint width );
+float avg ( float* block, uint width );
 
 #endif

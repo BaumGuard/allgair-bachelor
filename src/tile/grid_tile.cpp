@@ -8,11 +8,11 @@
 
 /*---------------------------------------------------------------*/
 
-GridTile::GridTile ( unsigned int width ) {
+GridTile::GridTile ( uint width ) {
     this->width = width;
 
     tile = new float [width*width];
-} /* GridTile::GridTile ( unsigned int width ) */
+} /* GridTile::GridTile ( uint width ) */
 
 GridTile::GridTile ( GeoTiffFile& geotiff ) {
     this->width = geotiff.getTileWidth();
@@ -26,9 +26,9 @@ GridTile::GridTile ( GeoTiffFile& geotiff ) {
     for ( int i=0; i<len; i++ ) {
         tile[(width-(i/width)-1)*width+(i%width)] = values[i];
     }
-} /* GridTile::GridTile ( float* values, unsigned int width ) */
+} /* GridTile::GridTile ( float* values, uint width ) */
 
-GridTile::GridTile ( VectorTile& vector_tile, unsigned int width ) {
+GridTile::GridTile ( VectorTile& vector_tile, uint width ) {
     this->width = width;
     tile = new float [width*width];
 
@@ -87,7 +87,7 @@ GridTile::GridTile ( VectorTile& vector_tile, unsigned int width ) {
         }
         y_it++;
     }
-} /* GridTile::GridTile ( VectorTile& vector_tile, unsigned int width ) */
+} /* GridTile::GridTile ( VectorTile& vector_tile, uint width ) */
 
 GridTile::GridTile () {}
 
@@ -194,32 +194,32 @@ int GridTile::readBinaryFile ( const char* file_path ) {
 
 /*---------------------------------------------------------------*/
 
-float GridTile::getValue ( unsigned int x, unsigned int y ) {
+float GridTile::getValue ( uint x, uint y ) {
     if ( x >= width || y >= width ) {
         // TODO
         throw OutsideOfTileException( "test" );
     }
     return tile[width*(width-y-1)+x];
-} /* float GridTile::getValue ( unsigned int x, unsigned int y ) */
+} /* float GridTile::getValue ( uint x, uint y ) */
 
-void GridTile::setValue ( unsigned int x, unsigned int y, float value ) {
+void GridTile::setValue ( uint x, uint y, float value ) {
     if ( x >= width || y >= width ) {
         //throw OutsideOfGridException();
     }
     tile[width*y+x] = value;
-} /* void GridTile::setValue ( unsigned int x, unsigned int y, float value ) */
+} /* void GridTile::setValue ( uint x, uint y, float value ) */
 
 /*---------------------------------------------------------------*/
 
-unsigned int GridTile::getTileWidth () {
+uint GridTile::getTileWidth () {
     return width;
 } /* int GridTile::getGridTileWidth () */
 
 /*---------------------------------------------------------------*/
 
 void GridTile::getBlock (
-    float* block_buf, unsigned int block_width,
-    unsigned int x, unsigned int y
+    float* block_buf, uint block_width,
+    uint x, uint y
 ) {
     uint32_t buf_it = 0;
 
@@ -234,8 +234,8 @@ void GridTile::getBlock (
 /*---------------------------------------------------------------*/
 
 int GridTile::downsampleTile (
-    unsigned int factor,
-    float (*method)(float*,unsigned int)
+    uint factor,
+    float (*method)(float*,uint)
 ) {
     if ( width % factor != 0 ) {
         return 1;
@@ -252,8 +252,8 @@ int GridTile::downsampleTile (
 
     float new_value;
 
-    for ( unsigned int i=0; i<width; i+=step ) {
-        for ( unsigned int j=0; j<width; j+=step ) {
+    for ( uint i=0; i<width; i+=step ) {
+        for ( uint j=0; j<width; j+=step ) {
             getBlock( subblock, step, j, i );
 
             new_value = method( subblock, step );
@@ -275,7 +275,7 @@ int GridTile::downsampleTile (
 
 /*---------------------------------------------------------------*/
 
-float max ( float* block, unsigned int width ) {
+float max ( float* block, uint width ) {
     int len = width * width;
 
     float max_value = block[0];
@@ -287,9 +287,9 @@ float max ( float* block, unsigned int width ) {
     }
 
     return max_value;
-} /* float max ( float* block, unsigned int width ) */
+} /* float max ( float* block, uint width ) */
 
-float min ( float* block, unsigned int width ) {
+float min ( float* block, uint width ) {
     int len = width * width;
 
     float min_value = block[0];
@@ -301,9 +301,9 @@ float min ( float* block, unsigned int width ) {
     }
 
     return min_value;
-} /* float min ( float* block, unsigned int width */
+} /* float min ( float* block, uint width */
 
-float avg ( float* block, unsigned int width ) {
+float avg ( float* block, uint width ) {
     int len = width * width;
 
     float sum = 0.0;
@@ -313,4 +313,4 @@ float avg ( float* block, unsigned int width ) {
     }
 
     return sum / (float)len;
-} /* float avg ( float* block, unsigned int width ) */
+} /* float avg ( float* block, uint width ) */

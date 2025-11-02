@@ -25,7 +25,7 @@ private:
 
     bool tileAlreadyLoaded ( std::string tile_name, int tile_type );
 
-    std::string buildTileName ( unsigned int x, unsigned int y );
+    std::string buildTileName ( uint x, uint y );
 };
 
 #endif

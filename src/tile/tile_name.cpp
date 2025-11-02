@@ -27,7 +27,7 @@ std::string latLonToTileName ( float lat, float lon ) {
 
 /*---------------------------------------------------------------*/
 
-std::string adjacentTile ( std::string tile_name, int adjacence ) {
+std::string adjacentTile ( std::string tile_name, int adjacence, int width_km ) {
     std::string
         part1_str,
         part2_str;
@@ -56,41 +56,44 @@ std::string adjacentTile ( std::string tile_name, int adjacence ) {
         part1_int = std::stoi( part1_str ),
         part2_int = std::stoi( part2_str );
 
+    part1_int -= part1_int % width_km;
+    part2_int -= part2_int % width_km;
+
     switch ( adjacence ) {
         case LEFT_UPPER_CORNER:
-            part1_int--;
-            part2_int++;
+            part1_int -= width_km;
+            part2_int += width_km;
             break;
 
         case UPPER_EDGE:
-            part2_int++;
+            part2_int += width_km;
             break;
 
         case RIGHT_UPPER_CORNER:
-            part1_int++;
-            part2_int++;
+            part1_int += width_km;
+            part2_int += width_km;
             break;
 
         case LEFT_EDGE:
-            part1_int--;
+            part1_int -= width_km;
             break;
 
         case RIGHT_EDGE:
-            part1_int++;
+            part1_int += width_km;
             break;
 
         case LEFT_LOWER_CORNER:
-            part1_int--;
-            part2_int--;
+            part1_int -= width_km;
+            part2_int -= width_km;
             break;
 
         case LOWER_EDGE:
-            part1_int--;
+            part1_int -= width_km;
             break;
 
         case RIGHT_LOWER_CORNER:
-            part1_int++;
-            part2_int--;
+            part1_int += width_km;
+            part2_int -= width_km;
             break;
     }
 

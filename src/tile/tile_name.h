@@ -44,8 +44,9 @@ Args:
                 - LEFT_LOWER_CORNER
                 - LOWER_EDGE
                 - RIGHT_LOWER_CORNER
+ - width_km  : Tile width in km
 
 Returns:
  - Name of the adjacent tile
 */
-std::string adjacentTile ( std::string tile_name, int adjacence );
+std::string adjacentTile ( std::string tile_name, int adjacence, int width_km );

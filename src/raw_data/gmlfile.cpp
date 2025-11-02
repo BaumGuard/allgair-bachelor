@@ -12,8 +12,8 @@ std::string trimString ( std::string str ) {
     std::string trimmed;
 
     bool found_start = false;
-    unsigned int len = str.length();
-    for ( unsigned int i=0; i<len; i++ ) {
+    uint len = str.length();
+    for ( uint i=0; i<len; i++ ) {
         if ( str[i] != ' ' ) {
             found_start = true;
         }

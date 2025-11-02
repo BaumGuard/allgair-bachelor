@@ -114,6 +114,26 @@ bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
 
 /*---------------------------------------------------------------*/
 
+bool Field::tileAlreadyLoaded ( float lat, float lon, int tile_type ) {
+    double xf, yf;
+    LatLonToUTMXY( lat, lon, 32, xf, yf );
+
+    uint
+        x = (uint) ( xf / 1000.0 ),
+        y = (uint) ( yf / 1000.0 );
+
+    if ( tile_type == VECTOR ) {
+        x -= x % 2;
+        y -= y % 2;
+    }
+
+    std::string tile_name = buildTileName( x, y );
+
+    return tileAlreadyLoaded( tile_name, tile_type );
+} /* bool Field::tileAlreadyLoaded ( float lat, float lon, int tile_type ) */
+
+/*---------------------------------------------------------------*/
+
 std::string Field::buildTileName ( uint x, uint y ) {
     return std::to_string(x) + "_" + std::to_string(y);
 } /* std::string Field::buildTileName ( uint x, uint y ) */

@@ -24,6 +24,7 @@ private:
     std::unordered_map<std::string, VectorTile> vector_tiles;
 
     bool tileAlreadyLoaded ( std::string tile_name, int tile_type );
+    bool tileAlreadyLoaded ( float lat, float lon, int tile_type );
 
     std::string buildTileName ( uint x, uint y );
 };

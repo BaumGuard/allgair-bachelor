@@ -121,7 +121,7 @@ std::string Field::buildTileName ( unsigned int x, unsigned int y ) {
 /*---------------------------------------------------------------*/
 
 float Field::getHeightAtLatLon ( float lat, float lon ) {
-    float x, y;
+    double x, y;
     LatLonToUTMXY( lat, lon, 32, x, y );
 
     unsigned int

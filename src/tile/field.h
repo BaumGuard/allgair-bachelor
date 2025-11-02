@@ -16,12 +16,12 @@ class Field {
 public:
     float getHeightAtLatLon ( float lat, float lon );
 
+    int loadGridTile ( std::string tile_name );
+    int loadVectorTile ( std::string tile_name );
+
 private:
     std::unordered_map<std::string, GridTile> grid_tiles;
     std::unordered_map<std::string, VectorTile> vector_tiles;
-
-    int loadGridTile ( std::string tile_name );
-    int loadVectorTile ( std::string tile_name );
 
     bool tileAlreadyLoaded ( std::string tile_name, int tile_type );
 

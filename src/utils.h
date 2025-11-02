@@ -5,6 +5,7 @@
 
 #define STREQUAL(str1, str2) (!strcmp(str1, str2))
 #define FILE_EXISTS(file_path) (!access(file_path, F_OK))
+#define RAD_TO_DEG(rad) (rad*180.0/M_PI)
 
 enum MessageTypes {
     NORMAL,

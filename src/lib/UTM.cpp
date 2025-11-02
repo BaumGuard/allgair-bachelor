@@ -330,19 +330,19 @@ void MapXYToLatLon (FLOAT x, FLOAT y, FLOAT lambda0, FLOAT& phi, FLOAT& lambda)
   x7poly = -61.0 - 662.0 * tf2 - 1320.0 * tf4 - 720.0 * (tf4 * tf2);
   
   x8poly = 1385.0 + 3633.0 * tf2 + 4095.0 * tf4 + 1575 * (tf4 * tf2);
-    
+
   /* Calculate latitude */
   phi = phif + x2frac * x2poly * (x * x)
       + x4frac * x4poly * POW(x, 4.0)
       + x6frac * x6poly * POW(x, 6.0)
       + x8frac * x8poly * POW(x, 8.0);
-    
+
   /* Calculate longitude */
   lambda = lambda0 + x1frac * x
          + x3frac * x3poly * POW(x, 3.0)
          + x5frac * x5poly * POW(x, 5.0)
          + x7frac * x7poly * POW(x, 7.0);
-    
+
   return;
 }
 

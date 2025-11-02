@@ -8,7 +8,7 @@
 /*---------------------------------------------------------------*/
 
 std::string latLonToTileName ( float lat, float lon ) {
-    float
+    double
         utm_easting,
         utm_northing;
 

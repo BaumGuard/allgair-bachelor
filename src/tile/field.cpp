@@ -160,7 +160,11 @@ float Field::getHeightAtLatLon ( float lat, float lon ) {
 
 /*---------------------------------------------------------------*/
 
-std::vector<std::string> Field::tilesOnRay ( float lat1, float lon1, float lat2, float lon2 ) {
+std::vector<std::string> Field::tilesOnRay (
+    float lat1, float lon1,
+    float lat2, float lon2,
+    uint tile_width_km
+) {
     double x1, y1, x2, y2;
     LatLonToUTMXY( lat1, lon1, 32, x1, y1 );
     LatLonToUTMXY( lat2, lon2, 32, x2, y2 );
@@ -188,6 +192,9 @@ std::vector<std::string> Field::tilesOnRay ( float lat1, float lon1, float lat2,
         x1_i = (int) floor( x1_f ),
         x2_i = (int) floor( x2_f );
 
+    x1_i -= x1_i % tile_width_km;
+    x2_i -= x2_i % tile_width_km;
+
 
     std::string current_tile;
     std::vector<std::string> tile_names;
@@ -196,9 +203,12 @@ std::vector<std::string> Field::tilesOnRay ( float lat1, float lon1, float lat2,
         y_bound1,
         y_bound2;
 
-    for ( int i=x1_i; i<x2_i; i++ ) {
+    for ( int i = x1_i; i < x2_i; i += tile_width_km ) {
         y_bound1 = (int) floor( m * i + t );
         y_bound2 = (int) floor( m * (i+1) + t );
+
+        y_bound1 -= y_bound1 % tile_width_km;
+        y_bound2 -= y_bound2 % tile_width_km;
 
         if ( y_bound2 < y_bound1 ) {
             tmp = y_bound1;
@@ -206,18 +216,24 @@ std::vector<std::string> Field::tilesOnRay ( float lat1, float lon1, float lat2,
             y_bound2 = tmp;
         }
 
-        for ( int j=y_bound1; j<=y_bound2; j++ ) {
+        for ( int j = y_bound1; j <= y_bound2; j++ ) {
             current_tile = buildTileName( i, j );
             tile_names.push_back( current_tile );
         }
     }
 
     if ( x1 < x2 ) {
-        current_tile = buildTileName( (int)floor(x2), (int)floor(y2) );
+        current_tile = buildTileName(
+            (int)floor(x2) - (int)floor(x2) % tile_width_km,
+            (int)floor(y2) - (int)floor(y2) % tile_width_km
+        );
         tile_names.push_back( current_tile );
     }
     else {
-        current_tile = buildTileName( (int)floor(x1), (int)floor(y1) );
+        current_tile = buildTileName(
+            (int)floor(x1) - (int)floor(x1) % tile_width_km,
+            (int)floor(y1) - (int)floor(y1) % tile_width_km
+        );
         tile_names.push_back( current_tile );
     }
 

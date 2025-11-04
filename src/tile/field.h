@@ -20,7 +20,11 @@ public:
     int loadGridTile ( std::string tile_name );
     int loadVectorTile ( std::string tile_name );
 
-    std::vector<std::string> tilesOnRay ( float lat1, float lon1, float lat2, float lon2 );
+    std::vector<std::string> tilesOnRay (
+        float lat1, float lon1,
+        float lat2, float lon2,
+        uint tile_width_km
+    );
 
 private:
     std::unordered_map<std::string, GridTile> grid_tiles;

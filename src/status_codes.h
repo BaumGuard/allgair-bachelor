@@ -24,28 +24,30 @@ enum Statuscodes {
     POINT_NOT_ON_BASE_PLANE,    /* 14 */
     POLYGON_NOT_INITIALIZED,    /* 15 */
     TOO_FEW_POLYGON_POINTS,     /* 16 */
+    POLYGON_LINE_NO_INTERSECT,  /* 17 */
+    LINE_INTERSECTS_POLYGON,    /* 18 */
 
     // Downloader
-    INVALID_URL,                /* 17 */
-    DOWNLOAD_SUCCESSFUL,        /* 18 */
-    FILE_NOT_FOUND,             /* 19 */
-    FILE_NOT_CREATABLE,         /* 20 */
-    FILE_ALREADY_EXISTS,        /* 21 */
-    FILE_CREATED,               /* 22 */
+    INVALID_URL,                /* 19 */
+    DOWNLOAD_SUCCESSFUL,        /* 20 */
+    FILE_NOT_FOUND,             /* 21 */
+    FILE_NOT_CREATABLE,         /* 22 */
+    FILE_ALREADY_EXISTS,        /* 23 */
+    FILE_CREATED,               /* 24 */
 
     // Tiles
-    TILE_SIZES_UNEQUAL,         /* 23 */
-    TILES_MASKED,               /* 24 */
-    BINARY_FILE_NOT_FOUND,      /* 25 */
-    CORRUPT_BINARY_FILE,        /* 26 */
-    TILE_NOT_AVAILABLE,         /* 27 */
-    TILE_LOADED_SUCCESSFULLY,   /* 28 */
-    READ_BINARY_FILE_SUCCESS,   /* 29 */
-    BINARY_FILE_NOT_CREATABLE,  /* 30 */
-    BINARY_FILE_CREATED,        /* 31 */
+    TILE_SIZES_UNEQUAL,         /* 25 */
+    TILES_MASKED,               /* 26 */
+    BINARY_FILE_NOT_FOUND,      /* 27 */
+    CORRUPT_BINARY_FILE,        /* 28 */
+    TILE_NOT_AVAILABLE,         /* 29 */
+    TILE_LOADED_SUCCESSFULLY,   /* 30 */
+    READ_BINARY_FILE_SUCCESS,   /* 31 */
+    BINARY_FILE_NOT_CREATABLE,  /* 32 */
+    BINARY_FILE_CREATED,        /* 33 */
 
     // Raw data
-    NO_SURFACES                 /* 32 */
+    NO_SURFACES                 /* 34 */
 };
 
 #endif

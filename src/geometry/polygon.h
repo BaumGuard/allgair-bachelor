@@ -62,9 +62,10 @@ public:
     */
     std::vector<Vector> getPoints ();
 
-    uint size () {return points.size();}
 
-    void pointListReserveSpace ( int size );
+    int lineIntersection ( Line& l, Vector& intersect );
+
+    uint size () {return points.size();}
 
 private:
     std::vector<Vector> points;

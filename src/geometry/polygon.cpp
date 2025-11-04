@@ -114,7 +114,20 @@ std::vector<Vector> Polygon::getPoints () {
     return points;
 } /* std::vector<Vector>& getPoints () */
 
+/*---------------------------------------------------------------*/
 
-void Polygon::pointListReserveSpace ( int size ) {
-    points.reserve( size );
-}
+int Polygon::lineIntersection ( Line& l, Vector& intersect ) {
+    Vector plane_intersect;
+    int status = base_plane.lineIntersection( l, plane_intersect );
+
+    if ( status != LINE_INTERSECTS_PLANE ) {
+        return POLYGON_LINE_NO_INTERSECT;
+    }
+
+    if ( !isPointInPolygon(plane_intersect) ) {
+        return POLYGON_LINE_NO_INTERSECT;
+    }
+
+    intersect = plane_intersect;
+    return LINE_INTERSECTS_POLYGON;
+} /* lineIntersection() */

@@ -161,13 +161,13 @@ float Field::getHeightAtLatLon ( float lat, float lon ) {
 /*---------------------------------------------------------------*/
 
 std::vector<std::string> Field::tilesOnRay (
-    float lat1, float lon1,
-    float lat2, float lon2,
+    float lat_start, float lon_start,
+    float lat_end, float lon_end,
     uint tile_width_km
 ) {
     double x1, y1, x2, y2;
-    LatLonToUTMXY( lat1, lon1, 32, x1, y1 );
-    LatLonToUTMXY( lat2, lon2, 32, x2, y2 );
+    LatLonToUTMXY( lat_start, lon_start, 32, x1, y1 );
+    LatLonToUTMXY( lat_end, lon_end, 32, x2, y2 );
 
     x1 /= 1000.0;
     y1 /= 1000.0;
@@ -239,3 +239,51 @@ std::vector<std::string> Field::tilesOnRay (
 
     return tile_names;
 } /* std::vector<std::string> tilesOnRay ( float lat1, float lon1, float lat2, float lon2 ) */
+
+/*---------------------------------------------------------------*/
+
+int Field::bresenhamPseudo3D (
+    Coord& intersection,
+    float lat_start, float lon_start,
+    float lat_end, float lon_end
+)
+{
+    std::vector<std::string> tiles_on_ray =
+        tilesOnRay( lat_start, lon_start, lat_end, lon_end, 1 );
+
+    std::vector<GridTile> tiles;
+
+    uint len = tiles_on_ray.size();
+    for ( uint i = 0; i < len; i++ ) {
+        if ( !tileAlreadyLoaded(tiles_on_ray[i], GRID) ) {
+            loadGridTile( tiles_on_ray[i] );
+        }
+        tiles.push_back( grid_tiles[tiles_on_ray[i]] );
+    }
+
+    // TODO : Bresenham-Algorithmus
+} /* bresenhamPseudo3D() */
+
+/*---------------------------------------------------------------*/
+
+int Field::surfaceIntersection (
+    Coord& intersection,
+    float lat_start, float lon_start,
+    float lat_end, float lon_end
+)
+{
+    std::vector<std::string> tiles_on_ray =
+        tilesOnRay( lat_start, lon_start, lat_end, lon_end, 2 );
+
+    std::vector<VectorTile> tiles;
+
+    uint len = tiles_on_ray.size();
+    for ( uint i = 0; i < len; i++ ) {
+        if ( !tileAlreadyLoaded(tiles_on_ray[i], VECTOR) ) {
+            loadVectorTile( tiles_on_ray[i] );
+        }
+        tiles.push_back( vector_tiles[tiles_on_ray[i]] );
+    }
+
+    // TODO
+} /* surfaceIntersection() */

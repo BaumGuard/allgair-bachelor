@@ -5,6 +5,7 @@
 #include "vector_tile.h"
 
 #include <unordered_map>
+#include <vector>
 #include <string>
 
 enum TileTypes {
@@ -19,6 +20,8 @@ public:
     int loadGridTile ( std::string tile_name );
     int loadVectorTile ( std::string tile_name );
 
+    std::vector<std::string> tilesOnRay ( float lat1, float lon1, float lat2, float lon2 );
+
 private:
     std::unordered_map<std::string, GridTile> grid_tiles;
     std::unordered_map<std::string, VectorTile> vector_tiles;
@@ -26,7 +29,7 @@ private:
     bool tileAlreadyLoaded ( std::string tile_name, int tile_type );
     bool tileAlreadyLoaded ( float lat, float lon, int tile_type );
 
-    std::string buildTileName ( uint x, uint y );
+
 };
 
 #endif

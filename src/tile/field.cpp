@@ -2,6 +2,7 @@
 #include "../web/download.h"
 #include "../web/urls.h"
 #include "../raw_data/geotiff.h"
+#include "tile_name.h"
 #include "../lib/UTM.h"
 #include "../utils.h"
 
@@ -134,12 +135,6 @@ bool Field::tileAlreadyLoaded ( float lat, float lon, int tile_type ) {
 
 /*---------------------------------------------------------------*/
 
-std::string Field::buildTileName ( uint x, uint y ) {
-    return std::to_string(x) + "_" + std::to_string(y);
-} /* std::string Field::buildTileName ( uint x, uint y ) */
-
-/*---------------------------------------------------------------*/
-
 float Field::getHeightAtLatLon ( float lat, float lon ) {
     double x, y;
     LatLonToUTMXY( lat, lon, 32, x, y );
@@ -162,3 +157,69 @@ float Field::getHeightAtLatLon ( float lat, float lon ) {
 
     return tile.getValue( easting, northing );
 } /* float Field::getHeightAtLatLon ( float lat, float lon ) */
+
+/*---------------------------------------------------------------*/
+
+std::vector<std::string> Field::tilesOnRay ( float lat1, float lon1, float lat2, float lon2 ) {
+    double x1, y1, x2, y2;
+    LatLonToUTMXY( lat1, lon1, 32, x1, y1 );
+    LatLonToUTMXY( lat2, lon2, 32, x2, y2 );
+
+    x1 /= 1000.0;
+    y1 /= 1000.0;
+    x2 /= 1000.0;
+    y2 /= 1000.0;
+
+    float m = (float)( y2 - y1 ) / (float)( x2 - x1 );
+    float t = y1 - m * x1;
+
+    float
+        x1_f = x1,
+        x2_f = x2;
+
+    float tmp;
+
+    if ( x2 < x1 ) {
+        x1_f = x2;
+        x2_f = x1;
+    }
+
+    int
+        x1_i = (int) floor( x1_f ),
+        x2_i = (int) floor( x2_f );
+
+
+    std::string current_tile;
+    std::vector<std::string> tile_names;
+
+    int
+        y_bound1,
+        y_bound2;
+
+    for ( int i=x1_i; i<x2_i; i++ ) {
+        y_bound1 = (int) floor( m * i + t );
+        y_bound2 = (int) floor( m * (i+1) + t );
+
+        if ( y_bound2 < y_bound1 ) {
+            tmp = y_bound1;
+            y_bound1 = y_bound2;
+            y_bound2 = tmp;
+        }
+
+        for ( int j=y_bound1; j<=y_bound2; j++ ) {
+            current_tile = buildTileName( i, j );
+            tile_names.push_back( current_tile );
+        }
+    }
+
+    if ( x1 < x2 ) {
+        current_tile = buildTileName( (int)floor(x2), (int)floor(y2) );
+        tile_names.push_back( current_tile );
+    }
+    else {
+        current_tile = buildTileName( (int)floor(x1), (int)floor(y1) );
+        tile_names.push_back( current_tile );
+    }
+
+    return tile_names;
+} /* std::vector<std::string> tilesOnRay ( float lat1, float lon1, float lat2, float lon2 ) */

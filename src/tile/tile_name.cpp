@@ -102,3 +102,9 @@ std::string adjacentTile ( std::string tile_name, int adjacence, int width_km ) 
 
     return std::string( new_name );
 } /* std::string adjacentTile ( std::string tile_name, int adjacence ) */
+
+/*---------------------------------------------------------------*/
+
+std::string buildTileName ( uint x, uint y ) {
+    return std::to_string(x) + "_" + std::to_string(y);
+} /* std::string buildTileName ( uint x, uint y ) */

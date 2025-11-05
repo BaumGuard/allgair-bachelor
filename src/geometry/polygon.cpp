@@ -8,7 +8,7 @@
 void Polygon::initPolygonWithPlane ( Plane p ) {
     base_plane = p;
     initialized = true;
-} /* void Polygon::initPolygonWithPlane ( Plane p ) */
+} /* initPolygonWithPlane() */
 
 /*---------------------------------------------------------------*/
 
@@ -26,7 +26,7 @@ bool Polygon::isPointAlreadyInPolygon ( Vector& p ) {
     }
 
     return false;
-} /* bool Polygon::isPointAlreadyInPolygon ( Vector& p ) */
+} /* isPointAlreadyInPolygon() */
 
 /*---------------------------------------------------------------*/
 
@@ -46,7 +46,7 @@ int Polygon::addPoint ( Vector point ) {
     points.push_back( point );
 
     return POINT_ADDED;
-} /* int Polygon::addPoint ( Vector point ) */
+} /* addPoint() */
 
 /*---------------------------------------------------------------*/
 
@@ -100,19 +100,19 @@ bool Polygon::isPointInPolygon ( Vector& p ) {
     }
 
     return intersect_count % 2 == 1;
-} /* bool Polygon::isPointInPolygon ( Vector& p ) */
+} /* isPointInPolygon() */
 
 /*---------------------------------------------------------------*/
 
 Plane Polygon::getBasePlane () {
     return base_plane;
-} /* Plane Polygon::getBasePlane () */
+} /* getBasePlane() */
 
 /*---------------------------------------------------------------*/
 
 std::vector<Vector> Polygon::getPoints () {
     return points;
-} /* std::vector<Vector>& getPoints () */
+} /* getPoints() */
 
 /*---------------------------------------------------------------*/
 

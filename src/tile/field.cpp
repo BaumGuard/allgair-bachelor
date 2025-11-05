@@ -74,7 +74,7 @@ int Field::loadGridTile ( std::string tile_name ) {
 
     printMessage( NORMAL, "Error\n" );
     return TILE_NOT_AVAILABLE;
-} /* int Field::loadGridTile ( std::string tile_name ) */
+} /* loadGridTile() */
 
 /*---------------------------------------------------------------*/
 
@@ -143,7 +143,7 @@ int Field::loadVectorTile ( std::string tile_name ) {
 
     printMessage( NORMAL, "Error\n" );
     return TILE_NOT_AVAILABLE;
-} /* int Field::loadVectorTile ( std::string tile_name ) */
+} /* loadVectorTile() */
 
 /*---------------------------------------------------------------*/
 
@@ -156,7 +156,7 @@ bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
         default:
             return false;
     }
-} /* bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) */
+} /* tileAlreadyLoaded() */
 
 /*---------------------------------------------------------------*/
 
@@ -176,7 +176,7 @@ bool Field::tileAlreadyLoaded ( float lat, float lon, int tile_type ) {
     std::string tile_name = buildTileName( x, y );
 
     return tileAlreadyLoaded( tile_name, tile_type );
-} /* bool Field::tileAlreadyLoaded ( float lat, float lon, int tile_type ) */
+} /* tileAlreadyLoaded() */
 
 /*---------------------------------------------------------------*/
 
@@ -201,7 +201,7 @@ float Field::getHeightAtLatLon ( float lat, float lon ) {
     GridTile& tile = grid_tiles[tile_name];
 
     return tile.getValue( easting, northing );
-} /* float Field::getHeightAtLatLon ( float lat, float lon ) */
+} /* getHeightAtLatLon() */
 
 /*---------------------------------------------------------------*/
 
@@ -283,7 +283,7 @@ std::vector<std::string> Field::tilesOnRay (
     }
 
     return tile_names;
-} /* std::vector<std::string> tilesOnRay ( float lat1, float lon1, float lat2, float lon2 ) */
+} /* tilesOnRay() */
 
 /*---------------------------------------------------------------*/
 

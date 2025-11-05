@@ -22,7 +22,7 @@ int Plane::createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) {
     toCoordinateForm();
 
     return CREATION_SUCCEEDED;
-} /* int Plane::createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) */
+} /* createPlaneFromPoints() */
 
 /*---------------------------------------------------------------*/
 
@@ -40,7 +40,7 @@ int Plane::createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 
     toCoordinateForm();
 
     return CREATION_SUCCEEDED;
-} /* int Plane::createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 ) */
+} /* createPlaneFromBaseAndVectors() */
 
 /*---------------------------------------------------------------*/
 
@@ -60,13 +60,13 @@ int Plane::createPlaneFromCoordinates ( double x, double y, double z, double n )
     v2 =    Vector( 0.0, 1.0, -y / z );
 
     return CREATION_SUCCEEDED;
-}
+} /* createPlaneFromCoordinates() */
 
 /*---------------------------------------------------------------*/
 
 Vector Plane::normalVector() {
     return Vector( x, y, z );
-} /* Vector Plane::normalVector() */
+} /* normalVector() */
 
 /*---------------------------------------------------------------*/
 
@@ -84,7 +84,7 @@ void Plane::toCoordinateForm() {
     y = z_a * x_b - x_a * z_b;
     z = x_a * y_b - y_a * x_b;
     n = -base.getX() * x - base.getY() * y - base.getZ() * z;
-} /* void Plane::toCoordinateForm() */
+} /* toCoordinateForm() */
 
 /*---------------------------------------------------------------*/
 
@@ -95,7 +95,7 @@ bool Plane::isPointOnPlane ( Vector& p ) {
         return true;
     }
     return false;
-} /* bool Plane::isPointOnPlane ( Vector& p ) */
+} /* isPointOnPlane() */
 
 /*---------------------------------------------------------------*/
 
@@ -132,7 +132,7 @@ int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) {
     }
 
     return LINE_INTERSECTS_PLANE;
-} /* int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) */
+} /* lineIntersection() */
 
 /*---------------------------------------------------------------*/
 
@@ -165,37 +165,37 @@ int Plane::reflectLine ( Line& old_line, Line& new_line ) {
     new_line.createLineFromTwoPoints( old_intersect, new_line_p );
 
     return CREATION_SUCCEEDED;
-} /* int Plane::reflectLine ( Line& old_line, Line& new_line ) */
+} /* reflectLine() */
 
 /*---------------------------------------------------------------*/
 
 Vector Plane::getBaseVector() const {
     return base;
-} /* Vector Plane::getBaseVector() */
+} /* getBaseVector() */
 
 Vector Plane::getVector1() const {
     return v1;
-} /* Vector Plane::getVector1() const */
+} /* getVector1() */
 
 Vector Plane::getVector2() const {
     return v2;
-} /* Vector Plane::getVector2() const */
+} /* getVector2() */
 
 double Plane::getX () const {
     return x;
-} /* double getX () const */
+} /* getX() */
 
 double Plane::getY () const {
     return y;
-} /* double getY () const */
+} /* getY() */
 
 double Plane::getZ () const {
     return z;
-} /* double getZ () const */
+} /* getZ() */
 
 double Plane::getN () const {
     return n;
-} /* double getX () const */
+} /* getN() */
 
 /*---------------------------------------------------------------*/
 
@@ -209,10 +209,10 @@ double Plane::distanceOfPointToPlane ( Vector& p ) {
     lineIntersection( plumb_line, intersect );
 
     return ( intersect - p ).length();
-} /* double Plane::distanceOfPointToPlane ( Vector& p ) */
+} /* distanceOfPointToPlane() */
 
 /*---------------------------------------------------------------*/
 
 void Plane::printPlane() {
     printMessage( NORMAL, "x=%f y=%f z=%f n=%f\n", x, y, z, n );
-} /* void Plane::printPlane() */
+} /* printPlane() */

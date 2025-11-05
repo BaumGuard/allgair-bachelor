@@ -26,7 +26,7 @@ GridTile::GridTile ( GeoTiffFile& geotiff ) {
     for ( int i=0; i<len; i++ ) {
         tile[(width-(i/width)-1)*width+(i%width)] = values[i];
     }
-} /* GridTile::GridTile ( float* values, uint width ) */
+} /* GridTile ( float* values, uint width ) */
 
 GridTile::GridTile ( VectorTile& vector_tile, uint width ) {
     this->width = width;
@@ -87,7 +87,7 @@ GridTile::GridTile ( VectorTile& vector_tile, uint width ) {
         }
         y_it++;
     }
-} /* GridTile::GridTile ( VectorTile& vector_tile, uint width ) */
+} /* GridTile ( VectorTile& vector_tile, uint width ) */
 
 GridTile::GridTile () {}
 
@@ -95,7 +95,7 @@ GridTile::GridTile () {}
 
 GridTile::~GridTile () {
     //delete[] tile;
-} /* GridTile::~GridTile () */
+} /* ~GridTile() */
 
 /*---------------------------------------------------------------*/
 
@@ -142,7 +142,7 @@ int GridTile::writeBinaryFile ( const char* file_path, int output_type ) {
     fclose( file );
 
     return BINARY_FILE_CREATED;
-} /* int GridTile::writeBinaryFile ( const char* file_path, int output_type ) */
+} /* writeBinaryFile() */
 
 /*---------------------------------------------------------------*/
 
@@ -190,7 +190,7 @@ int GridTile::readBinaryFile ( const char* file_path ) {
     fclose( file );
 
     return READ_BINARY_FILE_SUCCESS;
-} /* int GridTile::readBinaryFile ( const char* file_path ) */
+} /* readBinaryFile() */
 
 /*---------------------------------------------------------------*/
 
@@ -207,13 +207,13 @@ void GridTile::setValue ( uint x, uint y, float value ) {
         //throw OutsideOfGridException();
     }
     tile[width*y+x] = value;
-} /* void GridTile::setValue ( uint x, uint y, float value ) */
+} /* setValue() */
 
 /*---------------------------------------------------------------*/
 
 uint GridTile::getTileWidth () {
     return width;
-} /* int GridTile::getGridTileWidth () */
+} /* getGridTileWidth() */
 
 /*---------------------------------------------------------------*/
 
@@ -229,7 +229,7 @@ void GridTile::getBlock (
             buf_it++;
         }
     }
-} /* void GridTile::getBlock */
+} /* getBlock() */
 
 /*---------------------------------------------------------------*/
 
@@ -271,7 +271,7 @@ int GridTile::downsampleTile (
     delete[] subblock;
 
     return 0;
-} /* int GridTile::downsampleGridTile */
+} /* downsampleGridTile() */
 
 /*---------------------------------------------------------------*/
 
@@ -287,7 +287,7 @@ float max ( float* block, uint width ) {
     }
 
     return max_value;
-} /* float max ( float* block, uint width ) */
+} /* max() */
 
 float min ( float* block, uint width ) {
     int len = width * width;
@@ -301,7 +301,7 @@ float min ( float* block, uint width ) {
     }
 
     return min_value;
-} /* float min ( float* block, uint width */
+} /* min() */
 
 float avg ( float* block, uint width ) {
     int len = width * width;
@@ -313,4 +313,4 @@ float avg ( float* block, uint width ) {
     }
 
     return sum / (float)len;
-} /* float avg ( float* block, uint width ) */
+} /* avg() */

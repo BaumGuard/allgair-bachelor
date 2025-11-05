@@ -14,7 +14,7 @@ int Line::createLineFromTwoPoints ( Vector& p1, Vector& p2 ) {
     direction = p2 - p1;
 
     return CREATION_SUCCEEDED;
-} /* int Line::createLineFromTwoPoints ( Vector& p1, Vector& p2 ) */
+} /* createLineFromTwoPoints() */
 
 /*---------------------------------------------------------------*/
 
@@ -27,17 +27,17 @@ int Line::createLineFromBaseAndVector ( Vector& p, Vector& v ) {
     direction = v;
 
     return CREATION_SUCCEEDED;
-} /* int Line::createLineFromBaseAndVector ( Vector& p, Vector& v ) */
+} /* createLineFromBaseAndVector() */
 
 /*---------------------------------------------------------------*/
 
 Vector Line::getBaseVector () const {
     return base;
-} /* Vector Line::getBaseVector () const */
+} /* getBaseVector() */
 
 Vector Line::getDirectionVector () const {
     return direction;
-} /* Vector Line::getDirectionVector () const */
+} /* getDirectionVector() */
 
 /*---------------------------------------------------------------*/
 
@@ -63,7 +63,7 @@ bool Line::pointIsOnLine ( Vector p ) {
         return true;
     }
     return false;
-} /* bool Line::pointIsOnLine ( Vector p ) */
+} /* pointIsOnLine() */
 
 /*---------------------------------------------------------------*/
 
@@ -145,7 +145,7 @@ int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) {
     }
 
     return LINES_NO_INTERSECT;
-} /* int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) */
+} /* lineIntersect() */
 
 /*---------------------------------------------------------------*/
 
@@ -158,7 +158,7 @@ bool Line::operator == ( Line& l ) {
         return true;
     }
     return false;
-} /* bool Line::operator == ( Line& l ) */
+} /* operator == */
 
 /*---------------------------------------------------------------*/
 
@@ -177,4 +177,4 @@ void Line::printLine () {
         direction.getY(),
         direction.getZ()
     );
-} /* void Line::printLine () */
+} /* printLine() */

@@ -13,7 +13,7 @@
 size_t saveFile ( char* buf, size_t itemsize, size_t n_items, void* arg ) {
     size_t err = fwrite( buf, itemsize, n_items, (FILE*)arg );
     return err;
-} /* size_t saveFile ( char* buf, size_t itemsize, size_t n_items, void* arg ) */
+} /* saveFile() */
 
 /*---------------------------------------------------------------*/
 
@@ -53,4 +53,4 @@ int downloadFile ( const char* url, const char* dir, bool force ) {
     fclose(out_file);
 
     return DOWNLOAD_SUCCESSFUL;
-} /* int downloadFile ( char* url, char* dir, bool force = false ) */
+} /* downloadFile() */

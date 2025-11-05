@@ -30,7 +30,7 @@ void printMessage ( int type, const char* format, ... ) {
             va_end(argptr);
             break;
     }
-} /* void printMessage ( int type, char* format, ... ) */
+} /* printMessage() */
 
 /*---------------------------------------------------------------*/
 
@@ -38,18 +38,18 @@ double clampDouble ( double n, int precision ) {
     long n_long = (long) ( n * pow(10, precision) );
 
     return (double) ( (double)n_long / pow(10, precision) );
-} /* double clampDouble ( double n ) */
+} /* clampDouble() */
 
 /*---------------------------------------------------------------*/
 
 double roundDouble ( double n, int precision ) {
     int shift = pow( 10, precision );
     return round( n * shift ) / shift;
-} /* double roundDouble ( double n, int precision ) */
+} /* roundDouble() */
 
 bool equalWithThreshold ( double n1, double n2, double threshold ) {
     return fabs( fabs( n1 ) - fabs( n2 ) ) < threshold;
-} /* bool equalWithThreshold ( double n1, double n2, double threshold ) */
+} /* equalWithThreshold() */
 
 void extractFilepath ( char* dst_path, char* path ) {
     int len = strlen( path );
@@ -63,7 +63,7 @@ void extractFilepath ( char* dst_path, char* path ) {
     i++;
 
     strncpy( dst_path, &path[i], 32 );
-} /* void extractFilepath ( char* dst_path, char* path ) */
+} /* extractFilepath() */
 
 /*---------------------------------------------------------------*/
 
@@ -76,13 +76,13 @@ void buildFilepath ( char* dst_path, char* dir, char* file_name ) {
     }
 
     sprintf( dst_path, "%s%s", dir, file_name );
-} /* void buildFilepath ( char* dst_path, char* dir, char* file_name ) */
+} /* buildFilepath() */
 
 /*---------------------------------------------------------------*/
 
 bool inRange ( double n, double threshold ) {
     return fabs(n) < threshold;
-} /* bool inRange ( double n, double threshold ) */
+} /* inRange() */
 
 /*---------------------------------------------------------------*/
 
@@ -95,4 +95,4 @@ void removeFileEnding ( char* dest, char* file_name, int max_len ) {
         dest[i] = file_name[i];
     }
     dest[i] = '\0';
-} /* void removeFileEnding ( char* dest, char* file_name, int max_len ) */
+} /* removeFileEnding() */

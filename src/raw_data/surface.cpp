@@ -51,4 +51,4 @@ void printSurfaceDescription ( Surface* surface ) {
             << "Roof orientation : " << surface->roof_orientation << "\n\n";
     }
 
-} /* void printSurfaceDescription ( Surface* surface ) */
+} /* printSurfaceDescription() */

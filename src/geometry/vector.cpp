@@ -8,7 +8,7 @@
 
 Vector::Vector ( const double x, const double y, const double z ):
     x(x), y(y), z(z)
-{} /* Vector::Vector ( const double x, const double y, const double z ) */
+{} /* Vector ( const double x, const double y, const double z ) */
 
 Vector::Vector () {}
 
@@ -16,25 +16,25 @@ Vector::Vector () {}
 
 void Vector::setX ( const double x ) {
     this->x = x;
-} /* void Vector::setX ( const double x ) */
+} /* setX() */
 void Vector::setY ( const double y ) {
     this->y = y;
-} /* void Vector::setY ( const double y ) */
+} /* setY() */
 void Vector::setZ ( const double z ) {
     this->z = z;
-} /* void Vector::setZ ( const double z ) */
+} /* setZ() */
 
 /*---------------------------------------------------------------*/
 
 double Vector::getX ( void ) const {
     return x;
-} /* double Vector::getX ( void ) const */
+} /* getX() */
 double Vector::getY ( void ) const {
     return y;
-} /* double Vector::getY ( void ) const */
+} /* getY() */
 double Vector::getZ ( void ) const {
     return z;
-} /* double Vector::getZ ( void ) const */
+} /* getZ() */
 
 /*---------------------------------------------------------------*/
 
@@ -46,13 +46,13 @@ Vector Vector::operator + ( const Vector& v ) const {
     v_res.setZ( this->z + v.getZ() );
 
     return v_res;
-} /* Vector Vector::operator + ( const Vector& v ) const */
+} /* operator + */
 
 void Vector::operator += ( Vector& v ) {
     x += v.getX();
     y += v.getY();
     z += v.getZ();
-} /* void Vector::operator += ( Vector& v ) */
+} /* operator += */
 
 Vector Vector::operator - ( const Vector& v ) const {
     Vector v_res;
@@ -62,41 +62,41 @@ Vector Vector::operator - ( const Vector& v ) const {
     v_res.setZ( this->z - v.getZ() );
 
     return v_res;
-} /* Vector Vector::operator - ( const Vector& v ) const */
+} /* operator - */
 
 void Vector::operator -= ( Vector& v ) {
     x -= v.getX();
     y -= v.getY();
     z -= v.getZ();
-} /* void Vector::operator -= ( Vector& v ) */
+} /* operator -= */
 
 Vector Vector::operator * ( const double n ) const {
     return Vector( x*n, y*n, z*n );
-} /* Vector Vector::operator * ( const double n ) const */
+} /* operator * */
 
 void Vector::operator *= ( const double n ) {
     this->x *= n;
     this->y *= n;
     this->z *= n;
-} /* void Vector::operator *= ( const double n ) */
+} /* operator *= */
 
 Vector Vector::operator / ( const double n ) const {
     return Vector( x/n, y/n, z/n );
-} /* Vector Vector::operator / ( const double n ) const */
+} /* operator / */
 
 void Vector::operator /= ( const double n ) {
     this->x /= n;
     this->y /= n;
     this->z /= n;
-} /* void Vector::operator /= ( const double n ) */
+} /* operator /= */
 
 bool Vector::operator == ( Vector& v ) {
     return x == v.getX() && y == v.getY() && z == v.getZ();
-} /* bool Vector::operator == ( Vector& v ) */
+} /* operator == */
 
 bool Vector::operator != ( Vector& v ) {
     return !( x == v.getX() && y == v.getY() && z == v.getZ() );
-} /* bool Vector::operator != ( Vector& v ) */
+} /* perator != */
 
 
 Vector operator * ( double n, const Vector& v ) {
@@ -106,7 +106,7 @@ Vector operator * ( double n, const Vector& v ) {
         z = v.getZ() * n;
 
     return Vector( x, y, z );
-} /* Vector operator * ( double n, const Vector& v ) */
+} /* operator * */
 
 
 /*---------------------------------------------------------------*/
@@ -155,13 +155,13 @@ bool Vector::linearDependant ( Vector v ) {
             equalWithThreshold( fabs(z1), fabs(z2), LINDEP_THRESHOLD )
         )
     );
-}
+} /* linearDependant() */
 
 /*---------------------------------------------------------------*/
 
 double Vector::length () {
     return sqrt( x*x + y*y + z*z );
-} /* double Vector::length () */
+} /* length() */
 
 /*---------------------------------------------------------------*/
 
@@ -173,7 +173,7 @@ void Vector::toUnitVector () {
     x /= divisor;
     y /= divisor;
     z /= divisor;
-} /* void Vector::toUnitVector () */
+} /* toUnitVector() */
 
 /*---------------------------------------------------------------*/
 
@@ -185,10 +185,10 @@ Vector Vector::getUnitVector () {
     double divisor = sqrt( x*x + y*y + z*z );
 
     return Vector( x / divisor, y / divisor, z / divisor );
-} /* void Vector::getUnitVector () */
+} /* getUnitVector() */
 
 /*---------------------------------------------------------------*/
 
 void Vector::printVector () {
     printMessage( NORMAL, "x=%f y=%f z=%f\n", x, y, z );
-} /* void Vector::printVector () */
+} /* printVector() */

@@ -23,7 +23,7 @@ std::string latLonToTileName ( float lat, float lon ) {
     snprintf( tile_name, 10, "%d_%d", easting_part, northing_part );
 
     return std::string( tile_name );
-} /* std::string latLonToTileName ( float lat, float lon ) */
+} /* latLonToTileName() */
 
 /*---------------------------------------------------------------*/
 
@@ -101,10 +101,10 @@ std::string adjacentTile ( std::string tile_name, int adjacence, int width_km ) 
     snprintf( new_name, 9, "%d_%d", part1_int, part2_int );
 
     return std::string( new_name );
-} /* std::string adjacentTile ( std::string tile_name, int adjacence ) */
+} /* adjacentTile() */
 
 /*---------------------------------------------------------------*/
 
 std::string buildTileName ( uint x, uint y ) {
     return std::to_string(x) + "_" + std::to_string(y);
-} /* std::string buildTileName ( uint x, uint y ) */
+} /* buildTileName() */

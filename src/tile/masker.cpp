@@ -27,4 +27,4 @@ int maskTile ( GridTile& masked, GridTile& tile1, GridTile& tile2 ) {
     }
 
     return TILES_MASKED;
-}
+} /* maskTile() */

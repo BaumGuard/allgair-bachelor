@@ -71,28 +71,28 @@ GeoTiffFile::GeoTiffFile ( const char* file_path ) {
     delete[] buf;
 
     //return CREATION_SUCCEEDED;
-} /* GeoTiffFile::GeoTiffFile ( const char* file_path ) */
+} /* GeoTiffFile ( const char* file_path ) */
 
 /*---------------------------------------------------------------*/
 
 GeoTiffFile::~GeoTiffFile () {
     delete[] data;
-} /* GeoTiffFile::~GeoTiffFile () */
+} /* ~GeoTiffFile() */
 
 /*---------------------------------------------------------------*/
 
 float* GeoTiffFile::getData () {
     return data;
-} /* float* GeoTiffFile::getData () */
+} /* getData() */
 
 /*---------------------------------------------------------------*/
 
 char* GeoTiffFile::getTileName () {
     return tile_name;
-} /* char* getTileName () */
+} /* getTileName() */
 
 /*---------------------------------------------------------------*/
 
 uint GeoTiffFile::getTileWidth () {
     return tile_width;
-} /* uint GeoTiffFile::getTileWidth () */
+} /* getTileWidth() */

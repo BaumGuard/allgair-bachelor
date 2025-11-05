@@ -24,7 +24,7 @@ std::string trimString ( std::string str ) {
     }
 
     return trimmed;
-}
+} /* trimString() */
 
 /*---------------------------------------------------------------*/
 
@@ -57,7 +57,7 @@ std::string getTextBetweenXmlTags( std::string line ) {
     }
 
     return text;
-} /* std::string getTextBetweenXmlTags( std::string line ) */
+} /* getTextBetweenXmlTags() */
 
 /*---------------------------------------------------------------*/
 
@@ -88,7 +88,7 @@ std::string getXmlAttribute( std::string line, std::string attribute ) {
     }
 
     return attr_value;
-} /* std::string getXmlAttribute( std::string line, std::string attribute ) */
+} /* getXmlAttribute() */
 
 /*---------------------------------------------------------------*/
 
@@ -115,7 +115,7 @@ std::string getNextLineWithXmlTag( std::ifstream& file, std::string xml_tag ) {
     }
 
     return line;
-} /* std::string getNextLineWithXmlTag( std::ifstream& file, std::string xml_tag ) */
+} /* getNextLineWithXmlTag() */
 
 /*---------------------------------------------------------------*/
 
@@ -164,7 +164,7 @@ std::vector<Vector> valueListToVectorList ( std::string value_list ) {
     }
 
     return vector_list;
-} /* std::vector<Vector> valueListToVectorList ( std::string value_list ) */
+} /* valueListToVectorList() */
 
 /*---------------------------------------------------------------*/
 
@@ -270,22 +270,22 @@ int GmlFile::readGmlFile ( std::string file_path ) {
     }
     return CREATION_SUCCEEDED;
 
-} /* int GmlFile::readGmlFile ( std::string file_path ) */
+} /* readGmlFile() */
 
 /*---------------------------------------------------------------*/
 
 std::vector<Surface>& GmlFile::getSurfaces () {
     return surfaces;
-} /* std::vector<Surface>& GmlFile::getSurfaces () */
+} /* getSurfaces() */
 
 /*---------------------------------------------------------------*/
 
 Vector GmlFile::getLowerCorner () {
     return lower_corner;
-} /* Vector GmlFile::getLowerCorner () */
+} /* getLowerCorner() */
 
 /*---------------------------------------------------------------*/
 
 Vector GmlFile::getUpperCorner () {
     return upper_corner;
-} /* Vector GmlFile::getUpperCorner () */
+} /* getUpperCorner() */

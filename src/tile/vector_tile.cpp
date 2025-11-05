@@ -12,19 +12,19 @@
 
 Vector VectorTile::getLowerCorner () {
     return lower_corner;
-} /* Vector VectorTile::getLowerCorner () */
+} /* getLowerCorner() */
 
 /*---------------------------------------------------------------*/
 
 Vector VectorTile::getUpperCorner () {
     return upper_corner;
-} /* Vector VectorTile::getUpperCorner () */
+} /* getUpperCorner() */
 
 /*---------------------------------------------------------------*/
 
 std::vector<Polygon>& VectorTile::getPolygons () {
     return polygons;
-} /* std::vector<Polygon>& VectorTile::getPolygons () */
+} /* getPolygons() */
 
 /*---------------------------------------------------------------*/
 
@@ -121,7 +121,7 @@ int VectorTile::createBinaryFile ( const char* file_path ) {
     fclose( file );
 
     return BINARY_FILE_CREATED;
-} /* int VectorTile::createBinaryFile ( char* file_path ) */
+} /* createBinaryFile() */
 
 /*---------------------------------------------------------------*/
 
@@ -221,7 +221,7 @@ int VectorTile::readBinaryFile ( const char* file_path ) {
     fclose( file );
 
     return READ_BINARY_FILE_SUCCESS;
-} /* int readBinaryFile ( char* file_path ) */
+} /* readBinaryFile() */
 
 /*---------------------------------------------------------------*/
 
@@ -340,4 +340,4 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
     );
 
     return CREATION_SUCCEEDED;
-} /* int VectorTile::fromGmlFile ( GmlFile& gmlfile ) */
+} /* fromGmlFile() */

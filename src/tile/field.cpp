@@ -15,19 +15,31 @@ const std::string DATA_DIR = "data";
 
 int Field::loadGridTile ( std::string tile_name ) {
     std::string binary_file_name = DATA_DIR + "/" + tile_name + ".grid";
+    printMessage(
+        NORMAL,
+        "Checking for binary grid file '%s' in '%s'... ",
+        binary_file_name.data(), DATA_DIR
+    );
     if ( FILE_EXISTS(binary_file_name.data()) ) {
         GridTile grid_tile;
         grid_tile.readBinaryFile( binary_file_name.c_str() );
 
         grid_tiles[tile_name] = grid_tile;
 
+        printMessage( NORMAL, "Found\n" );
         return TILE_LOADED_SUCCESSFULLY;
     }
+    printMessage( NORMAL, "Not found\n" );
+
 
     std::string geotiff_file_name = DATA_DIR + "/" + tile_name + ".tif";
+    printMessage(
+        NORMAL,
+        "Checking for GeoTIFF file '%s' in '%s'... ",
+        geotiff_file_name.data(),
+        DATA_DIR
+    );
     if ( FILE_EXISTS(geotiff_file_name.data()) ) {
-
-        std::cout << "Path: " << geotiff_file_name.c_str() << '\n';
         GeoTiffFile geotiff ( geotiff_file_name.c_str() );
         GridTile grid_tile ( geotiff );
 
@@ -35,11 +47,19 @@ int Field::loadGridTile ( std::string tile_name ) {
 
         grid_tiles[tile_name] = grid_tile;
 
+        printMessage( NORMAL, "Found\n" );
         return TILE_LOADED_SUCCESSFULLY;
     }
+    printMessage( NORMAL, "Not found\n" );
 
 
     std::string geotiff_url = URL_DGM1 + tile_name + ".tif";
+    printMessage(
+        NORMAL,
+        "Downloading the GeoTIFF file '%s' into '%s'... ",
+        geotiff_file_name.data(),
+        DATA_DIR
+    );
     if ( downloadFile( geotiff_url.data(), DATA_DIR.data() ) == DOWNLOAD_SUCCESSFUL ) {
         GeoTiffFile geotiff ( geotiff_file_name.c_str() );
         GridTile grid_tile ( geotiff );
@@ -48,9 +68,11 @@ int Field::loadGridTile ( std::string tile_name ) {
 
         grid_tiles[tile_name] = grid_tile;
 
+        printMessage( NORMAL, "Done\n" );
         return TILE_LOADED_SUCCESSFULLY;
     }
 
+    printMessage( NORMAL, "Error\n" );
     return TILE_NOT_AVAILABLE;
 } /* int Field::loadGridTile ( std::string tile_name ) */
 
@@ -58,16 +80,28 @@ int Field::loadGridTile ( std::string tile_name ) {
 
 int Field::loadVectorTile ( std::string tile_name ) {
     std::string binary_file_name = DATA_DIR + "/" + tile_name + ".data";
+    printMessage(
+        NORMAL,
+        "Checking for binary vector file '%s' in '%s'... ",
+        binary_file_name.data(), DATA_DIR
+    );
     if ( FILE_EXISTS(binary_file_name.data()) ) {
         VectorTile vector_tile;
         vector_tile.readBinaryFile( binary_file_name.data() );
 
         vector_tiles[tile_name] = vector_tile;
 
+        printMessage( NORMAL, "Found\n" );
         return TILE_LOADED_SUCCESSFULLY;
     }
+    printMessage( NORMAL, "Not found\n" );
 
     std::string gml_file_name = DATA_DIR + "/" + tile_name + ".gml";
+    printMessage(
+        NORMAL,
+        "Checking for Gml file '%s' in '%s'... ",
+        gml_file_name.data(), DATA_DIR
+    );
     if ( FILE_EXISTS(gml_file_name.data()) ) {
         GmlFile gml_file;
         gml_file.readGmlFile( gml_file_name );
@@ -79,10 +113,19 @@ int Field::loadVectorTile ( std::string tile_name ) {
 
         vector_tiles[tile_name] = vector_tile;
 
+        printMessage( NORMAL, "Found\n" );
         return TILE_LOADED_SUCCESSFULLY;
     }
+    printMessage( NORMAL, "Not found\n" );
+
 
     std::string gml_url = URL_LOD2 + tile_name + ".gml";
+    printMessage(
+        NORMAL,
+        "Downloading the Gml file '%s' into '%s'... ",
+        gml_file_name.data(),
+        DATA_DIR
+    );
     if ( downloadFile( gml_url.data(), DATA_DIR.data() ) == DOWNLOAD_SUCCESSFUL ) {
         GmlFile gml_file;
         gml_file.readGmlFile( gml_file_name );
@@ -94,9 +137,11 @@ int Field::loadVectorTile ( std::string tile_name ) {
 
         vector_tiles[tile_name] = vector_tile;
 
+        printMessage( NORMAL, "Done\n" );
         return TILE_LOADED_SUCCESSFULLY;
     }
 
+    printMessage( NORMAL, "Error\n" );
     return TILE_NOT_AVAILABLE;
 } /* int Field::loadVectorTile ( std::string tile_name ) */
 

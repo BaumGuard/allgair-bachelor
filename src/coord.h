@@ -1,3 +1,6 @@
+#ifndef COORD_H
+#define COORD_H
+
 typedef struct {
     float
         lat,
@@ -12,3 +15,5 @@ typedef struct {
         y,
         z;
 } TileCoord;
+
+#endif

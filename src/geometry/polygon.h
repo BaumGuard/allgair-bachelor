@@ -62,10 +62,22 @@ public:
     */
     std::vector<Vector> getPoints ();
 
+    /*
+    Find the intersection between a polygon and a line
 
+    Args:
+     - l          : Line to calculate the intersection with the
+                    polygon if it exists
+     - intersect  : Reference to the Vector object to save the
+                    intersection with the polygon in when an
+                    intersection exists
+
+    Returns:
+     - Status code
+        - POLYGON_LINE_NO_INTERSECT
+        - LINE_INTERSECTS_POLYGON (Success)
+    */
     int lineIntersection ( Line& l, Vector& intersect );
-
-    uint size () {return points.size();}
 
 private:
     std::vector<Vector> points;

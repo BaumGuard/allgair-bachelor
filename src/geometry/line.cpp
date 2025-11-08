@@ -132,10 +132,10 @@ int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) {
         avg_count++;
     }
 
-    double avg = clampDouble( (u_x+u_y+u_z) / (double)avg_count );
-    u_comp = clampDouble( u_comp );
+    double avg = (u_x+u_y+u_z) / (double)avg_count;
+    //u_comp = clampDouble( u_comp );
 
-    if ( avg == u_comp ) {
+    if ( equalWithThreshold(avg, u_comp, 0.01) ) {
         intersect = base + u_comp * direction;
 
         if ( factor != nullptr ) {

@@ -333,11 +333,13 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
         }
     } /* for ( int i=0; i<len; i++ ) */
 
+    /*
     printMessage(
         DEBUG,
         "yes=%d no=%d -> %.02f %%\n", yes, no,
         (double)yes*100.0 / (double)(yes+no)
     );
+    */
 
     return CREATION_SUCCEEDED;
 } /* fromGmlFile() */

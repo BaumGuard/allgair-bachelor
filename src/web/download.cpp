@@ -42,11 +42,13 @@ int downloadFile ( const char* url, const char* dir, bool force ) {
 
     CURLcode err = curl_easy_perform( curl );
 
-    if ( err != CURLE_OK ) {
-        printMessage( ERROR, "ERROR: Invalid URL '%s'\n", url );
-        return INVALID_URL;
-    }
+    long http_code = 0;
+    curl_easy_getinfo ( curl, CURLINFO_RESPONSE_CODE, &http_code );
 
+    if ( http_code != 200 || err != CURLE_OK ) {
+        printMessage( ERROR, "ERROR: Could not download file from '%s'\n", url );
+        return FILE_NOT_FOUND;
+    }
 
     curl_easy_cleanup( curl );
 

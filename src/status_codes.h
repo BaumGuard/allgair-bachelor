@@ -47,7 +47,11 @@ enum Statuscodes {
     BINARY_FILE_CREATED,        /* 33 */
 
     // Raw data
-    NO_SURFACES                 /* 34 */
+    NO_SURFACES,                /* 34 */
+
+    // Raytracing
+    INTERSECTION_FOUND,         /* 35 */
+    NO_INTERSECTION_FOUND       /* 36 */
 };
 
 #endif

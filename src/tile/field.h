@@ -16,7 +16,11 @@ enum TileTypes {
 
 class Field {
 public:
-
+    int surfaceIntersection (
+        Coord& intersection,
+        float lat_start, float lon_start, float alt_start,
+        float lat_end, float lon_end, float alt_end
+    );
 
 private:
     std::unordered_map<std::string, GridTile> grid_tiles;
@@ -129,16 +133,18 @@ private:
                       intersection of the ray with the terrain in
      - lat_start    : Latitude of the starting point in degrees
      - lon_start    : Longitude of the starting point in degrees
+     - alt_start    : Altitude at the starting point in meters
      - lat_end      : Latitude of the end point in degrees
      - lon_end      : Longitudde of the end point in degrees
+     - alt_end      : Altitude at the end point in meters
 
     Returns:
      - Status code
     */
     int bresenhamPseudo3D (
         Coord& intersection,
-        float lat_start, float lon_start,
-        float lat_end, float lon_end
+        float lat_start, float lon_start, float alt_start,
+        float lat_end, float lon_end, float alt_end
     );
 
     /*
@@ -149,17 +155,15 @@ private:
                       nearest intersection of the ray and a surface in
      - lat_start    : Latitude of the starting point in degrees
      - lon_start    : Longitude of the starting point in degrees
+     - alt_start    : Altitude at the starting point in meters
      - lat_end      : Latitude of the end point in degrees
      - lon_end      : Longitudde of the end point in degrees
+     - alt_end      : Altitude at the end point in meters
 
     Returns:
      - Status code
     */
-    int surfaceIntersection (
-        Coord& intersection,
-        float lat_start, float lon_start,
-        float lat_end, float lon_end
-    );
+
 };
 
 #endif

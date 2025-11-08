@@ -13,21 +13,21 @@ void printMessage ( int type, const char* format, ... ) {
 
     switch ( type ) {
         case NORMAL:
-            va_start(argptr, format);
-            vfprintf(stdout, format, argptr);
-            va_end(argptr);
+            va_start( argptr, format );
+            vfprintf( stdout, format, argptr );
+            va_end( argptr );
             break;
 
         case DEBUG:
-            va_start(argptr, format);
-            vfprintf(stdout, format, argptr);
-            va_end(argptr);
+            va_start( argptr, format );
+            vfprintf( stdout, format, argptr );
+            va_end( argptr );
             break;
 
         case ERROR:
-            va_start(argptr, format);
-            vfprintf(stderr, format, argptr);
-            va_end(argptr);
+            va_start( argptr, format );
+            vfprintf( stderr, format, argptr );
+            va_end( argptr );
             break;
     }
 } /* printMessage() */

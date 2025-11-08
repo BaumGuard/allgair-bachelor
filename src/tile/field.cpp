@@ -1,4 +1,7 @@
 #include "field.h"
+#include "../geometry/vector.h"
+#include "../geometry/line.h"
+#include "../geometry/polygon.h"
 #include "../web/download.h"
 #include "../web/urls.h"
 #include "../raw_data/geotiff.h"
@@ -18,7 +21,7 @@ int Field::loadGridTile ( std::string tile_name ) {
     printMessage(
         NORMAL,
         "Checking for binary grid file '%s' in '%s'... ",
-        binary_file_name.data(), DATA_DIR
+        binary_file_name.data(), DATA_DIR.data()
     );
     if ( FILE_EXISTS(binary_file_name.data()) ) {
         GridTile grid_tile;
@@ -37,7 +40,7 @@ int Field::loadGridTile ( std::string tile_name ) {
         NORMAL,
         "Checking for GeoTIFF file '%s' in '%s'... ",
         geotiff_file_name.data(),
-        DATA_DIR
+        DATA_DIR.data()
     );
     if ( FILE_EXISTS(geotiff_file_name.data()) ) {
         GeoTiffFile geotiff ( geotiff_file_name.c_str() );
@@ -58,7 +61,7 @@ int Field::loadGridTile ( std::string tile_name ) {
         NORMAL,
         "Downloading the GeoTIFF file '%s' into '%s'... ",
         geotiff_file_name.data(),
-        DATA_DIR
+        DATA_DIR.data()
     );
     if ( downloadFile( geotiff_url.data(), DATA_DIR.data() ) == DOWNLOAD_SUCCESSFUL ) {
         GeoTiffFile geotiff ( geotiff_file_name.c_str() );
@@ -83,8 +86,10 @@ int Field::loadVectorTile ( std::string tile_name ) {
     printMessage(
         NORMAL,
         "Checking for binary vector file '%s' in '%s'... ",
-        binary_file_name.data(), DATA_DIR
+        binary_file_name.data(), DATA_DIR.data()
     );
+    fflush( stdout );
+
     if ( FILE_EXISTS(binary_file_name.data()) ) {
         VectorTile vector_tile;
         vector_tile.readBinaryFile( binary_file_name.data() );
@@ -100,8 +105,10 @@ int Field::loadVectorTile ( std::string tile_name ) {
     printMessage(
         NORMAL,
         "Checking for Gml file '%s' in '%s'... ",
-        gml_file_name.data(), DATA_DIR
+        gml_file_name.data(), DATA_DIR.data()
     );
+    fflush( stdout );
+
     if ( FILE_EXISTS(gml_file_name.data()) ) {
         GmlFile gml_file;
         gml_file.readGmlFile( gml_file_name );
@@ -119,14 +126,26 @@ int Field::loadVectorTile ( std::string tile_name ) {
     printMessage( NORMAL, "Not found\n" );
 
 
-    std::string gml_url = URL_LOD2 + tile_name + ".gml";
     printMessage(
         NORMAL,
         "Downloading the Gml file '%s' into '%s'... ",
         gml_file_name.data(),
-        DATA_DIR
+        DATA_DIR.data()
     );
+    fflush( stdout );
+
+    std::string gml_url = URL_LOD2 + tile_name + ".gml";
     if ( downloadFile( gml_url.data(), DATA_DIR.data() ) == DOWNLOAD_SUCCESSFUL ) {
+        printMessage( NORMAL, "Done\n" );
+
+        printMessage(
+            NORMAL,
+            "Parsing and converting the Gml file to a binary format... ",
+            gml_file_name.data(),
+            DATA_DIR.data()
+        );
+        fflush( stdout );
+
         GmlFile gml_file;
         gml_file.readGmlFile( gml_file_name );
 
@@ -138,6 +157,7 @@ int Field::loadVectorTile ( std::string tile_name ) {
         vector_tiles[tile_name] = vector_tile;
 
         printMessage( NORMAL, "Done\n" );
+
         return TILE_LOADED_SUCCESSFULLY;
     }
 
@@ -240,7 +260,6 @@ std::vector<std::string> Field::tilesOnRay (
     x1_i -= x1_i % tile_width_km;
     x2_i -= x2_i % tile_width_km;
 
-
     std::string current_tile;
     std::vector<std::string> tile_names;
 
@@ -261,7 +280,7 @@ std::vector<std::string> Field::tilesOnRay (
             y_bound2 = tmp;
         }
 
-        for ( int j = y_bound1; j <= y_bound2; j++ ) {
+        for ( int j = y_bound1; j <= y_bound2; j += tile_width_km ) {
             current_tile = buildTileName( i, j );
             tile_names.push_back( current_tile );
         }
@@ -289,8 +308,8 @@ std::vector<std::string> Field::tilesOnRay (
 
 int Field::bresenhamPseudo3D (
     Coord& intersection,
-    float lat_start, float lon_start,
-    float lat_end, float lon_end
+    float lat_start, float lon_start, float alt_start,
+    float lat_end, float lon_end, float alt_end
 )
 {
     std::vector<std::string> tiles_on_ray =
@@ -313,8 +332,8 @@ int Field::bresenhamPseudo3D (
 
 int Field::surfaceIntersection (
     Coord& intersection,
-    float lat_start, float lon_start,
-    float lat_end, float lon_end
+    float lat_start, float lon_start, float alt_start,
+    float lat_end, float lon_end, float alt_end
 )
 {
     std::vector<std::string> tiles_on_ray =
@@ -330,5 +349,66 @@ int Field::surfaceIntersection (
         tiles.push_back( vector_tiles[tiles_on_ray[i]] );
     }
 
-    // TODO
+
+    double start_x, start_y, end_x, end_y;
+    LatLonToUTMXY( lat_start, lon_start, 32, start_x, start_y );
+    LatLonToUTMXY( lat_end, lon_end, 32, end_x, end_y );
+
+    Vector
+        start_point ( start_x, start_y, alt_start ),
+        end_point ( end_x, end_y, alt_end ),
+        intersect;
+
+    Line ray;
+    ray.createLineFromTwoPoints( start_point, end_point );
+
+    int status;
+    bool found_intersection = false;
+
+    std::vector<Vector> intersections;
+
+    for ( uint i = 0; i < len; i++ ) {
+        std::vector<Polygon>& surfaces = tiles[i].getPolygons();
+
+        uint surfaces_len = surfaces.size();
+        for ( uint j = 0; j < surfaces_len; j++ ) {
+            status = surfaces[j].lineIntersection( ray, intersect );
+
+            if ( status == LINE_INTERSECTS_POLYGON ) {
+                intersections.push_back( intersect );
+                found_intersection = true;
+            }
+        }
+    }
+
+
+    if ( found_intersection ) {
+        double min_distance = ( intersections[0] - start_point ).length();
+        double current_distance;
+        uint min_index = 0;
+
+        uint intersections_len = intersections.size();
+        for ( uint i = 1; i < intersections_len; i++ ) {
+            current_distance = ( intersections[i] - start_point ).length();
+            if ( current_distance < min_distance ) {
+                min_distance = current_distance;
+                min_index = i;
+            }
+        }
+
+        double intersection_lat, intersection_lon;
+        UTMXYToLatLon(
+            intersections[min_index].getX(), intersections[min_index].getY(),
+            32, false,
+            intersection_lat, intersection_lon
+        );
+
+        intersection.lat = RAD_TO_DEG( intersection_lat );
+        intersection.lon = RAD_TO_DEG( intersection_lon );
+        intersection.altitude = intersections[min_index].getZ();
+
+        return INTERSECTION_FOUND;
+    }
+
+    return NO_INTERSECTION_FOUND;
 } /* surfaceIntersection() */

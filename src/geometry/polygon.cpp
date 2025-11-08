@@ -3,6 +3,8 @@
 #include "line.h"
 #include "../status_codes.h"
 
+#include <iostream>
+
 /*---------------------------------------------------------------*/
 
 void Polygon::initPolygonWithPlane ( Plane p ) {
@@ -73,6 +75,7 @@ bool Polygon::isPointInPolygon ( Vector& p ) {
     double
         length_p1_p2,
         length_p1_intersect,
+        length_intersect_p2,
         length_frac;
 
     int intersect_count = 0;
@@ -83,23 +86,23 @@ bool Polygon::isPointInPolygon ( Vector& p ) {
 
         edge_line.createLineFromTwoPoints( p1, p2 );
 
-
-
         status = edge_line.lineIntersect( ray, intersect, &factor );
 
-        if ( status == LINES_INTERSECT && factor > 0.0 ) {
+        if ( status == LINES_INTERSECT /*&& factor > 0.0*/ ) {
             length_p1_p2 = ( p2 - p1 ).length();
             length_p1_intersect = ( intersect - p1 ).length();
+            length_intersect_p2 = ( p2 - intersect ).length();
 
-            length_frac = length_p1_intersect / length_p1_p2;
+            float test = ( intersect.getX() - p.getX() ) / dir_vec.getX();
 
-            if ( length_frac > 0.0 && length_frac < 1.0 ) {
+            if ( length_p1_intersect + length_intersect_p2 == length_p1_p2 && test >= 0.0 ) {
                 intersect_count++;
             }
         }
     }
 
     return intersect_count % 2 == 1;
+
 } /* isPointInPolygon() */
 
 /*---------------------------------------------------------------*/
@@ -119,6 +122,7 @@ std::vector<Vector> Polygon::getPoints () {
 int Polygon::lineIntersection ( Line& l, Vector& intersect ) {
     Vector plane_intersect;
     int status = base_plane.lineIntersection( l, plane_intersect );
+
 
     if ( status != LINE_INTERSECTS_PLANE ) {
         return POLYGON_LINE_NO_INTERSECT;

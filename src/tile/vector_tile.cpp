@@ -225,7 +225,7 @@ int VectorTile::readBinaryFile ( const char* file_path ) {
 
 /*---------------------------------------------------------------*/
 
-int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
+int VectorTile::fromGmlFile ( GmlFile& gmlfile, float* success_rate ) {
     Vector p1, p2, p3;
     Vector dv1, dv2;
 
@@ -333,13 +333,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
         }
     } /* for ( int i=0; i<len; i++ ) */
 
-    /*
-    printMessage(
-        DEBUG,
-        "yes=%d no=%d -> %.02f %%\n", yes, no,
-        (double)yes*100.0 / (double)(yes+no)
-    );
-    */
+    *success_rate = (float)yes / (float)( yes + no );
 
     return CREATION_SUCCEEDED;
 } /* fromGmlFile() */

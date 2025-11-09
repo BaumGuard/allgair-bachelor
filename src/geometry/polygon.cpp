@@ -75,8 +75,7 @@ bool Polygon::isPointInPolygon ( Vector& p ) {
     double
         length_p1_p2,
         length_p1_intersect,
-        length_intersect_p2,
-        length_frac;
+        length_intersect_p2;
 
     int intersect_count = 0;
 

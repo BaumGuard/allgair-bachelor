@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <cstring>
+#include <string>
 
 #define STREQUAL(str1, str2) (!strcmp(str1, str2))
 #define FILE_EXISTS(file_path) (!access(file_path, F_OK))
@@ -86,5 +87,32 @@ Args:
  - max_len   : Maximum length of the destination string (to prevent segfaults)
 */
 void removeFileEnding ( char* dest, char* file_name, int max_len );
+
+/*
+Remove preceding and trailing spaces from a string
+
+Args:
+ - str : Reference to the string to trim
+*/
+void trimString ( std::string& str );
+
+/*
+Split string into two parts at the delimiter
+
+Args:
+ - str          : String to split into two parts
+ - delimiter    : Symbol at which the string should be split
+
+Returns:
+ - string array of size 2
+    - first element: Trimmed string before the delimiter
+    - second element : Trimmed string after the delimiter
+*/
+std::string* splitString ( std::string str, char delimiter );
+
+
+bool stringIsSint ( std::string str );
+bool stringIsUint ( std::string str );
+bool stringIsFloat ( std::string str );
 
 #endif

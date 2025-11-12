@@ -96,3 +96,160 @@ void removeFileEnding ( char* dest, char* file_name, int max_len ) {
     }
     dest[i] = '\0';
 } /* removeFileEnding() */
+
+/*---------------------------------------------------------------*/
+
+void trimString ( std::string& str ) {
+    size_t last_space = 0;
+    size_t len = str.length();
+    for ( size_t i = 0; i < len; i++ ) {
+        if ( str[i] == ' ' || str[i] == '\n' ) {
+            last_space++;
+        }
+        else {
+            break;
+        }
+    }
+    str.erase( 0, last_space );
+
+    len -= last_space;
+
+    last_space = 0;
+    for ( size_t i = len-1; i >= 0; i-- ) {
+        if ( str[i] == ' ' || str[i] == '\n' ) {
+
+            last_space++;
+        }
+        else {
+            break;
+        }
+    }
+
+    str.erase( len-last_space );
+} /* trimString () */
+
+/*---------------------------------------------------------------*/
+
+std::string* splitString ( std::string str, char delimiter ) {
+    static std::string strings [2];
+    strings[0].clear();
+    strings[1].clear();
+
+    size_t len = str.length();
+    size_t i = 0;
+    for ( ; i < len; i++ ) {
+        if ( str[i] != delimiter ) {
+            strings[0] += str[i];
+        }
+        else {
+            break;
+        }
+    }
+
+    i++;
+
+    for ( ; i < len; i++ ) {
+        strings[1] += str[i];
+    }
+
+    trimString( strings[0] );
+    trimString( strings[1] );
+
+    return strings;
+} /* splitString () */
+
+
+/*---------------------------------------------------------------*/
+
+bool stringIsSint ( std::string str ) {
+    size_t len = str.length();
+    size_t it = 0;
+
+    int state = 0;
+
+    while ( it < len ) {
+        switch ( state ) {
+            case 0:
+                if ( str[it] == '-' ) state = 1;
+                else if ( str[it] >= 48 && str[it] <= 57 ) state = 2;
+                else return false;
+                break;
+
+            case 1:
+                if ( str[it] >= 48 && str[it] <= 57 ) state = 2;
+                else return false;
+                break;
+
+            case 2:
+                if ( !(str[it] >= 48 && str[it] <= 57) ) return false;
+                break;
+        }
+        it++;
+    }
+
+    return state == 2;
+}
+
+/*---------------------------------------------------------------*/
+
+bool stringIsUint ( std::string str ) {
+    size_t len = str.length();
+    size_t it = 0;
+
+    int state = 0;
+
+    while ( it < len ) {
+        switch ( state ) {
+            case 0:
+                if ( str[it] >= 48 && str[it] <= 57 ) state = 1;
+                else return false;
+                break;
+
+            case 1:
+                if ( !(str[it] >= 48 && str[it] <= 57) ) return false;
+                break;
+        }
+        it++;
+    }
+
+    return state == 1;
+}
+
+/*---------------------------------------------------------------*/
+
+bool stringIsFloat ( std::string str ) {
+    size_t len = str.length();
+    size_t it = 0;
+
+    int state = 0;
+
+    while ( it < len ) {
+        switch ( state ) {
+            case 0:
+                if ( str[it] >= 48 && str[it] <= 57 ) state = 2;
+                else if ( str[it] == '-' ) state = 1;
+                else if ( str[it] == '.' ) state = 3;
+                else return false;
+                break;
+
+            case 1:
+                if ( str[it] >= 48 && str[it] <= 57 ) state = 1;
+                else if ( str[it] == '.' ) state = 3;
+                else return false;
+                break;
+
+            case 2:
+                if ( str[it] >= 48 && str[it] <= 57 ) state = 2;
+                else if ( str[it] == '.' ) state = 3;
+                else return false;
+                break;
+
+            case 3:
+                if ( !(str[it] >= 48 && str[it] <= 57) ) return false;
+                break;
+        }
+        it++;
+    }
+
+    return state == 3;
+}

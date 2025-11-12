@@ -51,7 +51,18 @@ enum Statuscodes {
 
     // Raytracing
     INTERSECTION_FOUND,         /* 35 */
-    NO_INTERSECTION_FOUND       /* 36 */
+    NO_INTERSECTION_FOUND,      /* 36 */
+
+    // Config
+    UNKNOWN_CONFIG_DATATYPE,    /* 37 */
+    UNKNOWN_CONFIG_OPTION,      /* 38 */
+    CONFIG_FILE_NOT_FOUND,      /* 39 */
+    CONFIG_FILE_NOT_LOADED_YET, /* 40 */
+    CONFIG_TYPES_FILE_NOT_FOUND,/* 41 */
+    INVALID_TYPE_FOR_OPTION,    /* 42 */
+    CONFIG_PARSED_SUCCESS,      /* 43 */
+    CONFIG_WRITE_SUCCESS,       /* 44 */
+    CONFIG_WRITE_FAILURE        /* 45 */
 };
 
 #endif

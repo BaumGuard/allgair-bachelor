@@ -22,6 +22,12 @@ public:
         float lat_end, float lon_end, float alt_end
     );
 
+    int bresenhamPseudo3D (
+        Coord& intersection,
+        float lat_start, float lon_start, float alt_start,
+        float lat_end, float lon_end, float alt_end
+    );
+
 private:
     std::unordered_map<std::string, GridTile> grid_tiles;
     std::unordered_map<std::string, VectorTile> vector_tiles;
@@ -122,8 +128,19 @@ private:
     Returns:
      - Altitude in meters
     */
-    float getHeightAtLatLon ( float lat, float lon );
+    float getAltitudeAtLatLon ( float lat, float lon );
 
+    /*
+    Get the altitude at the UTM x, y coordinates (grid)
+
+    Args:
+     - x : UTM x coordinate (easting)
+     - y : UTM y coordinate (northing)
+
+    Returns:
+     - Altitude in meters
+    */
+    float getAltitudeAtXY ( uint x, uint y );
 
     /*
     Perform the Bresenham algorithm in pseudo 3D space
@@ -141,11 +158,7 @@ private:
     Returns:
      - Status code
     */
-    int bresenhamPseudo3D (
-        Coord& intersection,
-        float lat_start, float lon_start, float alt_start,
-        float lat_end, float lon_end, float alt_end
-    );
+
 
     /*
     Find the nearest intersection of a ray with a surface

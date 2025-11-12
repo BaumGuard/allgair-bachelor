@@ -4,10 +4,12 @@
 
 #include "surface.h"
 #include "../geometry/polygon.h"
+#include "../utils.h"
 #include "../status_codes.h"
 
 #include <iostream>
 
+#if 0
 std::string trimString ( std::string str ) {
     std::string trimmed;
 
@@ -25,7 +27,7 @@ std::string trimString ( std::string str ) {
 
     return trimmed;
 } /* trimString() */
-
+#endif
 /*---------------------------------------------------------------*/
 
 /*
@@ -107,7 +109,7 @@ std::string getNextLineWithXmlTag( std::ifstream& file, std::string xml_tag ) {
     }
 
     while ( getline(file, line) ) {
-        line = trimString( line );
+        trimString( line );
 
         if ( line.starts_with(xml_tag) ) {
             return line;

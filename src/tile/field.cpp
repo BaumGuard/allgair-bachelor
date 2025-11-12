@@ -200,7 +200,7 @@ bool Field::tileAlreadyLoaded ( float lat, float lon, int tile_type ) {
 
 /*---------------------------------------------------------------*/
 
-float Field::getHeightAtLatLon ( float lat, float lon ) {
+float Field::getAltitudeAtLatLon ( float lat, float lon ) {
     double x, y;
     LatLonToUTMXY( lat, lon, 32, x, y );
 
@@ -221,7 +221,29 @@ float Field::getHeightAtLatLon ( float lat, float lon ) {
     GridTile& tile = grid_tiles[tile_name];
 
     return tile.getValue( easting, northing );
-} /* getHeightAtLatLon() */
+} /* getAltitudeAtLatLon() */
+
+/*---------------------------------------------------------------*/
+
+float Field::getAltitudeAtXY ( uint x, uint y ) {
+    uint
+        tile_x = x / 1000,
+        tile_y = y / 1000;
+
+    std::string tile_name = buildTileName( tile_x, tile_y );
+
+    if ( !tileAlreadyLoaded(tile_name, GRID) ) {
+        loadGridTile( tile_name );
+    }
+
+    uint
+        easting = x % 1000,
+        northing = y % 1000;
+
+    GridTile& tile = grid_tiles[tile_name];
+
+    return tile.getValue( easting, northing );
+} /* getAltitudeAtXY () */
 
 /*---------------------------------------------------------------*/
 
@@ -312,6 +334,8 @@ int Field::bresenhamPseudo3D (
     float lat_end, float lon_end, float alt_end
 )
 {
+    // Find all tiles in the path of the ray and load them
+    // if not already done
     std::vector<std::string> tiles_on_ray =
         tilesOnRay( lat_start, lon_start, lat_end, lon_end, 1 );
 
@@ -325,7 +349,194 @@ int Field::bresenhamPseudo3D (
         tiles.push_back( grid_tiles[tiles_on_ray[i]] );
     }
 
-    // TODO : Bresenham-Algorithmus
+
+    // Converting latitude/longitude to UTM coordinates
+    double
+        x_start_f, y_start_f,
+        x_end_f, y_end_f;
+
+    LatLonToUTMXY(
+        (double) lat_start, (double) lon_start,
+        32,
+        x_start_f, y_start_f
+    );
+    LatLonToUTMXY(
+        lat_end, lon_end,
+        32,
+        x_end_f, y_end_f
+    );
+
+    // Cast start and end values to integers
+    int
+        x_start = (int) x_start_f,
+        y_start = (int) y_start_f,
+        z_start = (int) round( alt_start ),
+        x_end   = (int) x_end_f,
+        y_end   = (int) y_end_f,
+        z_end   = (int) round( alt_end );
+
+    // Distances between the start and end coordinate
+    int
+        dx = abs( x_end - x_start ),
+        dy = abs( y_end - y_start ),
+        dz = abs( z_end - z_start );
+
+    // Axes
+    enum { X, Y, Z };
+
+    // Find the largest distance
+    // The corresponding axis will become the iteration axis
+    int axis;
+    if ( dx > dy && dx > dz ) axis = X;
+    else if ( dy > dz ) axis = Y;
+    else axis = Z;
+
+    int
+        e1, e2,                // Bresenham error (if 0 increment/decrement dep1/dep2)
+        it1, it2,              // Iterators to subtract from e1/e2
+        corr,                  // Correction value to add to e1/e2 when they become negative
+        start_it, end_it,      // Start/End value on the iteration axis
+        dep1, dep2,            // Values dependant on the iteration axis (the other two axes)
+        start_dep1, end_dep1,  // Start/End value on the first dependant axis
+        start_dep2, end_dep2;  // Start/End value on the second dependant axis
+
+
+    int x, y, z;
+
+    // Map the x, y and z values to iteration and dependant coordinates
+    switch ( axis ) {
+        case X:
+            e1          = dx;
+            e2          = dx;
+            start_it    = x_start;
+            end_it      = x_end;
+            start_dep1  = y_start;
+            end_dep1    = y_end;
+            start_dep2  = z_start;
+            end_dep2    = z_end;
+            it1         = 2 * dy;
+            it2         = 2 * dz;
+            corr        = 2 * dx;
+            dep1        = y_start;
+            dep2        = z_start;
+            break;
+
+        case Y:
+            e1          = dy;
+            e2          = dy;
+            start_it    = y_start;
+            end_it      = y_end;
+            start_dep1  = x_start;
+            end_dep1    = x_end;
+            start_dep2  = z_start;
+            end_dep2    = z_end;
+            it1         = 2 * dx;
+            it2         = 2 * dz;
+            corr        = 2 * dy;
+            dep1        = x_start;
+            dep2        = z_start;
+            break;
+
+        case Z:
+            e1          = dz;
+            e2          = dz;
+            start_it    = z_start;
+            end_it      = z_end;
+            start_dep1  = x_start;
+            end_dep1    = x_end;
+            start_dep2  = y_start;
+            end_dep2    = y_end;
+            it1         = 2 * dx;
+            it2         = 2 * dy;
+            corr        = 2 * dz;
+            dep1        = x_start;
+            dep2        = y_start;
+            break;
+    }
+
+
+    int it = start_it;
+
+    // Find an intersection between the ray and the ground
+    // using Bresenham's algorithm modified for 3D
+    while ( it != end_it ) {
+        e1 -= it1;
+        e2 -= it2;
+
+        if ( e1 < 0 ) {
+            if ( start_dep1 < end_dep1 ) {
+                dep1++;
+            }
+            else {
+                dep1--;
+            }
+            e1 += corr;
+        }
+
+        if ( e2 < 0 ) {
+            if ( start_dep2 < end_dep2 ) {
+                dep2++;
+            }
+            else {
+                dep2--;
+            }
+            e2 += corr;
+        }
+
+
+        if ( start_it < end_it ) {
+            it++;
+        }
+        else {
+            it--;
+        }
+
+
+        // Map back to x, y and z values
+        switch ( axis ) {
+            case X:
+                x = it;
+                y = dep1;
+                z = dep2;
+                break;
+
+            case Y:
+                x = dep1;
+                y = it;
+                z = dep2;
+                break;
+
+            case Z:
+                x = dep1;
+                y = dep2;
+                z = it;
+                break;
+        }
+
+        // Get the altitude at the current x/y position
+        int altitude_at_xy = (int) round( getAltitudeAtXY(x, y) );
+
+        // If the value of z is equal or smaller than the altitude
+        // at x/y they ray has hit the ground
+        if ( z <= altitude_at_xy ) {
+            double lat_final, lon_final;
+
+            UTMXYToLatLon(
+                (double)x, (double)y,
+                32, false,
+                lat_final, lon_final
+            );
+
+            // Convert the intersection point back to latitude/longitude
+            intersection.lat = (float) RAD_TO_DEG( lat_final );
+            intersection.lon = (float) RAD_TO_DEG( lon_final );
+            intersection.altitude = z;
+
+            return INTERSECTION_FOUND;
+        }
+    }
+
+    return NO_INTERSECTION_FOUND;
 } /* bresenhamPseudo3D() */
 
 /*---------------------------------------------------------------*/

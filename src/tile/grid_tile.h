@@ -107,10 +107,17 @@ public:
     Return the value in the position (x,y) of the grid
 
     Args:
-     - x : x coordinate
-     - y : y coordinate
+     - x     : x coordinate
+     - y     : y coordinate
+     - value : Reference to the float variable to store the value in
+
+    Returns:
+     - Status code
+        - SUCCESS
+
+        - COORDINATES_OUTSIDE_TILE
     */
-    float getValue ( uint x, uint y );
+    int getValue ( uint x, uint y, float& value );
 
     /*
     Return the width of the tile
@@ -124,8 +131,14 @@ public:
      - x     : x coordinate
      - y     : y coordinate
      - value : Value to set (x,y) to
+
+    Returns:
+     - Status code
+        - SUCCESS
+
+        - COORDINATES_OUTSIDE_TILE
     */
-    void setValue ( uint x, uint y, float value );
+    int setValue ( uint x, uint y, float value );
 
 
 private:

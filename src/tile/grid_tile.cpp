@@ -1,6 +1,5 @@
 #include "grid_tile.h"
 
-#include "../exceptions/exception.h"
 #include "../status_codes.h"
 #include "../utils.h"
 
@@ -194,19 +193,24 @@ int GridTile::readBinaryFile ( const char* file_path ) {
 
 /*---------------------------------------------------------------*/
 
-float GridTile::getValue ( uint x, uint y ) {
+int GridTile::getValue ( uint x, uint y, float& value ) {
     if ( x >= width || y >= width ) {
-        // TODO
-        throw OutsideOfTileException( "test" );
+        return COORDINATES_OUTSIDE_TILE;
     }
-    return tile[width*(width-y-1)+x];
-} /* float GridTile::getValue ( uint x, uint y ) */
 
-void GridTile::setValue ( uint x, uint y, float value ) {
+    value = tile[width*(width-y-1)+x];
+
+    return SUCCESS;
+} /* getValue () */
+
+int GridTile::setValue ( uint x, uint y, float value ) {
     if ( x >= width || y >= width ) {
-        //throw OutsideOfGridException();
+        return COORDINATES_OUTSIDE_TILE;
     }
+
     tile[width*y+x] = value;
+
+    return SUCCESS;
 } /* setValue() */
 
 /*---------------------------------------------------------------*/
@@ -225,7 +229,7 @@ void GridTile::getBlock (
 
     for ( uint32_t i=y; i<y+block_width; i++ ) {
         for ( uint32_t j=x; j<x+block_width; j++ ) {
-            block_buf[buf_it] = getValue( j, i );
+            getValue( j, i, block_buf[buf_it] );
             buf_it++;
         }
     }

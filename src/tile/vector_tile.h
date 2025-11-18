@@ -21,12 +21,12 @@ public:
     /*
     Return the lower left corner of the tile as a Vector
     */
-    Vector getLowerCorner ();
+    Vector getLowerCorner () const;
 
     /*
     Return the upper right corner of the tile as a Vector
     */
-    Vector getUpperCorner ();
+    Vector getUpperCorner () const;
 
     /*
     Return a reference to the std::vector with the Polygon objects

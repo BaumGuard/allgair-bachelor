@@ -61,7 +61,7 @@ public:
      - false (The point is not on the line)
      - true  (The point is on the line)
     */
-    bool pointIsOnLine ( Vector p );
+    bool pointIsOnLine ( Vector p ) const;
 
     /*
     Find the intersection between this line and another line
@@ -78,18 +78,18 @@ public:
         - LINES_NO_INTERSECT (Failure -> No intersection)
         - LINES_INTERSECT (Success)
     */
-    int lineIntersect ( Line& l, Vector& intersect, double* factor = nullptr );
+    int lineIntersect ( Line& l, Vector& intersect, double* factor = nullptr ) const;
 
     /*
     Check if two lines are equal
     */
-    bool operator == ( Line& l );
+    bool operator == ( Line& l ) const;
 
 
     /*
     Print a description of the line
     */
-    void printLine ();
+    void printLine () const;
 
 private:
     Vector

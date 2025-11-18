@@ -30,7 +30,7 @@ public:
     Vector operator - ( const Vector& v ) const;
     void operator -= ( Vector& v );
 
-    Vector operator * ( const double n ) const;
+    Vector operator * ( const double n );
     void operator *= ( const double n );
 
     Vector operator / ( const double n ) const;
@@ -40,8 +40,8 @@ public:
 
     Vector& operator = ( const Vector& v ) = default;
 
-    bool operator == ( Vector& v );
-    bool operator != ( Vector & v );
+    bool operator == ( Vector& v ) const;
+    bool operator != ( Vector & v ) const;
 
     /*
     Check if a vector is linear dependant on the local vector
@@ -53,7 +53,7 @@ public:
      - true  : Vector v is linear dependant on the local vector
      - false : Vector v is not linear dependant on the local vector
     */
-    bool linearDependant ( Vector v );
+    bool linearDependant ( Vector v ) const;
 
     /*
     Length of the local vector
@@ -61,7 +61,7 @@ public:
     Returns:
      - Length of the local vector
     */
-    double length ();
+    double length () const;
 
     /*
     Transform the local vector to a unit vector
@@ -71,12 +71,12 @@ public:
     /*
     Return the unit vector of the local vector
     */
-    Vector getUnitVector ();
+    Vector getUnitVector () const;
 
     /*
     Print a description of the vector
     */
-    void printVector ();
+    void printVector () const;
 
 private:
     double

@@ -66,7 +66,7 @@ public:
     /*
     Return the normal vector of the plane as Vector
     */
-    Vector normalVector();
+    Vector normalVector() const;
 
     /*
     Check if a point p is on the plane
@@ -78,7 +78,7 @@ public:
      - true  : Point p is on the plane
      - false : Point p is not on the plane
     */
-    bool isPointOnPlane ( Vector& p );
+    bool isPointOnPlane ( Vector& p ) const;
 
     /*
     Determine the intersection of a Line l with the plane
@@ -94,7 +94,7 @@ public:
         - LINE_PARALLEL_TO_PLANE (Failure: No intersection with the plane)
         - LINE_INTERSECTS_PLANE (Success)
     */
-    int lineIntersection ( Line& l, Vector& intersect, double* factor = nullptr );
+    int lineIntersection ( Line& l, Vector& intersect, double* factor = nullptr ) const;
 
     /*
     Reflect a line on the plane
@@ -108,7 +108,7 @@ public:
      - LINE_PARALLEL_TO_PLANE (Failure: No reflection possible)
      - CREATION_SUCCEEDED (Success)
     */
-    int reflectLine ( Line& old_line, Line& new_line );
+    int reflectLine ( Line& old_line, Line& new_line ) const;
 
     /*
     Calculate the distance from a point to a plane
@@ -116,7 +116,7 @@ public:
     Args:
      - p : Point as Vector
     */
-    double distanceOfPointToPlane ( Vector& p );
+    double distanceOfPointToPlane ( Vector& p ) const;
 
     /* GETTERS */
     Vector getBaseVector() const;
@@ -131,7 +131,7 @@ public:
     /*
     Print a description of the plane
     */
-    void printPlane();
+    void printPlane() const;
 
 private:
     double

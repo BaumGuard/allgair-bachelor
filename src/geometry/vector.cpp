@@ -70,7 +70,7 @@ void Vector::operator -= ( Vector& v ) {
     z -= v.getZ();
 } /* operator -= */
 
-Vector Vector::operator * ( const double n ) const {
+Vector Vector::operator * ( const double n ) {
     return Vector( x*n, y*n, z*n );
 } /* operator * */
 
@@ -90,11 +90,11 @@ void Vector::operator /= ( const double n ) {
     this->z /= n;
 } /* operator /= */
 
-bool Vector::operator == ( Vector& v ) {
+bool Vector::operator == ( Vector& v ) const {
     return x == v.getX() && y == v.getY() && z == v.getZ();
 } /* operator == */
 
-bool Vector::operator != ( Vector& v ) {
+bool Vector::operator != ( Vector& v ) const {
     return !( x == v.getX() && y == v.getY() && z == v.getZ() );
 } /* perator != */
 
@@ -111,7 +111,7 @@ Vector operator * ( double n, const Vector& v ) {
 
 /*---------------------------------------------------------------*/
 
-bool Vector::linearDependant ( Vector v ) {
+bool Vector::linearDependant ( Vector v ) const {
 
     Vector
         v1 = getUnitVector(),
@@ -159,7 +159,7 @@ bool Vector::linearDependant ( Vector v ) {
 
 /*---------------------------------------------------------------*/
 
-double Vector::length () {
+double Vector::length () const {
     return sqrt( x*x + y*y + z*z );
 } /* length() */
 
@@ -177,7 +177,7 @@ void Vector::toUnitVector () {
 
 /*---------------------------------------------------------------*/
 
-Vector Vector::getUnitVector () {
+Vector Vector::getUnitVector () const {
     if ( x == 0.0 && y == 0.0 && z == 0.0 ) {
         return Vector( 0.0, 0.0, 0.0 );
     }
@@ -189,6 +189,6 @@ Vector Vector::getUnitVector () {
 
 /*---------------------------------------------------------------*/
 
-void Vector::printVector () {
+void Vector::printVector () const {
     printMessage( NORMAL, "x=%f y=%f z=%f\n", x, y, z );
 } /* printVector() */

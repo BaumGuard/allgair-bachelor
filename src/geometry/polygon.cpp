@@ -14,7 +14,7 @@ void Polygon::initPolygonWithPlane ( Plane p ) {
 
 /*---------------------------------------------------------------*/
 
-bool Polygon::isPointAlreadyInPolygon ( Vector& p ) {
+bool Polygon::isPointAlreadyInPolygon ( Vector& p ) const {
     int size = points.size();
 
     Vector current_point;
@@ -52,7 +52,7 @@ int Polygon::addPoint ( Vector point ) {
 
 /*---------------------------------------------------------------*/
 
-bool Polygon::isPointInPolygon ( Vector& p ) {
+bool Polygon::isPointInPolygon ( Vector& p ) const {
     if ( !base_plane.isPointOnPlane(p) ) {
         return false;
     }
@@ -106,19 +106,19 @@ bool Polygon::isPointInPolygon ( Vector& p ) {
 
 /*---------------------------------------------------------------*/
 
-Plane Polygon::getBasePlane () {
+Plane Polygon::getBasePlane () const {
     return base_plane;
 } /* getBasePlane() */
 
 /*---------------------------------------------------------------*/
 
-std::vector<Vector> Polygon::getPoints () {
+std::vector<Vector> Polygon::getPoints () const {
     return points;
 } /* getPoints() */
 
 /*---------------------------------------------------------------*/
 
-int Polygon::getSurfaceType () {
+int Polygon::getSurfaceType () const {
     return surface_type;
 } /* getSurfaceType () */
 
@@ -130,7 +130,7 @@ void Polygon::setSurfaceType ( int surface_type ) {
 
 /*---------------------------------------------------------------*/
 
-int Polygon::lineIntersection ( Line& l, Vector& intersect ) {
+int Polygon::lineIntersection ( Line& l, Vector& intersect ) const {
     Vector plane_intersect;
     int status = base_plane.lineIntersection( l, plane_intersect );
 

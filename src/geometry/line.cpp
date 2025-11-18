@@ -41,7 +41,7 @@ Vector Line::getDirectionVector () const {
 
 /*---------------------------------------------------------------*/
 
-bool Line::pointIsOnLine ( Vector p ) {
+bool Line::pointIsOnLine ( Vector p ) const {
     double
         x_a = base.getX(),
         y_a = base.getY(),
@@ -67,7 +67,7 @@ bool Line::pointIsOnLine ( Vector p ) {
 
 /*---------------------------------------------------------------*/
 
-int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) {
+int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) const {
     if ( *this == l ) {
         return LINES_IDENTICAL;
     }
@@ -149,7 +149,7 @@ int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) {
 
 /*---------------------------------------------------------------*/
 
-bool Line::operator == ( Line& l ) {
+bool Line::operator == ( Line& l ) const {
     bool point_is_on_line = pointIsOnLine( l.getBaseVector() );
     bool direction_vectors_linear_dependant =
         direction.linearDependant( l.getDirectionVector() );
@@ -162,7 +162,7 @@ bool Line::operator == ( Line& l ) {
 
 /*---------------------------------------------------------------*/
 
-void Line::printLine () {
+void Line::printLine () const {
     printMessage(
         NORMAL,
         "x_base=%f y_base=%f z_base=%f\n",

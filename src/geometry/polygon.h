@@ -47,7 +47,7 @@ public:
     Args:
      - p : Point as Vector to check
     */
-    bool isPointInPolygon ( Vector& p );
+    bool isPointInPolygon ( Vector& p ) const;
 
 
     /* GETTERS */
@@ -55,18 +55,18 @@ public:
     /*
     Return the base plane of the polygon as a Plane object
     */
-    Plane getBasePlane();
+    Plane getBasePlane() const;
 
     /*
     Return a reference to the point list of the polygon
     */
-    std::vector<Vector> getPoints ();
+    std::vector<Vector> getPoints () const;
 
     /*
     Return the surface type of the polygon
     (defined in enum SurfaceTypes - surface.h)
     */
-    int getSurfaceType ();
+    int getSurfaceType () const;
 
     /*
     Set the surface type of the polygon
@@ -89,7 +89,7 @@ public:
         - POLYGON_LINE_NO_INTERSECT
         - LINE_INTERSECTS_POLYGON (Success)
     */
-    int lineIntersection ( Line& l, Vector& intersect );
+    int lineIntersection ( Line& l, Vector& intersect ) const;
 
 private:
     std::vector<Vector> points;
@@ -105,7 +105,7 @@ private:
 
     If true, addPoint will return the status code POINT_DUPLICATE
     */
-    bool isPointAlreadyInPolygon ( Vector& p );
+    bool isPointAlreadyInPolygon ( Vector& p ) const;
 };
 
 #endif

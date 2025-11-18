@@ -10,13 +10,13 @@
 
 /*---------------------------------------------------------------*/
 
-Vector VectorTile::getLowerCorner () {
+Vector VectorTile::getLowerCorner () const {
     return lower_corner;
 } /* getLowerCorner() */
 
 /*---------------------------------------------------------------*/
 
-Vector VectorTile::getUpperCorner () {
+Vector VectorTile::getUpperCorner () const {
     return upper_corner;
 } /* getUpperCorner() */
 

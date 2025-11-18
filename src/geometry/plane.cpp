@@ -64,7 +64,7 @@ int Plane::createPlaneFromCoordinates ( double x, double y, double z, double n )
 
 /*---------------------------------------------------------------*/
 
-Vector Plane::normalVector() {
+Vector Plane::normalVector() const {
     return Vector( x, y, z );
 } /* normalVector() */
 
@@ -88,7 +88,7 @@ void Plane::toCoordinateForm() {
 
 /*---------------------------------------------------------------*/
 
-bool Plane::isPointOnPlane ( Vector& p ) {
+bool Plane::isPointOnPlane ( Vector& p ) const {
     double res = x * p.getX() + y * p.getY() + z * p.getZ() + n;
 
     if ( fabs(res) < 0.01 ) {
@@ -99,7 +99,7 @@ bool Plane::isPointOnPlane ( Vector& p ) {
 
 /*---------------------------------------------------------------*/
 
-int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) {
+int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) const {
     Vector
         base_vec = l.getBaseVector(),
         dir_vec  = l.getDirectionVector();
@@ -136,7 +136,7 @@ int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) {
 
 /*---------------------------------------------------------------*/
 
-int Plane::reflectLine ( Line& old_line, Line& new_line ) {
+int Plane::reflectLine ( Line& old_line, Line& new_line ) const {
     Vector old_intersect;
     double factor;
 
@@ -199,7 +199,7 @@ double Plane::getN () const {
 
 /*---------------------------------------------------------------*/
 
-double Plane::distanceOfPointToPlane ( Vector& p ) {
+double Plane::distanceOfPointToPlane ( Vector& p ) const {
     Vector nv = normalVector();
 
     Line plumb_line;
@@ -213,6 +213,6 @@ double Plane::distanceOfPointToPlane ( Vector& p ) {
 
 /*---------------------------------------------------------------*/
 
-void Plane::printPlane() {
+void Plane::printPlane() const {
     printMessage( NORMAL, "x=%f y=%f z=%f n=%f\n", x, y, z, n );
 } /* printPlane() */

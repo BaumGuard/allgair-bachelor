@@ -9,25 +9,6 @@
 
 #include <iostream>
 
-#if 0
-std::string trimString ( std::string str ) {
-    std::string trimmed;
-
-    bool found_start = false;
-    uint len = str.length();
-    for ( uint i=0; i<len; i++ ) {
-        if ( str[i] != ' ' ) {
-            found_start = true;
-        }
-
-        if ( found_start ) {
-            trimmed += str[i];
-        }
-    }
-
-    return trimmed;
-} /* trimString() */
-#endif
 /*---------------------------------------------------------------*/
 
 /*
@@ -282,12 +263,12 @@ std::vector<Surface>& GmlFile::getSurfaces () {
 
 /*---------------------------------------------------------------*/
 
-Vector GmlFile::getLowerCorner () {
+Vector GmlFile::getLowerCorner () const {
     return lower_corner;
 } /* getLowerCorner() */
 
 /*---------------------------------------------------------------*/
 
-Vector GmlFile::getUpperCorner () {
+Vector GmlFile::getUpperCorner () const {
     return upper_corner;
 } /* getUpperCorner() */

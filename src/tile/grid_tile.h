@@ -117,12 +117,12 @@ public:
 
         - COORDINATES_OUTSIDE_TILE
     */
-    int getValue ( uint x, uint y, float& value );
+    int getValue ( uint x, uint y, float& value ) const;
 
     /*
     Return the width of the tile
     */
-    uint getTileWidth ();
+    uint getTileWidth () const;
 
     /*
     Set the value in the grid in the position (x,y)
@@ -151,7 +151,7 @@ private:
         float* block_buf,
         uint block_width,
         uint x, uint y
-    );
+    ) const;
 };
 
 /*---------------------------------------------------------------*/

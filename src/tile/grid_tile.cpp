@@ -193,7 +193,7 @@ int GridTile::readBinaryFile ( const char* file_path ) {
 
 /*---------------------------------------------------------------*/
 
-int GridTile::getValue ( uint x, uint y, float& value ) {
+int GridTile::getValue ( uint x, uint y, float& value ) const {
     if ( x >= width || y >= width ) {
         return COORDINATES_OUTSIDE_TILE;
     }
@@ -215,7 +215,7 @@ int GridTile::setValue ( uint x, uint y, float value ) {
 
 /*---------------------------------------------------------------*/
 
-uint GridTile::getTileWidth () {
+uint GridTile::getTileWidth () const {
     return width;
 } /* getGridTileWidth() */
 
@@ -224,7 +224,7 @@ uint GridTile::getTileWidth () {
 void GridTile::getBlock (
     float* block_buf, uint block_width,
     uint x, uint y
-) {
+) const {
     uint32_t buf_it = 0;
 
     for ( uint32_t i=y; i<y+block_width; i++ ) {

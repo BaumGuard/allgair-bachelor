@@ -50,7 +50,11 @@ Args:
 Returns:
  - Name of the adjacent tile
 */
-std::string adjacentTile ( std::string tile_name, int adjacence, int width_km );
+std::string adjacentTile (
+    std::string tile_name,
+    int adjacence,
+    int width_km
+);
 
 
 /*

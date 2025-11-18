@@ -17,8 +17,8 @@ int maskTile ( GridTile& masked, GridTile& tile1, GridTile& tile2 ) {
 
     for ( int y = 0; y < width; y++ ) {
         for ( int x = 0; x < width; x++ ) {
-            tile1_value = tile1.getValue( x, y );
-            tile2_value = tile2.getValue( x, y );
+            tile1.getValue( x, y, tile1_value );
+            tile2.getValue( x, y, tile2_value );
 
             masked_value = tile1_value - tile2_value;
 

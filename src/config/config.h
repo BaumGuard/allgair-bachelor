@@ -17,10 +17,12 @@ enum ConfigDatatypes {
 
 /*---------------------------------------------------------------*/
 
-// Object to save a config value in
-// When setting a value for the given value type, you should
-// always set the variable 'datatype' to the corresponding
-// datatype (see enum ConfigDatatypes)
+/*
+Object to save a config value in
+When setting a value for the given value type, you should
+always set the variable 'datatype' to the corresponding
+datatype (see enum ConfigDatatypes)
+*/
 typedef struct {
     int datatype;
 

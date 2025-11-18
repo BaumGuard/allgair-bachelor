@@ -118,6 +118,18 @@ std::vector<Vector> Polygon::getPoints () {
 
 /*---------------------------------------------------------------*/
 
+int Polygon::getSurfaceType () {
+    return surface_type;
+} /* getSurfaceType () */
+
+/*---------------------------------------------------------------*/
+
+void Polygon::setSurfaceType ( int surface_type ) {
+    this->surface_type = surface_type;
+} /* setSurfaceType () */
+
+/*---------------------------------------------------------------*/
+
 int Polygon::lineIntersection ( Line& l, Vector& intersect ) {
     Vector plane_intersect;
     int status = base_plane.lineIntersection( l, plane_intersect );

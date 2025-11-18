@@ -290,7 +290,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, float* success_rate ) {
         base_plane.createPlaneFromPoints( p1, p2, p3 );
 
         Polygon polygon;
-
+        polygon.setSurfaceType( surfaces[i].surface_type );
         polygon.initPolygonWithPlane( base_plane );
 
         len_pos_list = surfaces[i].pos_list.size();

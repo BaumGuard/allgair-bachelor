@@ -63,6 +63,18 @@ public:
     std::vector<Vector> getPoints ();
 
     /*
+    Return the surface type of the polygon
+    (defined in enum SurfaceTypes - surface.h)
+    */
+    int getSurfaceType ();
+
+    /*
+    Set the surface type of the polygon
+    */
+    void setSurfaceType ( int surface_type );
+
+
+    /*
     Find the intersection between a polygon and a line
 
     Args:
@@ -84,6 +96,8 @@ private:
     Plane base_plane;
 
     bool initialized = false;
+
+    int surface_type;
 
     /*
     Check if a point is already in the polygon

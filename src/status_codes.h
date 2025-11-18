@@ -45,24 +45,27 @@ enum Statuscodes {
     READ_BINARY_FILE_SUCCESS,   /* 31 */
     BINARY_FILE_NOT_CREATABLE,  /* 32 */
     BINARY_FILE_CREATED,        /* 33 */
+    COORDINATES_OUTSIDE_TILE,   /* 34 */
 
     // Raw data
-    NO_SURFACES,                /* 34 */
+    NO_SURFACES,                /* 35 */
 
     // Raytracing
-    INTERSECTION_FOUND,         /* 35 */
-    NO_INTERSECTION_FOUND,      /* 36 */
+    INTERSECTION_FOUND,         /* 36 */
+    NO_INTERSECTION_FOUND,      /* 37 */
 
     // Config
-    UNKNOWN_CONFIG_DATATYPE,    /* 37 */
-    UNKNOWN_CONFIG_OPTION,      /* 38 */
-    CONFIG_FILE_NOT_FOUND,      /* 39 */
-    CONFIG_FILE_NOT_LOADED_YET, /* 40 */
-    CONFIG_TYPES_FILE_NOT_FOUND,/* 41 */
-    INVALID_TYPE_FOR_OPTION,    /* 42 */
-    CONFIG_PARSED_SUCCESS,      /* 43 */
-    CONFIG_WRITE_SUCCESS,       /* 44 */
-    CONFIG_WRITE_FAILURE        /* 45 */
+    UNKNOWN_CONFIG_DATATYPE,    /* 38 */
+    UNKNOWN_CONFIG_OPTION,      /* 39 */
+    CONFIG_FILE_NOT_FOUND,      /* 40 */
+    CONFIG_FILE_NOT_LOADED_YET, /* 41 */
+    CONFIG_TYPES_FILE_NOT_FOUND,/* 42 */
+    INVALID_TYPE_FOR_OPTION,    /* 43 */
+    CONFIG_PARSED_SUCCESS,      /* 44 */
+    CONFIG_WRITE_SUCCESS,       /* 45 */
+    CONFIG_WRITE_FAILURE,       /* 46 */
+
+    SUCCESS                     /* 47 */
 };
 
 #endif

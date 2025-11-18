@@ -220,7 +220,10 @@ float Field::getAltitudeAtLatLon ( float lat, float lon ) {
 
     GridTile& tile = grid_tiles[tile_name];
 
-    return tile.getValue( easting, northing );
+    float value;
+    tile.getValue( easting, northing, value );
+
+    return value;
 } /* getAltitudeAtLatLon() */
 
 /*---------------------------------------------------------------*/
@@ -242,7 +245,10 @@ float Field::getAltitudeAtXY ( uint x, uint y ) {
 
     GridTile& tile = grid_tiles[tile_name];
 
-    return tile.getValue( easting, northing );
+    float value;
+    tile.getValue( easting, northing, value );
+
+    return value;
 } /* getAltitudeAtXY () */
 
 /*---------------------------------------------------------------*/

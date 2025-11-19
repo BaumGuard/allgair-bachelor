@@ -43,7 +43,7 @@ int VectorTile::createBinaryFile ( const char* file_path ) {
     FILE* file = fopen( file_path, "wb" );
 
     if ( !file ) {
-        return BINARY_FILE_NOT_CREATABLE;
+        return FILE_NOT_CREATABLE;
     }
 
     fprintf( file, "DATA" );
@@ -120,12 +120,12 @@ int VectorTile::createBinaryFile ( const char* file_path ) {
 
     fclose( file );
 
-    return BINARY_FILE_CREATED;
+    return SUCCESS;
 } /* createBinaryFile() */
 
 /*---------------------------------------------------------------*/
 
-int VectorTile::readBinaryFile ( const char* file_path ) {
+int VectorTile::fromBinaryFile ( const char* file_path ) {
     FILE* file = fopen( file_path, "rb" );
 
     union data_block data;
@@ -133,7 +133,7 @@ int VectorTile::readBinaryFile ( const char* file_path ) {
     fread( data.bytes, 1, 4, file );
 
     if ( !STREQUAL(data.bytes, "DATA") ) {
-        return BINARY_FILE_NOT_FOUND;
+        return FILE_NOT_FOUND;
     }
 
     fread( data.bytes, 1, 4, file );
@@ -220,8 +220,8 @@ int VectorTile::readBinaryFile ( const char* file_path ) {
 
     fclose( file );
 
-    return READ_BINARY_FILE_SUCCESS;
-} /* readBinaryFile() */
+    return SUCCESS;
+} /* fromBinaryFile() */
 
 /*---------------------------------------------------------------*/
 
@@ -335,5 +335,5 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, float* success_rate ) {
 
     *success_rate = (float)yes / (float)( yes + no );
 
-    return CREATION_SUCCEEDED;
+    return SUCCESS;
 } /* fromGmlFile() */

@@ -94,8 +94,9 @@ private:
 
     Returns:
      - Status code
+        - SUCCESS
+
         - TILE_NOT_AVAILABLE
-        - TILE_LOADED_SUCCESSFULLY (Success)
     */
     int loadGridTile ( std::string tile_name );
 
@@ -113,8 +114,9 @@ private:
 
     Returns:
      - Status code
+        - SUCCESS
+
         - TILE_NOT_AVAILABLE
-        - TILE_LOADED_SUCCESSFULLY (Success)
     */
     int loadVectorTile ( std::string tile_name );
 

@@ -33,11 +33,12 @@ public:
 
     Returns:
      - Status code:
+        - SUCCESS
+
         - POINT_NOT_ON_BASE_PLANE
           (Failure: A point of the polygon must be on the base plane)
         - POINT_DUPLICATE
           (Failure: All points must differ from eachother)
-        - POINT_ADDED (Success)
     */
     int addPoint ( Vector point );
 
@@ -86,8 +87,9 @@ public:
 
     Returns:
      - Status code
-        - POLYGON_LINE_NO_INTERSECT
-        - LINE_INTERSECTS_POLYGON (Success)
+        - INTERSECTION_FOUND (Success)
+
+        - NO_INTERSECTION_FOUND
     */
     int lineIntersection ( Line& l, Vector& intersect ) const;
 

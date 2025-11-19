@@ -251,7 +251,7 @@ int GmlFile::readGmlFile ( std::string file_path ) {
     if ( surfaces.size() == 0 ) {
         return NO_SURFACES;
     }
-    return CREATION_SUCCEEDED;
+    return SUCCESS;
 
 } /* readGmlFile() */
 

@@ -54,5 +54,5 @@ int downloadFile ( const char* url, const char* dir, bool force ) {
 
     fclose(out_file);
 
-    return DOWNLOAD_SUCCESSFUL;
+    return SUCCESS;
 } /* downloadFile() */

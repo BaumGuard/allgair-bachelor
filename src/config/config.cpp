@@ -16,7 +16,7 @@ int Config::readConfigFile ( std::string file_path ) {
 
     FILE* config_file = fopen( file_path.data(), "r" );
     if ( !config_file ) {
-        return CONFIG_FILE_NOT_FOUND;
+        return FILE_NOT_FOUND;
     }
     config_file_path = file_path;
 
@@ -116,7 +116,7 @@ int Config::readConfigFile ( std::string file_path ) {
     fclose( types_file );
 
     config_loaded = true;
-    return CONFIG_PARSED_SUCCESS;
+    return SUCCESS;
 } /* readConfigFile () */
 
 /*---------------------------------------------------------------*/
@@ -129,7 +129,7 @@ int Config::saveConfigOption ( std::string opt_name, ConfigObject& value ) {
     FILE* config_file = fopen( config_file_path.data(), "rw" );
     if ( !config_file ) {
         fclose( config_file );
-        return CONFIG_FILE_NOT_FOUND;
+        return FILE_NOT_FOUND;
     }
 
     char line_buf [256];
@@ -220,7 +220,7 @@ int Config::saveConfigOption ( std::string opt_name, ConfigObject& value ) {
 
 
     if ( system_status == 0 ) {
-        return CONFIG_WRITE_SUCCESS;
+        return SUCCESS;
     }
     return CONFIG_WRITE_FAILURE;
 } /* saveConfigOption () */

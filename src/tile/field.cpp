@@ -25,12 +25,12 @@ int Field::loadGridTile ( std::string tile_name ) {
     );
     if ( FILE_EXISTS(binary_file_name.data()) ) {
         GridTile grid_tile;
-        grid_tile.readBinaryFile( binary_file_name.c_str() );
+        grid_tile.fromBinaryFile( binary_file_name.c_str() );
 
         grid_tiles[tile_name] = grid_tile;
 
         printMessage( NORMAL, "Found\n" );
-        return TILE_LOADED_SUCCESSFULLY;
+        return SUCCESS;
     }
     printMessage( NORMAL, "Not found\n" );
 
@@ -51,7 +51,7 @@ int Field::loadGridTile ( std::string tile_name ) {
         grid_tiles[tile_name] = grid_tile;
 
         printMessage( NORMAL, "Found\n" );
-        return TILE_LOADED_SUCCESSFULLY;
+        return SUCCESS;
     }
     printMessage( NORMAL, "Not found\n" );
 
@@ -63,7 +63,7 @@ int Field::loadGridTile ( std::string tile_name ) {
         geotiff_file_name.data(),
         DATA_DIR.data()
     );
-    if ( downloadFile( geotiff_url.data(), DATA_DIR.data() ) == DOWNLOAD_SUCCESSFUL ) {
+    if ( downloadFile( geotiff_url.data(), DATA_DIR.data() ) == SUCCESS ) {
         GeoTiffFile geotiff ( geotiff_file_name.c_str() );
         GridTile grid_tile ( geotiff );
 
@@ -72,7 +72,7 @@ int Field::loadGridTile ( std::string tile_name ) {
         grid_tiles[tile_name] = grid_tile;
 
         printMessage( NORMAL, "Done\n" );
-        return TILE_LOADED_SUCCESSFULLY;
+        return SUCCESS;
     }
 
     printMessage( NORMAL, "Error\n" );
@@ -92,12 +92,12 @@ int Field::loadVectorTile ( std::string tile_name ) {
 
     if ( FILE_EXISTS(binary_file_name.data()) ) {
         VectorTile vector_tile;
-        vector_tile.readBinaryFile( binary_file_name.data() );
+        vector_tile.fromBinaryFile( binary_file_name.data() );
 
         vector_tiles[tile_name] = vector_tile;
 
         printMessage( NORMAL, "Found\n" );
-        return TILE_LOADED_SUCCESSFULLY;
+        return SUCCESS;
     }
     printMessage( NORMAL, "Not found\n" );
 
@@ -121,7 +121,7 @@ int Field::loadVectorTile ( std::string tile_name ) {
         vector_tiles[tile_name] = vector_tile;
 
         printMessage( NORMAL, "Found\n" );
-        return TILE_LOADED_SUCCESSFULLY;
+        return SUCCESS;
     }
     printMessage( NORMAL, "Not found\n" );
 
@@ -135,7 +135,7 @@ int Field::loadVectorTile ( std::string tile_name ) {
     fflush( stdout );
 
     std::string gml_url = URL_LOD2 + tile_name + ".gml";
-    if ( downloadFile( gml_url.data(), DATA_DIR.data() ) == DOWNLOAD_SUCCESSFUL ) {
+    if ( downloadFile( gml_url.data(), DATA_DIR.data() ) == SUCCESS ) {
         printMessage( NORMAL, "Done\n" );
 
         printMessage(
@@ -158,7 +158,7 @@ int Field::loadVectorTile ( std::string tile_name ) {
 
         printMessage( NORMAL, "Done\n" );
 
-        return TILE_LOADED_SUCCESSFULLY;
+        return SUCCESS;
     }
 
     printMessage( NORMAL, "Error\n" );
@@ -591,7 +591,7 @@ int Field::surfaceIntersection (
         for ( uint j = 0; j < surfaces_len; j++ ) {
             status = surfaces[j].lineIntersection( ray, intersect );
 
-            if ( status == LINE_INTERSECTS_POLYGON ) {
+            if ( status == INTERSECTION_FOUND ) {
                 intersections.push_back( intersect );
                 found_intersection = true;
             }

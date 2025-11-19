@@ -21,7 +21,7 @@ int Plane::createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) {
 
     toCoordinateForm();
 
-    return CREATION_SUCCEEDED;
+    return SUCCESS;
 } /* createPlaneFromPoints() */
 
 /*---------------------------------------------------------------*/
@@ -39,7 +39,7 @@ int Plane::createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 
 
     toCoordinateForm();
 
-    return CREATION_SUCCEEDED;
+    return SUCCESS;
 } /* createPlaneFromBaseAndVectors() */
 
 /*---------------------------------------------------------------*/
@@ -59,7 +59,7 @@ int Plane::createPlaneFromCoordinates ( double x, double y, double z, double n )
     v1 =    Vector( 1.0, 0.0, -x / z );
     v2 =    Vector( 0.0, 1.0, -y / z );
 
-    return CREATION_SUCCEEDED;
+    return SUCCESS;
 } /* createPlaneFromCoordinates() */
 
 /*---------------------------------------------------------------*/
@@ -131,7 +131,7 @@ int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) const
         *factor = u;
     }
 
-    return LINE_INTERSECTS_PLANE;
+    return INTERSECTION_FOUND;
 } /* lineIntersection() */
 
 /*---------------------------------------------------------------*/
@@ -141,7 +141,7 @@ int Plane::reflectLine ( Line& old_line, Line& new_line ) const {
     double factor;
 
     int status = lineIntersection( old_line, old_intersect, &factor );
-    if ( status != LINE_INTERSECTS_PLANE ) {
+    if ( status != INTERSECTION_FOUND ) {
         return status;
     }
 
@@ -164,7 +164,7 @@ int Plane::reflectLine ( Line& old_line, Line& new_line ) const {
 
     new_line.createLineFromTwoPoints( old_intersect, new_line_p );
 
-    return CREATION_SUCCEEDED;
+    return SUCCESS;
 } /* reflectLine() */
 
 /*---------------------------------------------------------------*/

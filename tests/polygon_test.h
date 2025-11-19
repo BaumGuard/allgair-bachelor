@@ -111,7 +111,7 @@ TEST( PolygonTest, LineIntersection ) {
 
     Vector p ( -9.0, -4.25, -17.0 );
 
-    EXPECT_TRUE( status == LINE_INTERSECTS_POLYGON && intersect == p );
+    EXPECT_TRUE( status == INTERSECTION_FOUND && intersect == p );
 }
 
 TEST( PolygonTest, LineNoIntersection ) {
@@ -148,5 +148,5 @@ TEST( PolygonTest, LineNoIntersection ) {
 
     Vector p ( -9.0, -4.25, -17.0 );
 
-    EXPECT_TRUE( status == POLYGON_LINE_NO_INTERSECT );
+    EXPECT_TRUE( status == NO_INTERSECTION_FOUND );
 }

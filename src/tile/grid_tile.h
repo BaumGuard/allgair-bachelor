@@ -64,8 +64,9 @@ public:
 
     Returns:
     - Status code
-       - BINARY_FILE_NOT_CREATABLE
-       - BINARY_FILE_CREATED (Success)
+       - SUCCESS
+
+       - FILE_NOT_CREATABLE
     */
     int writeBinaryFile ( const char* file_path, int output_type );
 
@@ -76,11 +77,13 @@ public:
      - file_path : File path of the binary grid file
 
     Returns:
-     - FILE_NOT_FOUND
-     - CORRUPT_BINARY_FILE
-     - READ_BINARY_FILE_SUCCESS (Success)
+     - Status code
+        - SUCCESS
+
+        - FILE_NOT_FOUND
+        - CORRUPT_BINARY_FILE
     */
-    int readBinaryFile ( const char* file_path );
+    int fromBinaryFile ( const char* file_path );
 
 
 

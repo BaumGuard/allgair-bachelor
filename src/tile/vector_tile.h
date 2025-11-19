@@ -59,11 +59,12 @@ public:
 
     Returns:
      - Status code
-        - BINARY_FILE_NOT_FOUND
+        - SUCCESS
+
+        - FILE_NOT_FOUND
         - CORRUPT_BINARY_FILE
-        - READ_BINARY_FILE_SUCCESS (Success)
     */
-    int readBinaryFile ( const char* file_path );
+    int fromBinaryFile ( const char* file_path );
 
     /*
     Serialize the tile object and write it to a file in a binary
@@ -74,8 +75,9 @@ public:
 
     Returns:
      - Status code
-        - BINARY_FILE_NOT_CREATABLE
-        - BINARY_FILE_CREATED (Success)
+        - SUCCESS
+
+        - FILE_NOT_CREATABLE
     */
     int createBinaryFile ( const char* file_path );
 

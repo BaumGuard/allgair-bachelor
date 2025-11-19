@@ -47,9 +47,13 @@ double roundDouble ( double n, int precision ) {
     return round( n * shift ) / shift;
 } /* roundDouble() */
 
+/*---------------------------------------------------------------*/
+
 bool equalWithThreshold ( double n1, double n2, double threshold ) {
     return fabs( fabs( n1 ) - fabs( n2 ) ) < threshold;
 } /* equalWithThreshold() */
+
+/*---------------------------------------------------------------*/
 
 void extractFilepath ( char* dst_path, char* path ) {
     int len = strlen( path );

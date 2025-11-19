@@ -47,7 +47,7 @@ int Polygon::addPoint ( Vector point ) {
 
     points.push_back( point );
 
-    return POINT_ADDED;
+    return SUCCESS;
 } /* addPoint() */
 
 /*---------------------------------------------------------------*/
@@ -87,7 +87,7 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
 
         status = edge_line.lineIntersect( ray, intersect, &factor );
 
-        if ( status == LINES_INTERSECT /*&& factor > 0.0*/ ) {
+        if ( status == INTERSECTION_FOUND /*&& factor > 0.0*/ ) {
             length_p1_p2 = ( p2 - p1 ).length();
             length_p1_intersect = ( intersect - p1 ).length();
             length_intersect_p2 = ( p2 - intersect ).length();
@@ -135,14 +135,14 @@ int Polygon::lineIntersection ( Line& l, Vector& intersect ) const {
     int status = base_plane.lineIntersection( l, plane_intersect );
 
 
-    if ( status != LINE_INTERSECTS_PLANE ) {
-        return POLYGON_LINE_NO_INTERSECT;
+    if ( status != INTERSECTION_FOUND ) {
+        return NO_INTERSECTION_FOUND;
     }
 
     if ( !isPointInPolygon(plane_intersect) ) {
-        return POLYGON_LINE_NO_INTERSECT;
+        return NO_INTERSECTION_FOUND;
     }
 
     intersect = plane_intersect;
-    return LINE_INTERSECTS_POLYGON;
+    return INTERSECTION_FOUND;
 } /* lineIntersection() */

@@ -13,7 +13,7 @@ int Line::createLineFromTwoPoints ( Vector& p1, Vector& p2 ) {
     base = p1;
     direction = p2 - p1;
 
-    return CREATION_SUCCEEDED;
+    return SUCCESS;
 } /* createLineFromTwoPoints() */
 
 /*---------------------------------------------------------------*/
@@ -26,7 +26,7 @@ int Line::createLineFromBaseAndVector ( Vector& p, Vector& v ) {
     base = p;
     direction = v;
 
-    return CREATION_SUCCEEDED;
+    return SUCCESS;
 } /* createLineFromBaseAndVector() */
 
 /*---------------------------------------------------------------*/
@@ -101,7 +101,7 @@ int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) const {
     v_denom = x_d * y_b - x_b * y_d;
 
     if ( v_denom == 0.0 ) {
-        return LINES_NO_INTERSECT;
+        return NO_INTERSECTION_FOUND;
     }
 
     v_num = y_b * ( x_a - x_c ) + x_b * ( y_c - y_a );
@@ -141,10 +141,10 @@ int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) const {
         if ( factor != nullptr ) {
             *factor = v;
         }
-        return LINES_INTERSECT;
+        return INTERSECTION_FOUND;
     }
 
-    return LINES_NO_INTERSECT;
+    return NO_INTERSECTION_FOUND;
 } /* lineIntersect() */
 
 /*---------------------------------------------------------------*/

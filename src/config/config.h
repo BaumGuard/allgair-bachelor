@@ -55,12 +55,13 @@ public:
 
     Returns:
      - Status code
-        - CONFIG_FILE_NOT_FOUND
+        - SUCCESS
+
+        - FILE_NOT_FOUND
         - CONFIG_TYPES_FILE_NOT_FOUND
         - UNKNOWN_CONFIG_DATATYPE
         - UNKNOWN_CONFIG_OPTION
         - INVALID_TYPE_FOR_OPTION
-        - CONFIG_PARSED_SUCCESS (Success)
     */
     int readConfigFile ( std::string file_path );
 
@@ -77,11 +78,12 @@ public:
 
     Returns:
      - Status code:
-        - CONFIG_FILE_NOT_FOUND
+        - SUCCESS
+
+        - FILE_NOT_FOUND
         - UNKNOWN_CONFIG_OPTION
         - INVALID_TYPE_FOR_OPTION
         - CONFIG_WRITE_FAILURE
-        - CONFIG_WRITE_SUCCESS (Success)
     */
     int saveConfigOption ( std::string opt_name, ConfigObject& value );
 

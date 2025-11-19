@@ -20,11 +20,12 @@ public:
 
     Returns:
      - Status code
+        - SUCCESS
+
         - VECTOR_LENGTH_0
           (Failure: At least two points are identical -> Must be different)
         - VECTORS_LINEAR_DEPENDANT
           (Failure: At least two points are on a line -> Points must form a triangle)
-        - CREATION_SUCCEEDED (Success)
     */
     int createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 );
 
@@ -38,11 +39,12 @@ public:
 
     Returns:
      - Status code
+        - SUCCESS
+
         - VECTOR_LENGTH_0
           (Failure: At least one vector has a length of 0 -> Length must be >0)
         - VECTORS_LINEAR_DEPENDANT
           (Failure: Vectors v1 and v2 are linear dependant -> Must be linear independant)
-        - CREATION_SUCCEEDED (Success)
     */
     int createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 );
 
@@ -57,9 +59,10 @@ public:
 
     Returns:
      - Status code
+        - SUCCESS
+
         - ALL_COORDINATES_ZERO
           (At least one of the coordinates x, y and z must be != 0)
-        - CREATION_SUCCEEDED (Success)
     */
     int createPlaneFromCoordinates ( double x, double y, double z, double n );
 
@@ -90,9 +93,10 @@ public:
 
     Returns:
      - Status code:
+        - INTERSECTION_FOUND (Success)
+
         - LINE_ON_PLANE (Failure: Infinitely many intersection points)
         - LINE_PARALLEL_TO_PLANE (Failure: No intersection with the plane)
-        - LINE_INTERSECTS_PLANE (Success)
     */
     int lineIntersection ( Line& l, Vector& intersect, double* factor = nullptr ) const;
 
@@ -104,9 +108,11 @@ public:
      - new_line : Reference to the Line object to save the reflected line
 
     Returns:
-     - LINE_ON_PLANE (Failure: No reflection possible)
-     - LINE_PARALLEL_TO_PLANE (Failure: No reflection possible)
-     - CREATION_SUCCEEDED (Success)
+     - Status code
+        - SUCCESS
+
+        - LINE_ON_PLANE (Failure: No reflection possible)
+        - LINE_PARALLEL_TO_PLANE (Failure: No reflection possible)
     */
     int reflectLine ( Line& old_line, Line& new_line ) const;
 

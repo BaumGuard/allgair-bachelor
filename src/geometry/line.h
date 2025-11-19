@@ -20,8 +20,9 @@ public:
 
     Returns:
      - Status code
+        - SUCCESS
+
         - POINTS_IDENTICAL (Failure -> Two different points must be given)
-        - CREATION_SUCCEEDED (Success)
     */
     int createLineFromTwoPoints ( Vector& p1, Vector& p2 );
 
@@ -34,8 +35,9 @@ public:
 
     Returns:
      - Status code
+        - SUCCESS
+
         - VECTOR_LENGTH_0 (The vector v must have a length greater than 0)
-        - CREATION_SUCCEEDED (Success)
     */
     int createLineFromBaseAndVector ( Vector& p, Vector& v );
 
@@ -73,10 +75,11 @@ public:
 
     Returns:
      - Status code
+        - INTERSECTION_FOUND
+
         - LINES_IDENTICAL (Failure -> Infinitely many intersections)
         - LINES_PARALLEL  (Failure -> No intersection)
-        - LINES_NO_INTERSECT (Failure -> No intersection)
-        - LINES_INTERSECT (Success)
+        - NO_INTERSECTION_FOUND (Failure -> No intersection)
     */
     int lineIntersect ( Line& l, Vector& intersect, double* factor = nullptr ) const;
 

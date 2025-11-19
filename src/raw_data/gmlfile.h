@@ -19,8 +19,9 @@ public:
 
     Returns:
      - Status code
+        - SUCCESS
+
         - NO_SURFACES
-        - CREATION_SUCCEEDED (Success)
     */
     int readGmlFile ( std::string file_path );
 

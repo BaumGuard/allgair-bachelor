@@ -95,7 +95,7 @@ TEST( LineTests, LinesNoIntersect ) {
 
     Vector intersect;
 
-    EXPECT_EQ( l1.lineIntersect(l2, intersect), LINES_NO_INTERSECT );
+    EXPECT_EQ( l1.lineIntersect(l2, intersect), NO_INTERSECTION_FOUND );
 }
 
 TEST( LineTests, LinesIntersect ) {
@@ -117,6 +117,6 @@ TEST( LineTests, LinesIntersect ) {
 
     Vector intersect;
 
-    EXPECT_EQ( l1.lineIntersect(l2, intersect), LINES_INTERSECT );
+    EXPECT_EQ( l1.lineIntersect(l2, intersect), INTERSECTION_FOUND );
 }
 

@@ -72,7 +72,7 @@ GridTile::GridTile ( VectorTile& vector_tile, uint width ) {
 
                 status = base_plane.lineIntersection( ray, intersect );
 
-                if ( status == LINE_INTERSECTS_PLANE ) {
+                if ( status == INTERSECTION_FOUND ) {
                     if ( polygons[i].isPointInPolygon(intersect) ) {
                         tile[y_it*width+x_it] = intersect.getZ();
                         break;
@@ -111,7 +111,7 @@ int GridTile::writeBinaryFile ( const char* file_path, int output_type ) {
 
     FILE* file = fopen( file_path, "wb" );
     if ( !file ) {
-        return BINARY_FILE_NOT_CREATABLE;
+        return FILE_NOT_CREATABLE;
     }
 
     fprintf( file, "GRID" );
@@ -140,12 +140,12 @@ int GridTile::writeBinaryFile ( const char* file_path, int output_type ) {
 
     fclose( file );
 
-    return BINARY_FILE_CREATED;
+    return SUCCESS;
 } /* writeBinaryFile() */
 
 /*---------------------------------------------------------------*/
 
-int GridTile::readBinaryFile ( const char* file_path ) {
+int GridTile::fromBinaryFile ( const char* file_path ) {
     FILE* file = fopen( file_path, "rb" );
     if ( !file ) {
         return FILE_NOT_FOUND;
@@ -188,8 +188,8 @@ int GridTile::readBinaryFile ( const char* file_path ) {
 
     fclose( file );
 
-    return READ_BINARY_FILE_SUCCESS;
-} /* readBinaryFile() */
+    return SUCCESS;
+} /* fromBinaryFile() */
 
 /*---------------------------------------------------------------*/
 

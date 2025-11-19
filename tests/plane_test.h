@@ -114,7 +114,7 @@ TEST( PlaneTest, LineIntersectsPlane ) {
 
     EXPECT_TRUE(
         intersect_res == intersect_exp &&
-        status == LINE_INTERSECTS_PLANE
+        status == INTERSECTION_FOUND
     );
 }
 

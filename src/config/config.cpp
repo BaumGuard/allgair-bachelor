@@ -156,39 +156,39 @@ int Config::saveConfigOption ( std::string opt_name, ConfigObject& value ) {
         return INVALID_TYPE_FOR_OPTION;
     }
 
-    char config_line [256];
+    char config_line [64];
     switch( value.datatype ) {
         case S_INT:
             snprintf(
-                config_line, 256,
+                config_line, 64,
                 "%s = %d",
                 opt_name.data(), value.sint_value
             );
             break;
         case U_INT:
             snprintf(
-                config_line, 256,
+                config_line, 64,
                 "%s = %d",
                 opt_name.data(), value.uint_value
             );
             break;
         case FLOAT:
             snprintf(
-                config_line, 256,
+                config_line, 64,
                 "%s = %f",
                 opt_name.data(), value.float_value
             );
             break;
         case BOOL:
             snprintf(
-                config_line, 256,
+                config_line, 64,
                 "%s = %s",
                 opt_name.data(), value.bool_value ? "true" : "false"
             );
             break;
         case STRING:
             snprintf(
-                config_line, 256,
+                config_line, 64,
                 "%s = %s",
                 opt_name.data(), value.string_value.data()
             );

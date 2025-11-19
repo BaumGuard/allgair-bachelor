@@ -4,9 +4,9 @@
 #include <cstring>
 #include <string>
 
-#define STREQUAL(str1, str2) (!strcmp(str1, str2))
-#define FILE_EXISTS(file_path) (!access(file_path, F_OK))
-#define RAD_TO_DEG(rad) (rad*180.0/M_PI)
+#define STREQUAL(str1, str2)    !strcmp(str1, str2)
+#define FILE_EXISTS(file_path)  !access(file_path, F_OK)
+#define RAD_TO_DEG(rad)         rad*180.0/M_PI
 
 typedef unsigned int uint;
 
@@ -31,7 +31,8 @@ Clamp a double variable to a number of decimal places
 to prevent false negative comparisons
 
 Args:
- - n : Double variable to clamp
+ - n         : Double variable to clamp
+ - precision : Decimal places
 
 Returns:
  - Clamped double value
@@ -61,32 +62,35 @@ bool inRange ( double n, double threshold );
 Extract the file name from a given file path or URL
 
 Args:
- - dst_path : Pointer to the destination string where to
-              store the file name
- - path     : File path or URL
+ - path : File path or URL
+
+Returns:
+ - Extracted file name
 */
-void extractFilepath ( char* dst_path, char* path );
+std::string extractFilename ( std::string path );
 
 /*
 Create a file path from a directory path and a file name
 
 Args:
- - dst_path  : Pointer to the destination string where to
-               store the file path
  - dir       : Directory path
  - file_name : File name
+
+Returns:
+ - Constructed file path
 */
-void buildFilepath ( char* dst_path, char* dir, char* file_name );
+std::string buildFilepath ( std::string dir, std::string file_name );
 
 /*
 Remove the file ending from a file name including the .
 
 Args:
- - dest      : Destination to write the file name without the ending to
  - file_name : Pure file name without a preceding path
- - max_len   : Maximum length of the destination string (to prevent segfaults)
+
+Returns:
+ - File name without the file ending
 */
-void removeFileEnding ( char* dest, char* file_name, int max_len );
+std::string removeFileEnding ( std::string file_name );
 
 /*
 Remove preceding and trailing spaces from a string

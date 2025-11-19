@@ -16,7 +16,7 @@ public:
     Args:
      - file_path : File path to the GeoTIFF file
     */
-    GeoTiffFile( const char* file_path );
+    GeoTiffFile( std::string file_path );
 
     /* DESTRUCTOR */
     ~GeoTiffFile();
@@ -32,7 +32,7 @@ public:
     /*
     Return the tile name
     */
-    char* getTileName ();
+    std::string getTileName ();
 
     /*
     Return the width of the tile
@@ -43,6 +43,6 @@ private:
     float* data;
     uint tile_width;
 
-    char tile_name [9];
+    std::string tile_name;
 };
 #endif

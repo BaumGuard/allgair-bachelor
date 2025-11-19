@@ -553,6 +553,8 @@ int Field::surfaceIntersection (
     float lat_end, float lon_end, float alt_end
 )
 {
+    // Find all tiles in the path of the ray and load them
+    // if not already done
     std::vector<std::string> tiles_on_ray =
         tilesOnRay( lat_start, lon_start, lat_end, lon_end, 2 );
 
@@ -566,7 +568,7 @@ int Field::surfaceIntersection (
         tiles.push_back( vector_tiles[tiles_on_ray[i]] );
     }
 
-
+    // Transform lat/lon coordinates to UTM32 coordinates
     double start_x, start_y, end_x, end_y;
     LatLonToUTMXY( lat_start, lon_start, 32, start_x, start_y );
     LatLonToUTMXY( lat_end, lon_end, 32, end_x, end_y );
@@ -576,12 +578,14 @@ int Field::surfaceIntersection (
         end_point ( end_x, end_y, alt_end ),
         intersect;
 
+    // Create a ray between the start and the end point
     Line ray;
     ray.createLineFromTwoPoints( start_point, end_point );
 
     int status;
     bool found_intersection = false;
 
+    // List for storing all intersections of the ray with surfaces
     std::vector<Vector> intersections;
 
     for ( uint i = 0; i < len; i++ ) {
@@ -598,7 +602,7 @@ int Field::surfaceIntersection (
         }
     }
 
-
+    // Find the intersection closest to the starting point
     if ( found_intersection ) {
         double min_distance = ( intersections[0] - start_point ).length();
         double current_distance;
@@ -613,6 +617,7 @@ int Field::surfaceIntersection (
             }
         }
 
+        // Transform back to lat/lon coordinates
         double intersection_lat, intersection_lon;
         UTMXYToLatLon(
             intersections[min_index].getX(), intersections[min_index].getY(),

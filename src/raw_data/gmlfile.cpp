@@ -107,9 +107,13 @@ Convert a sequence of float values seperated by spaces to an
 std::vector of Vector objects
 
 Args:
- - value_list : String with the float values seperated by spaces
+ - value_list  : String with the float values seperated by spaces
+ - vector_list : Reference to the instance of std::vector<Vector>
+                 to store the extracted vectors in
 */
-std::vector<Vector> valueListToVectorList ( std::string value_list ) {
+int valueListToVectorList (
+    std::string value_list, std::vector<Vector>& vector_list
+) {
     std::vector<double> values;
 
     std::string current_value;
@@ -129,10 +133,9 @@ std::vector<Vector> valueListToVectorList ( std::string value_list ) {
     }
 
     if ( values.size() % 3 != 0 ) {
-        // TODO: Fehler
+        return VECTOR_INCOMPLETE;
     }
 
-    std::vector<Vector> vector_list;
     Vector current_vector;
 
     len = values.size();
@@ -146,7 +149,7 @@ std::vector<Vector> valueListToVectorList ( std::string value_list ) {
         vector_list.push_back( current_vector );
     }
 
-    return vector_list;
+    return SUCCESS;
 } /* valueListToVectorList() */
 
 /*---------------------------------------------------------------*/
@@ -162,15 +165,29 @@ int GmlFile::readGmlFile ( std::string file_path ) {
         line,
         line_content;
 
+    int status;
+
+    std::vector<Vector>
+        lower_corner_list,
+        upper_corner_list;
+
     line = getNextLineWithXmlTag( gmlfile, "<gml:lowerCorner>" );
     line_content = getTextBetweenXmlTags( line );
 
-    lower_corner = valueListToVectorList( line_content )[0];
+    status = valueListToVectorList( line_content, lower_corner_list );
+    if ( status != SUCCESS ) {
+        return FILE_CORRUPT;
+    }
+    lower_corner = lower_corner_list[0];
 
     line = getNextLineWithXmlTag( gmlfile, "<gml:upperCorner>" );
     line_content = getTextBetweenXmlTags( line );
 
-    upper_corner = valueListToVectorList( line_content )[0];
+    status = valueListToVectorList( line_content, upper_corner_list );
+    if ( status != SUCCESS ) {
+        return FILE_CORRUPT;
+    }
+    upper_corner = upper_corner_list[0];
 
 
     while ( true ) {
@@ -241,7 +258,7 @@ int GmlFile::readGmlFile ( std::string file_path ) {
 
         line = getNextLineWithXmlTag( gmlfile, "<gml:posList>" );
         line_content = getTextBetweenXmlTags( line );
-        surface.pos_list = valueListToVectorList( line_content );
+        valueListToVectorList( line_content, surface.pos_list );
         surface.pos_list.pop_back();
 
 

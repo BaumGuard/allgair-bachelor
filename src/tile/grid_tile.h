@@ -68,7 +68,7 @@ public:
 
        - FILE_NOT_CREATABLE
     */
-    int writeBinaryFile ( const char* file_path, int output_type );
+    int writeBinaryFile ( std::string file_path, int output_type );
 
     /*
     Read a binary grid file
@@ -81,9 +81,9 @@ public:
         - SUCCESS
 
         - FILE_NOT_FOUND
-        - CORRUPT_BINARY_FILE
+        - FILE_CORRUPT
     */
-    int fromBinaryFile ( const char* file_path );
+    int fromBinaryFile ( std::string file_path );
 
 
 
@@ -148,7 +148,7 @@ private:
     float* tile;
     uint width;
 
-    char tile_name [9];
+    std::string tile_name;
 
     void getBlock (
         float* block_buf,

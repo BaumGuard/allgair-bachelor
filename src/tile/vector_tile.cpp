@@ -35,12 +35,12 @@ union data_block {
     char bytes [4];
 };
 
-int VectorTile::createBinaryFile ( const char* file_path ) {
+int VectorTile::createBinaryFile ( std::string file_path ) {
     uint32_t byte_count = 0;
 
     union data_block data_sect;
 
-    FILE* file = fopen( file_path, "wb" );
+    FILE* file = fopen( file_path.data(), "wb" );
 
     if ( !file ) {
         return FILE_NOT_CREATABLE;
@@ -125,8 +125,8 @@ int VectorTile::createBinaryFile ( const char* file_path ) {
 
 /*---------------------------------------------------------------*/
 
-int VectorTile::fromBinaryFile ( const char* file_path ) {
-    FILE* file = fopen( file_path, "rb" );
+int VectorTile::fromBinaryFile ( std::string file_path ) {
+    FILE* file = fopen( file_path.data(), "rb" );
 
     union data_block data;
 
@@ -153,17 +153,17 @@ int VectorTile::fromBinaryFile ( const char* file_path ) {
 
         fread( data.bytes, 1, 4, file );
         if ( !STREQUAL(data.bytes, "PLGN") ) {
-            return CORRUPT_BINARY_FILE;
+            return FILE_CORRUPT;
         }
 
         fread( data.bytes, 1, 4, file );
         if ( data.u32 != i )
-            return CORRUPT_BINARY_FILE;
+            return FILE_CORRUPT;
 
 
         fread( data.bytes, 1, 4, file );
         if ( !STREQUAL(data.bytes, "PLAN") )
-            return CORRUPT_BINARY_FILE;
+            return FILE_CORRUPT;
 
         //printMessage( DEBUG, "POLYGON %d\n", i );
 
@@ -188,7 +188,7 @@ int VectorTile::fromBinaryFile ( const char* file_path ) {
 
         fread( data.bytes, 1, 4, file );
         if ( !STREQUAL(data.bytes, "PNTS") )
-            return CORRUPT_BINARY_FILE;
+            return FILE_CORRUPT;
 
         fread( data.bytes, 1, 4, file );
         n_points = data.u32;

@@ -16,21 +16,17 @@ union tiff_data {
 
 /*---------------------------------------------------------------*/
 
-GeoTiffFile::GeoTiffFile ( const char* file_path ) {
-    char file_name [32];
-    extractFilepath( file_name, (char*)file_path );
-
-    removeFileEnding( tile_name, file_name, 8 );
+GeoTiffFile::GeoTiffFile ( std::string file_path ) {
+    std::string file_name = extractFilename( file_path );
+    tile_name = removeFileEnding( file_name );
 
     uint32_t
         width,
         buf_size;
 
-    TIFF* tif = TIFFOpen( file_path, "r" );
-
+    TIFF* tif = TIFFOpen( file_path.data(), "r" );
     if ( tif == NULL ) {
         std::cout << "TIF not found\n";
-        //return FILE_NOT_FOUND;
     }
 
     TIFFGetField( tif, TIFFTAG_IMAGEWIDTH, &width );
@@ -71,28 +67,28 @@ GeoTiffFile::GeoTiffFile ( const char* file_path ) {
     delete[] buf;
 
     //return CREATION_SUCCEEDED;
-} /* GeoTiffFile ( const char* file_path ) */
+} /* GeoTiffFile () */
 
 /*---------------------------------------------------------------*/
 
 GeoTiffFile::~GeoTiffFile () {
     delete[] data;
-} /* ~GeoTiffFile() */
+} /* ~GeoTiffFile () */
 
 /*---------------------------------------------------------------*/
 
 float* GeoTiffFile::getData () {
     return data;
-} /* getData() */
+} /* getData () */
 
 /*---------------------------------------------------------------*/
 
-char* GeoTiffFile::getTileName () {
+std::string GeoTiffFile::getTileName () {
     return tile_name;
-} /* getTileName() */
+} /* getTileName () */
 
 /*---------------------------------------------------------------*/
 
 uint GeoTiffFile::getTileWidth () {
     return tile_width;
-} /* getTileWidth() */
+} /* getTileWidth () */

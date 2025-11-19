@@ -17,18 +17,18 @@ size_t saveFile ( char* buf, size_t itemsize, size_t n_items, void* arg ) {
 
 /*---------------------------------------------------------------*/
 
-int downloadFile ( const char* url, const char* dir, bool force ) {
-    char file_name [32];
-    char out_path [256];
+int downloadFile ( std::string url, std::string dir, bool force ) {
+    std::string file_name;
+    std::string out_path;
 
-    extractFilepath( file_name, (char*)url );
-    buildFilepath( out_path, (char*)dir, file_name );
+    file_name = extractFilename( url );
+    out_path = buildFilepath( dir, file_name );
 
-    if ( access(out_path, F_OK) == 0 && !force ) {
+    if ( access(out_path.data(), F_OK) == 0 && !force ) {
         return FILE_ALREADY_EXISTS;
     }
 
-    FILE* out_file = fopen( out_path, "wb" );
+    FILE* out_file = fopen( out_path.data(), "wb" );
     if ( !out_file ) {
         return FILE_NOT_CREATABLE;
     }

@@ -21,6 +21,7 @@ public:
      - Status code
         - SUCCESS
 
+        - FILE_CORRUPT
         - NO_SURFACES
     */
     int readGmlFile ( std::string file_path );

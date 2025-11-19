@@ -62,12 +62,12 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
 
     Line edge_line;
 
+    // Create a ray from the probing point and one of the
+    // direction vectors of the polygon's base plane
     Line ray;
     ray.createLineFromBaseAndVector( p, dir_vec );
 
     Vector p1, p2, intersect;
-
-    int size = points.size();
 
     int status;
     double factor;
@@ -79,6 +79,13 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
 
     int intersect_count = 0;
 
+    int size = points.size();
+
+    // Create edge lines for every pair of adjacent points and try
+    // to intersect it with the ray
+    // If the number of intersections of the ray with the edge lines
+    // is odd, the point is inside the polygon and if it's even it is
+    // located outside of it.
     for ( int i=0; i<size; i++ ) {
         p1 = points[i];
         p2 = points[(i+1)%size];
@@ -88,6 +95,8 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
         status = edge_line.lineIntersect( ray, intersect, &factor );
 
         if ( status == INTERSECTION_FOUND /*&& factor > 0.0*/ ) {
+            // Check if the intersection is located between the two
+            // adjacent points
             length_p1_p2 = ( p2 - p1 ).length();
             length_p1_intersect = ( intersect - p1 ).length();
             length_intersect_p2 = ( p2 - intersect ).length();

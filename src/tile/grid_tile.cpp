@@ -11,17 +11,22 @@ GridTile::GridTile ( uint width ) {
     this->width = width;
 
     tile = new float [width*width];
-} /* GridTile::GridTile ( uint width ) */
+} /* GridTile () */
 
 GridTile::GridTile ( GeoTiffFile& geotiff ) {
     this->width = geotiff.getTileWidth();
     float* values = geotiff.getData();
-    strcpy( tile_name, geotiff.getTileName() );
+    tile_name = geotiff.getTileName();
 
     int len = width * width;
 
     tile = new float [len];
 
+    // Reverse the order of the lines
+    // In TIFF files the lines are presented from top to bottom
+    // whereas in our case we access them from bottom to top
+    // since the latitude increases from the equator towards the
+    // poles.
     for ( int i=0; i<len; i++ ) {
         tile[(width-(i/width)-1)*width+(i%width)] = values[i];
     }
@@ -105,11 +110,11 @@ union output_data {
     char bytes [4];
 };
 
-int GridTile::writeBinaryFile ( const char* file_path, int output_type ) {
+int GridTile::writeBinaryFile ( std::string file_path, int output_type ) {
 
     union output_data data;
 
-    FILE* file = fopen( file_path, "wb" );
+    FILE* file = fopen( file_path.data(), "wb" );
     if ( !file ) {
         return FILE_NOT_CREATABLE;
     }
@@ -145,8 +150,8 @@ int GridTile::writeBinaryFile ( const char* file_path, int output_type ) {
 
 /*---------------------------------------------------------------*/
 
-int GridTile::fromBinaryFile ( const char* file_path ) {
-    FILE* file = fopen( file_path, "rb" );
+int GridTile::fromBinaryFile ( std::string file_path ) {
+    FILE* file = fopen( file_path.data(), "rb" );
     if ( !file ) {
         return FILE_NOT_FOUND;
     }
@@ -155,13 +160,13 @@ int GridTile::fromBinaryFile ( const char* file_path ) {
 
     fread( data.bytes, 1, 4, file );
     if ( !STREQUAL(data.bytes, "GRID") ) {
-        return CORRUPT_BINARY_FILE;
+        return FILE_CORRUPT;
     }
 
     fread( data.bytes, 1, 2, file );
     int16_t pixel_type = data.i16;
     if ( pixel_type != INT_PIXEL && pixel_type != FLOAT_PIXEL ) {
-        return CORRUPT_BINARY_FILE;
+        return FILE_CORRUPT;
     }
 
     fread( data.bytes, 1, 2, file );

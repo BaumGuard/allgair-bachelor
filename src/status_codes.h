@@ -29,9 +29,9 @@ enum Statuscodes {
     // Tiles
     TILE_SIZES_UNEQUAL          = 16,
     TILES_MASKED                = 17,
-    CORRUPT_BINARY_FILE         = 18,
-    TILE_NOT_AVAILABLE          = 19,
-    COORDINATES_OUTSIDE_TILE    = 20,
+    TILE_NOT_AVAILABLE          = 18,
+    COORDINATES_OUTSIDE_TILE    = 19,
+    VECTOR_INCOMPLETE           = 20,
 
     // Raw data
     NO_SURFACES                 = 21,
@@ -43,14 +43,15 @@ enum Statuscodes {
     FILE_NOT_FOUND              = 23,
     FILE_NOT_CREATABLE          = 24,
     FILE_ALREADY_EXISTS         = 25,
+    FILE_CORRUPT                = 26,
 
     // Config
-    UNKNOWN_CONFIG_DATATYPE     = 26,
-    UNKNOWN_CONFIG_OPTION       = 27,
-    CONFIG_FILE_NOT_LOADED_YET  = 28,
-    CONFIG_TYPES_FILE_NOT_FOUND = 29,
-    INVALID_TYPE_FOR_OPTION     = 30,
-    CONFIG_WRITE_FAILURE        = 31
+    UNKNOWN_CONFIG_DATATYPE     = 27,
+    UNKNOWN_CONFIG_OPTION       = 28,
+    CONFIG_FILE_NOT_LOADED_YET  = 29,
+    CONFIG_TYPES_FILE_NOT_FOUND = 30,
+    INVALID_TYPE_FOR_OPTION     = 31,
+    CONFIG_WRITE_FAILURE        = 32
 };
 
 #endif

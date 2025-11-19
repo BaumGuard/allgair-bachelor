@@ -2,7 +2,6 @@
 #include "status_codes.h"
 
 #include <cmath>
-#include <cstring>
 #include <cstdio>
 #include <cstdarg>
 
@@ -55,8 +54,8 @@ bool equalWithThreshold ( double n1, double n2, double threshold ) {
 
 /*---------------------------------------------------------------*/
 
-void extractFilepath ( char* dst_path, char* path ) {
-    int len = strlen( path );
+std::string extractFilename ( std::string path ) {
+    int len = path.length();
 
     int i = len - 1;
     for ( ; i>=0; i-- ) {
@@ -66,20 +65,17 @@ void extractFilepath ( char* dst_path, char* path ) {
     }
     i++;
 
-    strncpy( dst_path, &path[i], 32 );
-} /* extractFilepath() */
+    return path.substr( i );
+} /* extractFilename() */
 
 /*---------------------------------------------------------------*/
 
-void buildFilepath ( char* dst_path, char* dir, char* file_name ) {
-    int dir_len = strlen( dir );
-
-    if ( dir[dir_len-1] != '/' ) {
-        dir[dir_len] = '/';
-        dir[dir_len+1] = '\0';
+std::string buildFilepath ( std::string dir, std::string file_name ) {
+    if ( dir.back() != '/' ) {
+        dir += '/';
     }
 
-    sprintf( dst_path, "%s%s", dir, file_name );
+    return dir + file_name;
 } /* buildFilepath() */
 
 /*---------------------------------------------------------------*/
@@ -90,15 +86,16 @@ bool inRange ( double n, double threshold ) {
 
 /*---------------------------------------------------------------*/
 
-void removeFileEnding ( char* dest, char* file_name, int max_len ) {
+std::string removeFileEnding ( std::string file_name ) {
+    int len = file_name.length();
     int i=0;
-    for ( ; i<max_len; i++ ) {
+    for ( ; i<len; i++ ) {
         if ( file_name[i] == '.' ) {
             break;
         }
-        dest[i] = file_name[i];
     }
-    dest[i] = '\0';
+
+    return file_name.erase( i );
 } /* removeFileEnding() */
 
 /*---------------------------------------------------------------*/

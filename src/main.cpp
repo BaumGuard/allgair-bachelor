@@ -1,5 +1,5 @@
-//#include "tile/field.h"
-//#include "coord.h"
+#include "tile/field.h"
+#include "coord.h"
 #include "utils.h"
 #include "config/config.h"
 
@@ -16,7 +16,7 @@ int main () {
 
     printf("%f %f %f\n", intersect.lat, intersect.lon, intersect.altitude);
     */
-
+    /*
     Config config;
     int status = config.readConfigFile( "config.cfg" );
     ConfigObject obj;
@@ -24,6 +24,6 @@ int main () {
     obj.datatype = U_INT;
     status = config.saveConfigOption( "option3", obj );
     printMessage( NORMAL, "%d\n", status );
-
+    */
     return 0;
 }

@@ -3,6 +3,8 @@
 
 #include "urls.h"
 
+#include <string>
+
 /*
 Download the file from the given URL and save it in the
 given directory
@@ -14,11 +16,12 @@ Args:
 
 Returns:
  - Status code
+    - SUCCESS
+
     - FILE_ALREADY_EXISTS
     - FILE_NOT_CREATABLE
     - INVALID_URL
-    - DOWNLOAD_SUCCESSFUL
 */
-int downloadFile ( const char* url, const char* dir, bool force = false );
+int downloadFile ( std::string url, std::string dir, bool force = false );
 
 #endif

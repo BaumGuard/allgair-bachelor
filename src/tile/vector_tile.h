@@ -62,9 +62,9 @@ public:
         - SUCCESS
 
         - FILE_NOT_FOUND
-        - CORRUPT_BINARY_FILE
+        - FILE_CORRUPT
     */
-    int fromBinaryFile ( const char* file_path );
+    int fromBinaryFile ( std::string file_path );
 
     /*
     Serialize the tile object and write it to a file in a binary
@@ -79,7 +79,7 @@ public:
 
         - FILE_NOT_CREATABLE
     */
-    int createBinaryFile ( const char* file_path );
+    int createBinaryFile ( std::string file_path );
 
 
 

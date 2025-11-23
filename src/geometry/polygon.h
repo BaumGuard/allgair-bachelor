@@ -93,6 +93,11 @@ public:
     */
     int lineIntersection ( Line& l, Vector& intersect ) const;
 
+
+    void printPolygon ();
+
+    //int p2, p3;
+
 private:
     std::vector<Vector> points;
     Plane base_plane;

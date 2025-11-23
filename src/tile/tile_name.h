@@ -27,7 +27,7 @@ Args:
 Returns:
  - Tile name
 */
-std::string latLonToTileName ( float lat, float lon );
+std::string latLonToTileName ( double lat, double lon );
 
 
 /*

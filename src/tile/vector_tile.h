@@ -47,7 +47,7 @@ public:
      - Status code
         - CREATION_SUCCEEDED
     */
-    int fromGmlFile ( GmlFile& gmlfile, float* success_rate = nullptr );
+    int fromGmlFile ( GmlFile& gmlfile, double* success_rate = nullptr );
 
     /*
     Deserialize a binary file and initialize the tile object with

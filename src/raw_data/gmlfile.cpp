@@ -103,11 +103,11 @@ std::string getNextLineWithXmlTag( std::ifstream& file, std::string xml_tag ) {
 /*---------------------------------------------------------------*/
 
 /*
-Convert a sequence of float values seperated by spaces to an
+Convert a sequence of double values seperated by spaces to an
 std::vector of Vector objects
 
 Args:
- - value_list  : String with the float values seperated by spaces
+ - value_list  : String with the double values seperated by spaces
  - vector_list : Reference to the instance of std::vector<Vector>
                  to store the extracted vectors in
 */

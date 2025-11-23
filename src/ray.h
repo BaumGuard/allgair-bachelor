@@ -5,7 +5,7 @@
 
 typedef struct {
     Line ray_line;
-    float signal_level;
+    double signal_level;
 } Ray;
 
 #endif

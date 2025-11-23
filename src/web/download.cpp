@@ -35,7 +35,7 @@ int downloadFile ( std::string url, std::string dir, bool force ) {
 
     CURL* curl = curl_easy_init();
 
-    curl_easy_setopt( curl, CURLOPT_URL, url );
+    curl_easy_setopt( curl, CURLOPT_URL, url.data() );
     curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, saveFile );
     curl_easy_setopt( curl, CURLOPT_WRITEDATA, out_file );
 
@@ -46,7 +46,8 @@ int downloadFile ( std::string url, std::string dir, bool force ) {
     curl_easy_getinfo ( curl, CURLINFO_RESPONSE_CODE, &http_code );
 
     if ( http_code != 200 || err != CURLE_OK ) {
-        printMessage( ERROR, "ERROR: Could not download file from '%s'\n", url );
+        printMessage( ERROR, "ERROR: Could not download file from '%s'\n", url.data() );
+        std::remove( out_path.data() );
         return FILE_NOT_FOUND;
     }
 

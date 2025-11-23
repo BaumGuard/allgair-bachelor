@@ -8,7 +8,16 @@ Class to read and save the content of a GeoTIFF file
 */
 class GeoTiffFile {
 public:
-    /* CONSTRUCTOR */
+    /* CONSTRUCTORS */
+
+    // Default constructor
+    GeoTiffFile();
+
+    /* Copy constructor */
+    GeoTiffFile( const GeoTiffFile& old_geotiff );
+
+    /* DESTRUCTOR */
+    ~GeoTiffFile();
 
     /*
     Create a GeoTiffFile object from a GeoTIFF file
@@ -16,32 +25,30 @@ public:
     Args:
      - file_path : File path to the GeoTIFF file
     */
-    GeoTiffFile( std::string file_path );
-
-    /* DESTRUCTOR */
-    ~GeoTiffFile();
-
+    int readGeoTiffFile( std::string file_path, int tile_type );
 
     /* GETTERS */
 
     /*
     Return the array with the data from the GeoTIFF file
     */
-    float* getData ();
+    float* getData () const;
 
     /*
     Return the tile name
     */
-    std::string getTileName ();
+    std::string getTileName () const;
 
     /*
     Return the width of the tile
     */
-    uint getTileWidth ();
+    uint getTileWidth () const;
 
 private:
     float* data;
     uint tile_width;
+
+    bool data_memalloc = false;
 
     std::string tile_name;
 };

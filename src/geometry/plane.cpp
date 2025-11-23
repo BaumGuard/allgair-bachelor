@@ -56,8 +56,12 @@ int Plane::createPlaneFromCoordinates ( double x, double y, double z, double n )
     this->n = n;
 
     base =  Vector( 0.0, 0.0, -n / z );
+    /*
     v1 =    Vector( 1.0, 0.0, -x / z );
     v2 =    Vector( 0.0, 1.0, -y / z );
+    */
+    v1 =    Vector( 1.0, 0.0, (-n-x) / z );
+    v2 =    Vector( 0.0, 1.0, (-n-y) / z );
 
     return SUCCESS;
 } /* createPlaneFromCoordinates() */
@@ -91,7 +95,7 @@ void Plane::toCoordinateForm() {
 bool Plane::isPointOnPlane ( Vector& p ) const {
     double res = x * p.getX() + y * p.getY() + z * p.getZ() + n;
 
-    if ( fabs(res) < 0.01 ) {
+    if ( fabs(res) < 0.0001 ) {
         return true;
     }
     return false;

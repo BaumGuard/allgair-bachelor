@@ -7,6 +7,7 @@
 #include "../utils.h"
 
 #include <cstdint>
+#include <iostream>
 
 /*---------------------------------------------------------------*/
 
@@ -30,9 +31,9 @@ std::vector<Polygon>& VectorTile::getPolygons () {
 
 union data_block {
     uint32_t u32;
-    float f32;
+    double f64;
 
-    char bytes [4];
+    char bytes [8];
 };
 
 int VectorTile::createBinaryFile ( std::string file_path ) {
@@ -74,17 +75,17 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
 
         p = polygons[i].getBasePlane();
 
-        data_sect.f32 = p.getX();
-        fwrite( data_sect.bytes, 1, 4, file );
+        data_sect.f64 = p.getX();
+        fwrite( data_sect.bytes, 1, 8, file );
 
-        data_sect.f32 = p.getY();
-        fwrite( data_sect.bytes, 1, 4, file );
+        data_sect.f64 = p.getY();
+        fwrite( data_sect.bytes, 1, 8, file );
 
-        data_sect.f32 = p.getZ();
-        fwrite( data_sect.bytes, 1, 4, file );
+        data_sect.f64 = p.getZ();
+        fwrite( data_sect.bytes, 1, 8, file );
 
-        data_sect.f32 = p.getN();
-        fwrite( data_sect.bytes, 1, 4, file );
+        data_sect.f64 = p.getN();
+        fwrite( data_sect.bytes, 1, 8, file );
 
         fprintf( file, "PNTS" );
 
@@ -99,14 +100,15 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
         for ( uint32_t j = 0; j < len_point_list; j++ ) {
             point = points[j];
 
-            data_sect.f32 = point.getX();
-            fwrite( data_sect.bytes, 1, 4, file );
+            data_sect.f64 = point.getX();
+            fwrite( data_sect.bytes, 1, 8, file );
+            //printf("%f\n", data_sect.f64);
 
-            data_sect.f32 = point.getY();
-            fwrite( data_sect.bytes, 1, 4, file );
+            data_sect.f64 = point.getY();
+            fwrite( data_sect.bytes, 1, 8, file );
 
-            data_sect.f32 = point.getZ();
-            fwrite( data_sect.bytes, 1, 4, file );
+            data_sect.f64 = point.getZ();
+            fwrite( data_sect.bytes, 1, 8, file );
 
             byte_count += 12;
         }
@@ -127,13 +129,16 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
 
 int VectorTile::fromBinaryFile ( std::string file_path ) {
     FILE* file = fopen( file_path.data(), "rb" );
+    if ( !file ) {
+        return FILE_NOT_FOUND;
+    }
 
     union data_block data;
 
     fread( data.bytes, 1, 4, file );
 
     if ( !STREQUAL(data.bytes, "DATA") ) {
-        return FILE_NOT_FOUND;
+        return FILE_CORRUPT;
     }
 
     fread( data.bytes, 1, 4, file );
@@ -160,24 +165,23 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
         if ( data.u32 != i )
             return FILE_CORRUPT;
 
-
         fread( data.bytes, 1, 4, file );
         if ( !STREQUAL(data.bytes, "PLAN") )
             return FILE_CORRUPT;
 
         //printMessage( DEBUG, "POLYGON %d\n", i );
 
-        fread( data.bytes, 1, 4, file );
-        x = data.f32;
+        fread( data.bytes, 1, 8, file );
+        x = data.f64;
 
-        fread( data.bytes, 1, 4, file );
-        y = data.f32;
+        fread( data.bytes, 1, 8, file );
+        y = data.f64;
 
-        fread( data.bytes, 1, 4, file );
-        z = data.f32;
+        fread( data.bytes, 1, 8, file );
+        z = data.f64;
 
-        fread( data.bytes, 1, 4, file );
-        n = data.f32;
+        fread( data.bytes, 1, 8, file );
+        n = data.f64;
 
         //printMessage( DEBUG, "Plane\n\tx=%f y=%f z=%f n=%f\n", x, y, z, n );
 
@@ -196,14 +200,14 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
         //printMessage( DEBUG, "Points\n" );
 
         for ( uint32_t j = 0; j < n_points; j++ ) {
-            fread( data.bytes, 1, 4, file );
-            x = data.f32;
+            fread( data.bytes, 1, 8, file );
+            x = data.f64;
 
-            fread( data.bytes, 1, 4, file );
-            y = data.f32;
+            fread( data.bytes, 1, 8, file );
+            y = data.f64;
 
-            fread( data.bytes, 1, 4, file );
-            z = data.f32;
+            fread( data.bytes, 1, 8, file );
+            z = data.f64;
 
             //printMessage( DEBUG, "\tx=%.03f y=%.03f z=%.03f\n", x, y, z );
 
@@ -225,7 +229,7 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
 
 /*---------------------------------------------------------------*/
 
-int VectorTile::fromGmlFile ( GmlFile& gmlfile, float* success_rate ) {
+int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
     Vector p1, p2, p3;
     Vector dv1, dv2;
 
@@ -258,7 +262,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, float* success_rate ) {
 
         p1 = surfaces[i].pos_list[0];
 
-        int p2_index = 0;
+        int p2_index = 0, p3_index = 0;
 
 
         len_pos_list = surfaces[i].pos_list.size();
@@ -279,6 +283,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, float* success_rate ) {
                 continue;
             }
             p3 = surfaces[i].pos_list[k];
+            p3_index = k;
 
             dv2 = p3 - p1;
 
@@ -286,6 +291,8 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, float* success_rate ) {
                 break;
             }
         }
+
+        printf("%d %d %d ", i, p2_index, p3_index);
 
         base_plane.createPlaneFromPoints( p1, p2, p3 );
 
@@ -302,7 +309,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, float* success_rate ) {
 
                 dist = base_plane.distanceOfPointToPlane(pos);
 
-                if ( dist < PLANE_DISTANCE_THRESHOLD ) {
+                if ( dist != 0.0/*< PLANE_DISTANCE_THRESHOLD*/ ) {
                     corr_vec = base_plane.normalVector();
                     corr_line.createLineFromBaseAndVector( pos, corr_vec );
 
@@ -316,7 +323,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, float* success_rate ) {
                 }
             } /* if ( !base_plane.isPointOnPlane(pos) ) */
             else {
-                polygon.addPoint( pos );
+               polygon.addPoint( pos );
             }
 
         } /* for ( int j=0; j<len_pos_list; j++ ) */
@@ -333,7 +340,8 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, float* success_rate ) {
         }
     } /* for ( int i=0; i<len; i++ ) */
 
-    *success_rate = (float)yes / (float)( yes + no );
-
+    if ( success_rate != nullptr ) {
+        *success_rate = (double)yes / (double)( yes + no );
+    }
     return SUCCESS;
 } /* fromGmlFile() */

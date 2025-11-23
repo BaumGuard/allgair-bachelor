@@ -74,6 +74,19 @@ public:
     Vector getUnitVector () const;
 
     /*
+    Rotate a vector around the angles alpha (around the z axis)
+    and beta (around the y axis)
+
+    Args:
+     - alpha : Angle around the z axis / in the x/y plane
+     - beta  : Angle around the y axis / in the x/z plane
+
+    Returns:
+     - Vector rotated by alpha and beta
+    */
+    Vector rotateVector( double alpha, double beta ) const;
+
+    /*
     Print a description of the vector
     */
     void printVector () const;

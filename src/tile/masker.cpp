@@ -8,7 +8,7 @@ int maskTile ( GridTile& masked, GridTile& tile1, GridTile& tile2 ) {
     }
 
     int width = tile1.getTileWidth();
-    masked = GridTile( width );
+    masked.emptyGridTileWithWidth( width );
 
     float
         tile1_value,

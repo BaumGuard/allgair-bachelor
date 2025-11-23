@@ -16,18 +16,59 @@ const std::string DATA_DIR = "data";
 
 /*---------------------------------------------------------------*/
 
-int Field::loadGridTile ( std::string tile_name ) {
-    std::string binary_file_name = DATA_DIR + "/" + tile_name + ".grid";
+int Field::loadTile ( std::string tile_name, int tile_type ) {
+    // Build the file name/path of the binary file and the
+    // raw file (.gml/.tif)
+    std::string binary_file_name;
+    std::string raw_file_name;
+    switch ( tile_type ) {
+        case DGM1:
+            binary_file_name = tile_name + "_DGM1.grid";
+            raw_file_name = tile_name + ".tif";
+            break;
+
+        case DOM20:
+            binary_file_name = tile_name + "_DOM20.grid";
+            raw_file_name = "32" + tile_name + "_20_DOM.tif";
+            break;
+
+        case LOD2:
+            binary_file_name = tile_name + "_LOD2.data";
+            raw_file_name = tile_name + ".gml";
+            break;
+    }
+
+    std::string binary_file_path = DATA_DIR + "/" + binary_file_name;
+    std::string raw_file_path = DATA_DIR + "/" + raw_file_name;
+
+
+    // Check for the existence of the binary file
     printMessage(
         NORMAL,
-        "Checking for binary grid file '%s' in '%s'... ",
+        "Checking for binary file '%s' in '%s'... ",
         binary_file_name.data(), DATA_DIR.data()
     );
-    if ( FILE_EXISTS(binary_file_name.data()) ) {
+    if ( FILE_EXISTS(binary_file_path.data()) ) {
         GridTile grid_tile;
-        grid_tile.fromBinaryFile( binary_file_name.c_str() );
+        VectorTile vector_tile;
 
-        grid_tiles[tile_name] = grid_tile;
+        switch ( tile_type ) {
+            case DGM1:
+                grid_tile.fromBinaryFile( binary_file_path );
+                grid_tiles_dgm1[tile_name] = grid_tile;
+                break;
+
+            case DOM20:
+                grid_tile.fromBinaryFile( binary_file_path );
+                grid_tiles_dom20[tile_name] = grid_tile;
+                break;
+
+            case LOD2:
+                vector_tile.fromBinaryFile( binary_file_path );
+                vector_tiles_lod2[tile_name] = vector_tile;
+                break;
+        }
+
 
         printMessage( NORMAL, "Found\n" );
         return SUCCESS;
@@ -35,20 +76,50 @@ int Field::loadGridTile ( std::string tile_name ) {
     printMessage( NORMAL, "Not found\n" );
 
 
-    std::string geotiff_file_name = DATA_DIR + "/" + tile_name + ".tif";
+    // Check for the existence of the raw file (.gml/.tif)
     printMessage(
         NORMAL,
-        "Checking for GeoTIFF file '%s' in '%s'... ",
-        geotiff_file_name.data(),
+        "Checking for raw file '%s' in '%s'... ",
+        raw_file_name.data(),
         DATA_DIR.data()
     );
-    if ( FILE_EXISTS(geotiff_file_name.data()) ) {
-        GeoTiffFile geotiff ( geotiff_file_name.c_str() );
-        GridTile grid_tile ( geotiff );
 
-        grid_tile.writeBinaryFile( binary_file_name.data(), FLOAT_PIXEL );
+    if ( FILE_EXISTS(raw_file_path.data()) ) {
+        GeoTiffFile geotiff;
+        GridTile grid_tile;
 
-        grid_tiles[tile_name] = grid_tile;
+        switch ( tile_type ) {
+            case DGM1:
+                geotiff.readGeoTiffFile( raw_file_path, DGM1 );
+                grid_tile.fromGeoTiffFile( geotiff );
+
+                grid_tile.writeBinaryFile( binary_file_path, FLOAT_PIXEL );
+
+                grid_tiles_dgm1[tile_name] = grid_tile;
+                break;
+
+            case DOM20:
+                geotiff.readGeoTiffFile( raw_file_path, DOM20 );
+                grid_tile.fromGeoTiffFile( geotiff );
+
+                grid_tile.writeBinaryFile( binary_file_path, FLOAT_PIXEL );
+
+                grid_tiles_dom20[tile_name] = grid_tile;
+                break;
+
+            case LOD2:
+                GmlFile gml_file;
+                gml_file.readGmlFile( raw_file_path );
+
+                VectorTile vector_tile;
+                vector_tile.fromGmlFile( gml_file );
+
+                vector_tile.createBinaryFile( binary_file_path );
+
+                vector_tiles_lod2[tile_name] = vector_tile;
+                break;
+        }
+
 
         printMessage( NORMAL, "Found\n" );
         return SUCCESS;
@@ -56,20 +127,64 @@ int Field::loadGridTile ( std::string tile_name ) {
     printMessage( NORMAL, "Not found\n" );
 
 
-    std::string geotiff_url = URL_DGM1 + tile_name + ".tif";
+    // Download the raw file
+    std::string url;
+    switch ( tile_type ) {
+        case DGM1:
+            url = URL_DGM1 + raw_file_name;
+            break;
+
+        case DOM20:
+            url = URL_DOM20 + raw_file_name;
+            break;
+
+        case LOD2:
+            url = URL_LOD2 + raw_file_name;
+            break;
+    }
     printMessage(
         NORMAL,
-        "Downloading the GeoTIFF file '%s' into '%s'... ",
-        geotiff_file_name.data(),
+        "Downloading the raw file '%s' into '%s'... ",
+        raw_file_name.data(),
         DATA_DIR.data()
     );
-    if ( downloadFile( geotiff_url.data(), DATA_DIR.data() ) == SUCCESS ) {
-        GeoTiffFile geotiff ( geotiff_file_name.c_str() );
-        GridTile grid_tile ( geotiff );
+    if ( downloadFile( url, DATA_DIR ) == SUCCESS ) {
+        GeoTiffFile geotiff;
+        GridTile grid_tile;
 
-        grid_tile.writeBinaryFile( binary_file_name.data(), FLOAT_PIXEL );
+        switch ( tile_type ) {
+            case DGM1:
+                geotiff.readGeoTiffFile( raw_file_path, DGM1 );
+                grid_tile.fromGeoTiffFile( geotiff );
 
-        grid_tiles[tile_name] = grid_tile;
+                grid_tile.writeBinaryFile( binary_file_path, FLOAT_PIXEL );
+
+                grid_tiles_dgm1.insert( {tile_name, grid_tile} );
+                break;
+
+            case DOM20:
+                geotiff.readGeoTiffFile( raw_file_path, DOM20 );
+                grid_tile.fromGeoTiffFile( geotiff );
+
+                grid_tile.writeBinaryFile( binary_file_path, FLOAT_PIXEL );
+
+                grid_tiles_dom20.insert( {tile_name, grid_tile} );
+                break;
+
+            case LOD2:
+                GmlFile gml_file;
+                gml_file.readGmlFile( raw_file_path );
+
+
+                VectorTile vector_tile;
+                vector_tile.fromGmlFile( gml_file );
+
+                vector_tile.createBinaryFile( binary_file_path );
+
+                vector_tiles_lod2.insert( {tile_name, vector_tile} );
+                break;
+        }
+
 
         printMessage( NORMAL, "Done\n" );
         return SUCCESS;
@@ -77,102 +192,18 @@ int Field::loadGridTile ( std::string tile_name ) {
 
     printMessage( NORMAL, "Error\n" );
     return TILE_NOT_AVAILABLE;
-} /* loadGridTile() */
-
-/*---------------------------------------------------------------*/
-
-int Field::loadVectorTile ( std::string tile_name ) {
-    std::string binary_file_name = DATA_DIR + "/" + tile_name + ".data";
-    printMessage(
-        NORMAL,
-        "Checking for binary vector file '%s' in '%s'... ",
-        binary_file_name.data(), DATA_DIR.data()
-    );
-    fflush( stdout );
-
-    if ( FILE_EXISTS(binary_file_name.data()) ) {
-        VectorTile vector_tile;
-        vector_tile.fromBinaryFile( binary_file_name.data() );
-
-        vector_tiles[tile_name] = vector_tile;
-
-        printMessage( NORMAL, "Found\n" );
-        return SUCCESS;
-    }
-    printMessage( NORMAL, "Not found\n" );
-
-    std::string gml_file_name = DATA_DIR + "/" + tile_name + ".gml";
-    printMessage(
-        NORMAL,
-        "Checking for Gml file '%s' in '%s'... ",
-        gml_file_name.data(), DATA_DIR.data()
-    );
-    fflush( stdout );
-
-    if ( FILE_EXISTS(gml_file_name.data()) ) {
-        GmlFile gml_file;
-        gml_file.readGmlFile( gml_file_name );
-
-        VectorTile vector_tile;
-        vector_tile.fromGmlFile( gml_file );
-
-        vector_tile.createBinaryFile( binary_file_name.c_str() );
-
-        vector_tiles[tile_name] = vector_tile;
-
-        printMessage( NORMAL, "Found\n" );
-        return SUCCESS;
-    }
-    printMessage( NORMAL, "Not found\n" );
-
-
-    printMessage(
-        NORMAL,
-        "Downloading the Gml file '%s' into '%s'... ",
-        gml_file_name.data(),
-        DATA_DIR.data()
-    );
-    fflush( stdout );
-
-    std::string gml_url = URL_LOD2 + tile_name + ".gml";
-    if ( downloadFile( gml_url.data(), DATA_DIR.data() ) == SUCCESS ) {
-        printMessage( NORMAL, "Done\n" );
-
-        printMessage(
-            NORMAL,
-            "Parsing and converting the Gml file to a binary format... ",
-            gml_file_name.data(),
-            DATA_DIR.data()
-        );
-        fflush( stdout );
-
-        GmlFile gml_file;
-        gml_file.readGmlFile( gml_file_name );
-
-        VectorTile vector_tile;
-        vector_tile.fromGmlFile( gml_file );
-
-        vector_tile.createBinaryFile( binary_file_name.c_str() );
-
-        vector_tiles[tile_name] = vector_tile;
-
-        printMessage( NORMAL, "Done\n" );
-
-        return SUCCESS;
-    }
-
-    printMessage( NORMAL, "Error\n" );
-    return TILE_NOT_AVAILABLE;
-} /* loadVectorTile() */
+} /* loadTile() */
 
 /*---------------------------------------------------------------*/
 
 bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
     switch ( tile_type ) {
-        case GRID:
-            return grid_tiles.contains( tile_name );
-        case VECTOR:
-            return vector_tiles.contains( tile_name );
+        case DGM1:
+            return grid_tiles_dgm1.contains( tile_name );
+        case DOM20:
+            return grid_tiles_dom20.contains( tile_name );
+        case LOD2:
+            return vector_tiles_lod2.contains( tile_name );
         default:
             return false;
     }
@@ -180,7 +211,7 @@ bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
 
 /*---------------------------------------------------------------*/
 
-bool Field::tileAlreadyLoaded ( float lat, float lon, int tile_type ) {
+bool Field::tileAlreadyLoaded ( double lat, double lon, int tile_type ) {
     double xf, yf;
     LatLonToUTMXY( lat, lon, 32, xf, yf );
 
@@ -188,7 +219,7 @@ bool Field::tileAlreadyLoaded ( float lat, float lon, int tile_type ) {
         x = (uint) ( xf / 1000.0 ),
         y = (uint) ( yf / 1000.0 );
 
-    if ( tile_type == VECTOR ) {
+    if ( tile_type == LOD2 ) {
         x -= x % 2;
         y -= y % 2;
     }
@@ -200,7 +231,7 @@ bool Field::tileAlreadyLoaded ( float lat, float lon, int tile_type ) {
 
 /*---------------------------------------------------------------*/
 
-float Field::getAltitudeAtLatLon ( float lat, float lon ) {
+double Field::getAltitudeAtLatLon ( double lat, double lon, int tile_type ) {
     double x, y;
     LatLonToUTMXY( lat, lon, 32, x, y );
 
@@ -210,43 +241,62 @@ float Field::getAltitudeAtLatLon ( float lat, float lon ) {
 
     std::string tile_name = buildTileName( tile_x, tile_y );
 
-    if ( !tileAlreadyLoaded(tile_name, GRID) ) {
-        loadGridTile( tile_name );
+    if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
+        loadTile( tile_name, tile_type );
     }
 
     uint
         easting =  (uint) fmod( x, 1000.0 ),
         northing = (uint) fmod( y, 1000.0 );
 
-    GridTile& tile = grid_tiles[tile_name];
+    GridTile* tile;
+    switch ( tile_type ) {
+        case DGM1:
+            tile = &grid_tiles_dgm1[tile_name];
+            break;
+
+        case DOM20:
+            tile = &grid_tiles_dom20[tile_name];
+            break;
+    }
+
 
     float value;
-    tile.getValue( easting, northing, value );
+    tile->getValue( easting, northing, value );
 
     return value;
 } /* getAltitudeAtLatLon() */
 
 /*---------------------------------------------------------------*/
 
-float Field::getAltitudeAtXY ( uint x, uint y ) {
+double Field::getAltitudeAtXY ( uint x, uint y, int tile_type ) {
     uint
         tile_x = x / 1000,
         tile_y = y / 1000;
 
     std::string tile_name = buildTileName( tile_x, tile_y );
 
-    if ( !tileAlreadyLoaded(tile_name, GRID) ) {
-        loadGridTile( tile_name );
+    if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
+        loadTile( tile_name, tile_type );
     }
 
     uint
         easting = x % 1000,
         northing = y % 1000;
 
-    GridTile& tile = grid_tiles[tile_name];
+    GridTile* tile;
+    switch ( tile_type ) {
+        case DGM1:
+            tile = &grid_tiles_dgm1[tile_name];
+            break;
+
+        case DOM20:
+            tile = &grid_tiles_dom20[tile_name];
+            break;
+    }
 
     float value;
-    tile.getValue( easting, northing, value );
+    tile->getValue( easting, northing, value );
 
     return value;
 } /* getAltitudeAtXY () */
@@ -254,8 +304,8 @@ float Field::getAltitudeAtXY ( uint x, uint y ) {
 /*---------------------------------------------------------------*/
 
 std::vector<std::string> Field::tilesOnRay (
-    float lat_start, float lon_start,
-    float lat_end, float lon_end,
+    double lat_start, double lon_start,
+    double lat_end, double lon_end,
     uint tile_width_km
 ) {
     double x1, y1, x2, y2;
@@ -267,14 +317,14 @@ std::vector<std::string> Field::tilesOnRay (
     x2 /= 1000.0;
     y2 /= 1000.0;
 
-    float m = (float)( y2 - y1 ) / (float)( x2 - x1 );
-    float t = y1 - m * x1;
+    double m = (double)( y2 - y1 ) / (double)( x2 - x1 );
+    double t = y1 - m * x1;
 
-    float
+    double
         x1_f = x1,
         x2_f = x2;
 
-    float tmp;
+    double tmp;
 
     if ( x2 < x1 ) {
         x1_f = x2;
@@ -336,25 +386,14 @@ std::vector<std::string> Field::tilesOnRay (
 
 int Field::bresenhamPseudo3D (
     Coord& intersection,
-    float lat_start, float lon_start, float alt_start,
-    float lat_end, float lon_end, float alt_end
+    double lat_start, double lon_start, double alt_start,
+    double lat_end, double lon_end, double alt_end,
+    int tile_type
 )
 {
-    // Find all tiles in the path of the ray and load them
-    // if not already done
-    std::vector<std::string> tiles_on_ray =
-        tilesOnRay( lat_start, lon_start, lat_end, lon_end, 1 );
-
-    std::vector<GridTile> tiles;
-
-    uint len = tiles_on_ray.size();
-    for ( uint i = 0; i < len; i++ ) {
-        if ( !tileAlreadyLoaded(tiles_on_ray[i], GRID) ) {
-            loadGridTile( tiles_on_ray[i] );
-        }
-        tiles.push_back( grid_tiles[tiles_on_ray[i]] );
+    if ( tile_type != DGM1 && tile_type != DOM20 ) {
+        return INVALID_TILE_TYPE;
     }
-
 
     // Converting latitude/longitude to UTM coordinates
     double
@@ -520,7 +559,7 @@ int Field::bresenhamPseudo3D (
         }
 
         // Get the altitude at the current x/y position
-        int altitude_at_xy = (int) round( getAltitudeAtXY(x, y) );
+        int altitude_at_xy = (int) round( getAltitudeAtXY(x, y, tile_type) );
 
         // If the value of z is equal or smaller than the altitude
         // at x/y they ray has hit the ground
@@ -534,8 +573,8 @@ int Field::bresenhamPseudo3D (
             );
 
             // Convert the intersection point back to latitude/longitude
-            intersection.lat = (float) RAD_TO_DEG( lat_final );
-            intersection.lon = (float) RAD_TO_DEG( lon_final );
+            intersection.lat = (double) RAD_TO_DEG( lat_final );
+            intersection.lon = (double) RAD_TO_DEG( lon_final );
             intersection.altitude = z;
 
             return INTERSECTION_FOUND;
@@ -549,8 +588,8 @@ int Field::bresenhamPseudo3D (
 
 int Field::surfaceIntersection (
     Coord& intersection,
-    float lat_start, float lon_start, float alt_start,
-    float lat_end, float lon_end, float alt_end
+    double lat_start, double lon_start, double alt_start,
+    double lat_end, double lon_end, double alt_end
 )
 {
     // Find all tiles in the path of the ray and load them
@@ -562,10 +601,10 @@ int Field::surfaceIntersection (
 
     uint len = tiles_on_ray.size();
     for ( uint i = 0; i < len; i++ ) {
-        if ( !tileAlreadyLoaded(tiles_on_ray[i], VECTOR) ) {
-            loadVectorTile( tiles_on_ray[i] );
+        if ( !tileAlreadyLoaded(tiles_on_ray[i], LOD2) ) {
+            loadTile( tiles_on_ray[i], LOD2 );
         }
-        tiles.push_back( vector_tiles[tiles_on_ray[i]] );
+        tiles.push_back( vector_tiles_lod2[tiles_on_ray[i]] );
     }
 
     // Transform lat/lon coordinates to UTM32 coordinates
@@ -578,15 +617,22 @@ int Field::surfaceIntersection (
         end_point ( end_x, end_y, alt_end ),
         intersect;
 
+    //start_point.printVector();
+    //printf("\n");
+
     // Create a ray between the start and the end point
     Line ray;
     ray.createLineFromTwoPoints( start_point, end_point );
+
+    ray.printLine();
+    //printf("\n\n\n\n\n");
 
     int status;
     bool found_intersection = false;
 
     // List for storing all intersections of the ray with surfaces
     std::vector<Vector> intersections;
+    std::vector<Polygon> polygons;
 
     for ( uint i = 0; i < len; i++ ) {
         std::vector<Polygon>& surfaces = tiles[i].getPolygons();
@@ -597,6 +643,7 @@ int Field::surfaceIntersection (
 
             if ( status == INTERSECTION_FOUND ) {
                 intersections.push_back( intersect );
+                polygons.push_back( surfaces[j] );
                 found_intersection = true;
             }
         }
@@ -611,6 +658,7 @@ int Field::surfaceIntersection (
         uint intersections_len = intersections.size();
         for ( uint i = 1; i < intersections_len; i++ ) {
             current_distance = ( intersections[i] - start_point ).length();
+            //intersections[i].printVector();
             if ( current_distance < min_distance ) {
                 min_distance = current_distance;
                 min_index = i;
@@ -628,6 +676,14 @@ int Field::surfaceIntersection (
         intersection.lat = RAD_TO_DEG( intersection_lat );
         intersection.lon = RAD_TO_DEG( intersection_lon );
         intersection.altitude = intersections[min_index].getZ();
+
+        for ( size_t k = 0; k < polygons.size(); k++ ) {
+            polygons[k].printPolygon();
+            printf("------------\n");
+            intersections[k].printVector();
+            printf("------------\n");
+            polygons[k].getBasePlane().getVector1().printVector();
+        }
 
         return INTERSECTION_FOUND;
     }

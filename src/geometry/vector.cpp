@@ -192,3 +192,25 @@ Vector Vector::getUnitVector () const {
 void Vector::printVector () const {
     printMessage( NORMAL, "x=%f y=%f z=%f\n", x, y, z );
 } /* printVector() */
+
+/*---------------------------------------------------------------*/
+
+Vector Vector::rotateVector( double alpha, double beta ) const {
+    Vector rotated_vector;
+
+    double
+        x_rot = x * cos(alpha) - y * sin(alpha),
+        y_rot = x * sin(alpha) + y * cos(alpha),
+        z_rot = z;
+
+    double
+        x_rot2 = x_rot * cos(beta) + z_rot * sin(beta),
+        y_rot2 = y_rot,
+        z_rot2 = -x_rot * sin(beta) + z_rot * cos(beta);
+
+    rotated_vector.setX( x_rot2 );
+    rotated_vector.setY( y_rot2 );
+    rotated_vector.setZ( z_rot2 );
+
+    return rotated_vector;
+} /* rotateVector () */

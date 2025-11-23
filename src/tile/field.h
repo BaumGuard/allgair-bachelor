@@ -10,27 +10,30 @@
 #include <string>
 
 enum TileTypes {
-    GRID,
-    VECTOR
+    DGM1,
+    DOM20,
+    LOD2
 };
 
 class Field {
 public:
     int surfaceIntersection (
         Coord& intersection,
-        float lat_start, float lon_start, float alt_start,
-        float lat_end, float lon_end, float alt_end
+        double lat_start, double lon_start, double alt_start,
+        double lat_end, double lon_end, double alt_end
     );
 
     int bresenhamPseudo3D (
         Coord& intersection,
-        float lat_start, float lon_start, float alt_start,
-        float lat_end, float lon_end, float alt_end
+        double lat_start, double lon_start, double alt_start,
+        double lat_end, double lon_end, double alt_end,
+        int tile_type
     );
 
 private:
-    std::unordered_map<std::string, GridTile> grid_tiles;
-    std::unordered_map<std::string, VectorTile> vector_tiles;
+    std::unordered_map<std::string, GridTile> grid_tiles_dgm1;
+    std::unordered_map<std::string, GridTile> grid_tiles_dom20;
+    std::unordered_map<std::string, VectorTile> vector_tiles_lod2;
 
     /*
     Check if a tile has already been loaded into grid_tiles or
@@ -57,7 +60,7 @@ private:
     Returns:
      - Tile with name tile_name already loaded?
     */
-    bool tileAlreadyLoaded ( float lat, float lon, int tile_type );
+    bool tileAlreadyLoaded ( double lat, double lon, int tile_type );
 
     /*
     Find all tiles through which a ray given by starting and end
@@ -74,8 +77,8 @@ private:
      - All tile names of the tiles through which the ray passes
     */
     std::vector<std::string> tilesOnRay (
-        float lat_start, float lon_start,
-        float lat_end, float lon_end,
+        double lat_start, double lon_start,
+        double lat_end, double lon_end,
         uint tile_width_km
     );
 
@@ -98,27 +101,7 @@ private:
 
         - TILE_NOT_AVAILABLE
     */
-    int loadGridTile ( std::string tile_name );
-
-    /*
-    Load a vector tile
-
-    3 step check:
-     1. Binary file (.data) in data folder?
-     2. Gml file available in data folder?
-     3. Download the Gml file, create a binary file and load
-        into vector_tiles
-
-    Args:
-     - tile_name : Name of the tile (easting_northing)
-
-    Returns:
-     - Status code
-        - SUCCESS
-
-        - TILE_NOT_AVAILABLE
-    */
-    int loadVectorTile ( std::string tile_name );
+    int loadTile ( std::string tile_name, int tile_type );
 
     /*
     Get the altitude at the given coordinates (grid)
@@ -130,7 +113,7 @@ private:
     Returns:
      - Altitude in meters
     */
-    float getAltitudeAtLatLon ( float lat, float lon );
+    double getAltitudeAtLatLon ( double lat, double lon, int tile_type );
 
     /*
     Get the altitude at the UTM x, y coordinates (grid)
@@ -142,7 +125,7 @@ private:
     Returns:
      - Altitude in meters
     */
-    float getAltitudeAtXY ( uint x, uint y );
+    double getAltitudeAtXY ( uint x, uint y, int tile_type );
 
     /*
     Perform the Bresenham algorithm in pseudo 3D space

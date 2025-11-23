@@ -30,28 +30,29 @@ enum Statuscodes {
     TILE_SIZES_UNEQUAL          = 16,
     TILES_MASKED                = 17,
     TILE_NOT_AVAILABLE          = 18,
-    COORDINATES_OUTSIDE_TILE    = 19,
-    VECTOR_INCOMPLETE           = 20,
+    INVALID_TILE_TYPE           = 19,
+    COORDINATES_OUTSIDE_TILE    = 20,
+    VECTOR_INCOMPLETE           = 21,
 
     // Raw data
-    NO_SURFACES                 = 21,
+    NO_SURFACES                 = 22,
 
     // Downloader
-    INVALID_URL                 = 22,
+    INVALID_URL                 = 23,
 
     // Files
-    FILE_NOT_FOUND              = 23,
-    FILE_NOT_CREATABLE          = 24,
-    FILE_ALREADY_EXISTS         = 25,
-    FILE_CORRUPT                = 26,
+    FILE_NOT_FOUND              = 24,
+    FILE_NOT_CREATABLE          = 25,
+    FILE_ALREADY_EXISTS         = 26,
+    FILE_CORRUPT                = 27,
 
     // Config
-    UNKNOWN_CONFIG_DATATYPE     = 27,
-    UNKNOWN_CONFIG_OPTION       = 28,
-    CONFIG_FILE_NOT_LOADED_YET  = 29,
-    CONFIG_TYPES_FILE_NOT_FOUND = 30,
-    INVALID_TYPE_FOR_OPTION     = 31,
-    CONFIG_WRITE_FAILURE        = 32
+    UNKNOWN_CONFIG_DATATYPE     = 28,
+    UNKNOWN_CONFIG_OPTION       = 29,
+    CONFIG_FILE_NOT_LOADED_YET  = 30,
+    CONFIG_TYPES_FILE_NOT_FOUND = 31,
+    INVALID_TYPE_FOR_OPTION     = 32,
+    CONFIG_WRITE_FAILURE        = 33
 };
 
 #endif

@@ -4,16 +4,41 @@
 #include "../utils.h"
 
 #include <cstdint>
+#include <iostream>
+#include <cstring>
 
 /*---------------------------------------------------------------*/
 
-GridTile::GridTile ( uint width ) {
+GridTile::GridTile () {}
+
+GridTile::GridTile( const GridTile& old_gridtile ) {
+    width = old_gridtile.getTileWidth();
+    tile_name = old_gridtile.getTileName();
+
+    uint len = width * width;
+    tile = new float [len];
+    memcpy( tile, old_gridtile.getData(), len*4 );
+
+    tile_memalloc = true;
+} /* GridTile() */
+
+GridTile::~GridTile () {
+    if ( tile_memalloc ) {
+        delete[] tile;
+    }
+} /* ~GridTile() */
+
+
+/*---------------------------------------------------------------*/
+
+void GridTile::emptyGridTileWithWidth ( uint width ) {
     this->width = width;
 
     tile = new float [width*width];
-} /* GridTile () */
+    tile_memalloc = true;
+} /* emptyGridTileWithWidth () */
 
-GridTile::GridTile ( GeoTiffFile& geotiff ) {
+void GridTile::fromGeoTiffFile ( GeoTiffFile& geotiff ) {
     this->width = geotiff.getTileWidth();
     float* values = geotiff.getData();
     tile_name = geotiff.getTileName();
@@ -30,9 +55,11 @@ GridTile::GridTile ( GeoTiffFile& geotiff ) {
     for ( int i=0; i<len; i++ ) {
         tile[(width-(i/width)-1)*width+(i%width)] = values[i];
     }
-} /* GridTile ( float* values, uint width ) */
 
-GridTile::GridTile ( VectorTile& vector_tile, uint width ) {
+    tile_memalloc = true;
+} /* fromGeoTiffFile () */
+
+void GridTile::fromVectorTile ( VectorTile& vector_tile, uint width ) {
     this->width = width;
     tile = new float [width*width];
 
@@ -40,11 +67,11 @@ GridTile::GridTile ( VectorTile& vector_tile, uint width ) {
         lower_corner = vector_tile.getLowerCorner(),
         upper_corner = vector_tile.getUpperCorner();
 
-    float
+    double
         x_step = ( upper_corner.getX() - lower_corner.getX() ) / (double)width,
         y_step = ( upper_corner.getY() - lower_corner.getY() ) / (double)width;
 
-    float
+    double
         x_end = upper_corner.getX(),
         y_end = upper_corner.getY();
 
@@ -66,8 +93,8 @@ GridTile::GridTile ( VectorTile& vector_tile, uint width ) {
 
     Plane base_plane;
 
-    for ( float y=0.0f; y<y_end; y+=y_step ) {
-        for ( float x=0.0f; x<x_end; x+=x_step ) {
+    for ( double y=0.0f; y<y_end; y+=y_step ) {
+        for ( double x=0.0f; x<x_end; x+=x_step ) {
             for ( int i=0; i<len_polygons; i++ ) {
                 ray_start = Vector( x, y, 0.0 );
 
@@ -91,15 +118,9 @@ GridTile::GridTile ( VectorTile& vector_tile, uint width ) {
         }
         y_it++;
     }
-} /* GridTile ( VectorTile& vector_tile, uint width ) */
 
-GridTile::GridTile () {}
-
-/*---------------------------------------------------------------*/
-
-GridTile::~GridTile () {
-    //delete[] tile;
-} /* ~GridTile() */
+    tile_memalloc = true;
+} /* fromVectorTile() */
 
 /*---------------------------------------------------------------*/
 
@@ -192,7 +213,6 @@ int GridTile::fromBinaryFile ( std::string file_path ) {
     }
 
     fclose( file );
-
     return SUCCESS;
 } /* fromBinaryFile() */
 
@@ -203,7 +223,8 @@ int GridTile::getValue ( uint x, uint y, float& value ) const {
         return COORDINATES_OUTSIDE_TILE;
     }
 
-    value = tile[width*(width-y-1)+x];
+    //value = tile[width*(width-y-1)+x];
+    value = tile[y*width+x];
 
     return SUCCESS;
 } /* getValue () */
@@ -239,6 +260,18 @@ void GridTile::getBlock (
         }
     }
 } /* getBlock() */
+
+/*---------------------------------------------------------------*/
+
+std::string GridTile::getTileName () const {
+    return tile_name;
+} /* getTileName() */
+
+/*---------------------------------------------------------------*/
+
+float* GridTile::getData () const {
+    return tile;
+} /* getData() */
 
 /*---------------------------------------------------------------*/
 

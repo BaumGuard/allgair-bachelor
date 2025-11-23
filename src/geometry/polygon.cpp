@@ -4,6 +4,7 @@
 #include "../status_codes.h"
 
 #include <iostream>
+#include <cmath>
 
 /*---------------------------------------------------------------*/
 
@@ -51,7 +52,7 @@ int Polygon::addPoint ( Vector point ) {
 } /* addPoint() */
 
 /*---------------------------------------------------------------*/
-
+#if 0
 bool Polygon::isPointInPolygon ( Vector& p ) const {
     if ( !base_plane.isPointOnPlane(p) ) {
         return false;
@@ -94,24 +95,100 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
 
         status = edge_line.lineIntersect( ray, intersect, &factor );
 
-        if ( status == INTERSECTION_FOUND /*&& factor > 0.0*/ ) {
+        if ( status == INTERSECTION_FOUND && factor > 0.0 ) {
             // Check if the intersection is located between the two
             // adjacent points
             length_p1_p2 = ( p2 - p1 ).length();
             length_p1_intersect = ( intersect - p1 ).length();
             length_intersect_p2 = ( p2 - intersect ).length();
 
-            float test = ( intersect.getX() - p.getX() ) / dir_vec.getX();
 
-            if ( length_p1_intersect + length_intersect_p2 == length_p1_p2 && test >= 0.0 ) {
+
+            //double test = ( intersect.getX() - p.getX() ) / dir_vec.getX();
+
+            if ( length_p1_intersect + length_intersect_p2 == length_p1_p2 /*&& test >= 0.0*/ ) {
+
+                p1.printVector();
+                p2.printVector();
+                intersect.printVector();
+                printf("LENGTHS %f %f %f\n", length_p1_p2, length_p1_intersect, length_intersect_p2);
+
+                edge_line.printLine();
                 intersect_count++;
             }
         }
     }
-
+    if ( intersect_count % 2 == 1 ) {printf("INTERSECTION\n"); ray.printLine();}
     return intersect_count % 2 == 1;
 
 } /* isPointInPolygon() */
+#endif
+
+
+bool Polygon::isPointInPolygon ( Vector& p ) const {
+    if ( !base_plane.isPointOnPlane(p) ) {
+        return false;
+    }
+
+    Vector normal_vector = base_plane.normalVector();
+
+    std::vector<Vector> mapped_points;
+
+    double alpha = -atan2( normal_vector.getY(), normal_vector.getX() );
+    Vector nv_rot = p.rotateVector( alpha, 0.0 );
+
+    double beta  = -( atan2(nv_rot.getZ(), -nv_rot.getX()) - 0.5*M_PI );
+
+    size_t n_points = points.size();
+    for ( size_t i = 0; i < n_points; i++ ) {
+        mapped_points.push_back( points[i].rotateVector(alpha, beta) );
+    }
+
+    Vector p1, p2;
+
+    double x_p1, y_p1, x_p2, y_p2;
+    double m_edge;
+    double t_edge, t_ray;
+
+    Vector p_rot = p.rotateVector( alpha, beta );
+
+    t_ray = p_rot.getY();
+
+    double x, y = t_ray;
+    int intersect_count = 0;
+
+    for ( size_t i = 0; i < n_points; i++ ) {
+        p1 = mapped_points[i];
+        p2 = mapped_points[(i+1)%n_points];
+
+        x_p1 = p1.getX();
+        y_p1 = p1.getY();
+        x_p2 = p2.getX();
+        y_p2 = p2.getY();
+
+        m_edge = ( y_p2 - y_p1 ) / ( x_p2 - x_p1 );
+        t_edge = y_p1 - m_edge * x_p1;
+
+        if ( m_edge != 0.0 ) {
+            x = ( t_ray - t_edge ) / m_edge;
+        }
+        else {
+            continue;
+        }
+
+        double
+            len_p1_p2 = sqrt( pow(x_p2-x_p1, 2) + pow(y_p2-y_p1, 2) ),
+            len_p1_intersect = sqrt( pow(x-x_p1, 2) + pow(y-y_p1, 2) ),
+            len_intersect_p2 = sqrt( pow(x_p2-x, 2) + pow(y_p2-y, 2) );
+
+        if ( equalWithThreshold(len_intersect_p2 + len_p1_intersect, len_p1_p2, 0.01) ) {
+            intersect_count++;
+        }
+    }
+
+    return intersect_count % 2;
+}
+
 
 /*---------------------------------------------------------------*/
 
@@ -155,3 +232,18 @@ int Polygon::lineIntersection ( Line& l, Vector& intersect ) const {
     intersect = plane_intersect;
     return INTERSECTION_FOUND;
 } /* lineIntersection() */
+
+
+void Polygon::printPolygon () {
+    printf( "POLYGON\n" );
+    printf( "\tBase plane:\n" );
+    printf( "\tx = %f y = %f z = %f n = %f\n\n", base_plane.getX(), base_plane.getY(), base_plane.getZ(), base_plane.getN() );
+
+    printf( "\tPoints:\n" );
+    uint len = points.size();
+    for ( size_t i = 0; i < len; i++ ) {
+        printf( "\tx = %f y = %f z = %f\n", points[i].getX(), points[i].getY(), points[i].getZ() );
+    }
+
+    printf( "\n" );
+}

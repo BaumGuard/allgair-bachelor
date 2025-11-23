@@ -2,11 +2,11 @@
 #define COORD_H
 
 typedef struct {
-    float
+    double
         lat,
         lon;
 
-    float altitude;
+    double altitude;
 } Coord;
 
 typedef struct {

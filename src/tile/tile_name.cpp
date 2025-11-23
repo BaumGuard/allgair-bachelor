@@ -7,7 +7,7 @@
 
 /*---------------------------------------------------------------*/
 
-std::string latLonToTileName ( float lat, float lon ) {
+std::string latLonToTileName ( double lat, double lon ) {
     double
         utm_easting,
         utm_northing;

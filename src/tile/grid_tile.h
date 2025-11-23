@@ -16,13 +16,19 @@ class GridTile {
 public:
     /* CONSTRUCTORS */
 
+    // Default constructor
+    GridTile ();
+
+    // Copy constructor
+    GridTile ( const GridTile& old_gridtile );
+
     /*
     Create an empty grid tile
 
     Args:
     - width : Width and height of the grid
     */
-    GridTile ( uint width );
+    void emptyGridTileWithWidth ( uint width );
 
     /*
     Create a grid from float values (read from a GeoTIFF file)
@@ -31,7 +37,7 @@ public:
      - geotiff : GeoTiffFile object to transform into a GridTile
      - width   : Width and height of the grid
     */
-    GridTile ( GeoTiffFile& geotiff );
+    void fromGeoTiffFile ( GeoTiffFile& geotiff );
 
     /*
     Transform a vector tile into a grid tile using raycasting
@@ -40,12 +46,8 @@ public:
      - vector_tile : Reference to the vector tile to be transformed
      - width       : Width and height of the grid
     */
-    GridTile ( VectorTile& vector_tile, uint width );
+    void fromVectorTile ( VectorTile& vector_tile, uint width );
 
-    /*
-    Default constructor
-    */
-    GridTile ();
 
     /* DESTRUCTOR */
     ~GridTile ();
@@ -128,6 +130,22 @@ public:
     uint getTileWidth () const;
 
     /*
+    Return the name of the tile
+
+    Returns:
+     - Name of the tile
+    */
+    std::string getTileName () const;
+
+    /*
+    Return the pointer to the tile data
+
+    Returns:
+     - Pointer to the array 'tile'
+    */
+    float* getData () const;
+
+    /*
     Set the value in the grid in the position (x,y)
 
     Args:
@@ -146,6 +164,8 @@ public:
 
 private:
     float* tile;
+    bool tile_memalloc = false;
+
     uint width;
 
     std::string tile_name;

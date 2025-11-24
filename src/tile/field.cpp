@@ -617,15 +617,10 @@ int Field::surfaceIntersection (
         end_point ( end_x, end_y, alt_end ),
         intersect;
 
-    //start_point.printVector();
-    //printf("\n");
 
     // Create a ray between the start and the end point
     Line ray;
     ray.createLineFromTwoPoints( start_point, end_point );
-
-    ray.printLine();
-    //printf("\n\n\n\n\n");
 
     int status;
     bool found_intersection = false;

@@ -95,7 +95,7 @@ void Plane::toCoordinateForm() {
 bool Plane::isPointOnPlane ( Vector& p ) const {
     double res = x * p.getX() + y * p.getY() + z * p.getZ() + n;
 
-    if ( fabs(res) < 0.0001 ) {
+    if ( fabs(res) < 0.01 ) {
         return true;
     }
     return false;

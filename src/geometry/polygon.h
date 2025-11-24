@@ -67,12 +67,12 @@ public:
     Return the surface type of the polygon
     (defined in enum SurfaceTypes - surface.h)
     */
-    int getSurfaceType () const;
+    uint getSurfaceType () const;
 
     /*
     Set the surface type of the polygon
     */
-    void setSurfaceType ( int surface_type );
+    void setSurfaceType ( uint surface_type );
 
 
     /*
@@ -104,7 +104,7 @@ private:
 
     bool initialized = false;
 
-    int surface_type;
+    uint surface_type;
 
     /*
     Check if a point is already in the polygon

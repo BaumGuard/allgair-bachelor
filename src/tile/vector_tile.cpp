@@ -71,6 +71,9 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
         data_sect.u32 = i;
         fwrite( data_sect.bytes, 1, 4, file );
 
+        data_sect.u32 = polygons[i].getSurfaceType();
+        fwrite( data_sect.bytes, 1, 4, file );
+
         fprintf( file, "PLAN" );
 
         p = polygons[i].getBasePlane();
@@ -137,7 +140,7 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
 
     fread( data.bytes, 1, 4, file );
 
-    if ( !STREQUAL(data.bytes, "DATA") ) {
+    if ( !STRNEQUAL(data.bytes, "DATA", 4) ) {
         return FILE_CORRUPT;
     }
 
@@ -155,9 +158,11 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
     int add_count = 0;
 
     for ( uint32_t i = 0; i < n_polygons; i++ ) {
+        Polygon polygon;
+
 
         fread( data.bytes, 1, 4, file );
-        if ( !STREQUAL(data.bytes, "PLGN") ) {
+        if ( !STRNEQUAL(data.bytes, "PLGN", 4) ) {
             return FILE_CORRUPT;
         }
 
@@ -166,10 +171,12 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
             return FILE_CORRUPT;
 
         fread( data.bytes, 1, 4, file );
-        if ( !STREQUAL(data.bytes, "PLAN") )
+        polygon.setSurfaceType( data.u32 );
+
+        fread( data.bytes, 1, 4, file );
+        if ( !STRNEQUAL(data.bytes, "PLAN", 4) )
             return FILE_CORRUPT;
 
-        //printMessage( DEBUG, "POLYGON %d\n", i );
 
         fread( data.bytes, 1, 8, file );
         x = data.f64;
@@ -183,21 +190,18 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
         fread( data.bytes, 1, 8, file );
         n = data.f64;
 
-        //printMessage( DEBUG, "Plane\n\tx=%f y=%f z=%f n=%f\n", x, y, z, n );
 
         base.createPlaneFromCoordinates( x, y, z, n );
 
-        Polygon polygon;
         polygon.initPolygonWithPlane( base );
 
         fread( data.bytes, 1, 4, file );
-        if ( !STREQUAL(data.bytes, "PNTS") )
+        if ( !STRNEQUAL(data.bytes, "PNTS", 4) )
             return FILE_CORRUPT;
 
         fread( data.bytes, 1, 4, file );
         n_points = data.u32;
 
-        //printMessage( DEBUG, "Points\n" );
 
         for ( uint32_t j = 0; j < n_points; j++ ) {
             fread( data.bytes, 1, 8, file );
@@ -209,14 +213,12 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
             fread( data.bytes, 1, 8, file );
             z = data.f64;
 
-            //printMessage( DEBUG, "\tx=%.03f y=%.03f z=%.03f\n", x, y, z );
 
             point = Vector( x, y, z );
 
             polygon.addPoint( point );
         }
 
-        //printMessage( DEBUG, "\n-------------------------\n\n" );
 
         add_count++;
         polygons.push_back( polygon );
@@ -262,7 +264,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
 
         p1 = surfaces[i].pos_list[0];
 
-        int p2_index = 0, p3_index = 0;
+        int p2_index = 0;
 
 
         len_pos_list = surfaces[i].pos_list.size();
@@ -283,7 +285,6 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
                 continue;
             }
             p3 = surfaces[i].pos_list[k];
-            p3_index = k;
 
             dv2 = p3 - p1;
 
@@ -292,7 +293,6 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
             }
         }
 
-        printf("%d %d %d ", i, p2_index, p3_index);
 
         base_plane.createPlaneFromPoints( p1, p2, p3 );
 
@@ -309,7 +309,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
 
                 dist = base_plane.distanceOfPointToPlane(pos);
 
-                if ( dist != 0.0/*< PLANE_DISTANCE_THRESHOLD*/ ) {
+                if ( dist != 0.0 /*< PLANE_DISTANCE_THRESHOLD*/ ) {
                     corr_vec = base_plane.normalVector();
                     corr_line.createLineFromBaseAndVector( pos, corr_vec );
 
@@ -339,7 +339,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
             no++;
         }
     } /* for ( int i=0; i<len; i++ ) */
-
+    printf("Success rate : %f\n", (double)yes / (double)(yes+no));
     if ( success_rate != nullptr ) {
         *success_rate = (double)yes / (double)( yes + no );
     }

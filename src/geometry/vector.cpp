@@ -199,18 +199,19 @@ Vector Vector::rotateVector( double alpha, double beta ) const {
     Vector rotated_vector;
 
     double
-        x_rot = x * cos(alpha) - y * sin(alpha),
-        y_rot = x * sin(alpha) + y * cos(alpha),
-        z_rot = z;
+        sin_alpha = sin( alpha ),
+        sin_beta = sin( beta ),
+        cos_alpha = cos( alpha ),
+        cos_beta = cos( beta );
 
     double
-        x_rot2 = x_rot * cos(beta) + z_rot * sin(beta),
-        y_rot2 = y_rot,
-        z_rot2 = -x_rot * sin(beta) + z_rot * cos(beta);
+        x_rot = x*cos_alpha*cos_beta - y*sin_alpha*cos_beta + z*sin_beta,
+        y_rot = x*sin_alpha + y*cos_alpha,
+        z_rot = -x*cos_alpha*sin_beta + y*sin_alpha*sin_beta + z*cos_beta;
 
-    rotated_vector.setX( x_rot2 );
-    rotated_vector.setY( y_rot2 );
-    rotated_vector.setZ( z_rot2 );
+    rotated_vector.setX( x_rot );
+    rotated_vector.setY( y_rot );
+    rotated_vector.setZ( z_rot );
 
     return rotated_vector;
 } /* rotateVector () */

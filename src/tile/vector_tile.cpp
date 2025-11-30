@@ -339,7 +339,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
             no++;
         }
     } /* for ( int i=0; i<len; i++ ) */
-    printf("Success rate : %f\n", (double)yes / (double)(yes+no));
+
     if ( success_rate != nullptr ) {
         *success_rate = (double)yes / (double)( yes + no );
     }

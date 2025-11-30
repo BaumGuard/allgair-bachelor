@@ -25,7 +25,7 @@ public:
         - VECTOR_LENGTH_0
           (Failure: At least two points are identical -> Must be different)
         - VECTORS_LINEAR_DEPENDANT
-          (Failure: At least two points are on a line -> Points must form a triangle)
+          (Failure: All three points are on a line -> Points must form a triangle)
     */
     int createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 );
 
@@ -93,7 +93,7 @@ public:
 
     Returns:
      - Status code:
-        - INTERSECTION_FOUND (Success)
+        - INTERSECTION_FOUND
 
         - LINE_ON_PLANE (Failure: Infinitely many intersection points)
         - LINE_PARALLEL_TO_PLANE (Failure: No intersection with the plane)
@@ -116,8 +116,17 @@ public:
     */
     int reflectLine ( Line& old_line, Line& new_line ) const;
 
+
     /*
-    Calculate the distance from a point to a plane
+    Calculate and return the slope of the plane (in radians)
+
+    Returns:
+     - Slope of the plane in radians
+    */
+    double slope ();
+
+    /*
+    Calculate the distance from a point to the plane
 
     Args:
      - p : Point as Vector
@@ -153,7 +162,7 @@ private:
 
     /*
     Convert the parameter form to the coordinate form internally
-    for better computation
+    for easier computation
     */
     void toCoordinateForm ( void );
 };

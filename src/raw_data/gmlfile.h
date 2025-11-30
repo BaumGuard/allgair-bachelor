@@ -7,7 +7,10 @@
 #include "../geometry/vector.h"
 #include "surface.h"
 
-
+/*
+Class for loading and parsing Gml files and to make the data
+available for the program
+*/
 class GmlFile {
 public:
     /*

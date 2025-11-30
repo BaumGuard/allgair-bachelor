@@ -9,26 +9,21 @@
 #include <vector>
 #include <string>
 
+
 enum TileTypes {
-    DGM1,
-    DOM20,
-    LOD2
+    DGM1,   // Terrain model (GeoTIFF) (Width: 1 km, Resolution: 1 m)
+    DOM20,  // Surface model (GeoTIFF) (Width: 1 km, Resolution 20 cm)
+    LOD2    // Buildings     (Gml)     (Width: 2 km)
 };
 
-class Field {
-public:
-    int surfaceIntersection (
-        Coord& intersection,
-        double lat_start, double lon_start, double alt_start,
-        double lat_end, double lon_end, double alt_end
-    );
+/*
+Class for managing grid tiles and vector tiles and performing
+raytracing on the data
 
-    int bresenhamPseudo3D (
-        Coord& intersection,
-        double lat_start, double lon_start, double alt_start,
-        double lat_end, double lon_end, double alt_end,
-        int tile_type
-    );
+The class hides the process of loading the tiles from the user
+letting him concentrate on the raytracing
+*/
+class Field {
 
 private:
     std::unordered_map<std::string, GridTile> grid_tiles_dgm1;
@@ -41,7 +36,7 @@ private:
 
     Args:
      - tile_name : Name of the tile (easting_northing)
-     - tile_type : Tile type (GRID, VECTOR)
+     - tile_type : Tile type (DGM1, DOM20, LOD2)
 
     Returns:
      - Tile with name tile_name already loaded?
@@ -55,7 +50,7 @@ private:
     Args:
      - lat       : Latitude on the tile in degrees
      - lon       : Longitude on the tile in degrees
-     - tile_type : Tile type (GRID, VECTOR)
+     - tile_type : Tile type (DGM1, DOM20, LOD2)
 
     Returns:
      - Tile with name tile_name already loaded?
@@ -70,7 +65,7 @@ private:
      - lat_start     : Latitude of the starting point in degrees
      - lon_start     : Longitude of the starting point in degrees
      - lat_end       : Latitude of the end point in degrees
-     - lon_end       : Longitudde of the end point in degrees
+     - lon_end       : Longitude of the end point in degrees
      - tile_width_km : Width of the tile in km
 
     Returns:
@@ -84,7 +79,7 @@ private:
 
 
     /*
-    Load a grid tile
+    Load a tile
 
     3 step check:
      1. Binary file (.grid) in data folder?
@@ -108,7 +103,7 @@ private:
 
     Args:
      - lat : Latitude in degrees
-     - lon : Lontitude in degrees
+     - lon : Longitude in degrees
 
     Returns:
      - Altitude in meters
@@ -127,6 +122,7 @@ private:
     */
     double getAltitudeAtXY ( uint x, uint y, int tile_type );
 
+public:
     /*
     Perform the Bresenham algorithm in pseudo 3D space
 
@@ -137,12 +133,22 @@ private:
      - lon_start    : Longitude of the starting point in degrees
      - alt_start    : Altitude at the starting point in meters
      - lat_end      : Latitude of the end point in degrees
-     - lon_end      : Longitudde of the end point in degrees
+     - lon_end      : Longitude of the end point in degrees
      - alt_end      : Altitude at the end point in meters
 
     Returns:
      - Status code
+        - INTERSECTION_FOUND
+
+        - NO_INTERSECTION_FOUND
+        - INVALID_TILE_TYPE
     */
+    int bresenhamPseudo3D (
+        Coord& intersection,
+        double lat_start, double lon_start, double alt_start,
+        double lat_end, double lon_end, double alt_end,
+        int tile_type
+    );
 
 
     /*
@@ -155,12 +161,20 @@ private:
      - lon_start    : Longitude of the starting point in degrees
      - alt_start    : Altitude at the starting point in meters
      - lat_end      : Latitude of the end point in degrees
-     - lon_end      : Longitudde of the end point in degrees
+     - lon_end      : Longitude of the end point in degrees
      - alt_end      : Altitude at the end point in meters
 
     Returns:
      - Status code
+        - INTERSECTION_FOUND
+
+        - NO_INTERSECTION_FOUND
     */
+    int surfaceIntersection (
+        Coord& intersection,
+        double lat_start, double lon_start, double alt_start,
+        double lat_end, double lon_end, double alt_end
+    );
 
 };
 

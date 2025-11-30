@@ -67,7 +67,7 @@ bool Line::pointIsOnLine ( Vector p ) const {
 
 /*---------------------------------------------------------------*/
 
-int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) const {
+int Line::lineIntersect ( Line& l, Vector& intersect ) const {
     if ( *this == l ) {
         return LINES_IDENTICAL;
     }
@@ -76,8 +76,8 @@ int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) const {
     }
 
     double
-        v_num,
-        v_denom;
+        v_num,      // Numerator
+        v_denom;    // Denominator
 
     double
         x_a = base.getX(),
@@ -108,6 +108,8 @@ int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) const {
 
     double v = v_num / v_denom;
 
+    // Count how many of the coordinates in the denomiator
+    // are not zero to be able to test if all factors u are equal
     int avg_count = 0;
 
     double
@@ -116,6 +118,8 @@ int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) const {
         u_z = 0.0,
         u_comp;
 
+    // Calculate the u factors for x, y and z provided that the
+    // denomiator is not zero
     if ( x_b != 0.0 ) {
         u_x = ( x_c - x_a + v * x_d ) / x_b;
         u_comp = u_x;
@@ -132,15 +136,12 @@ int Line::lineIntersect ( Line& l, Vector& intersect, double* factor ) const {
         avg_count++;
     }
 
-    double avg = (u_x+u_y+u_z) / (double)avg_count;
-    //u_comp = clampDouble( u_comp );
+    // Calculate the average of all u's
+    double avg = ( u_x + u_y + u_z ) / (double)avg_count;
 
+    // Compare the average of the u's with one of the u's
     if ( equalWithThreshold(avg, u_comp, 0.01) ) {
         intersect = base + u_comp * direction;
-
-        if ( factor != nullptr ) {
-            *factor = v;
-        }
         return INTERSECTION_FOUND;
     }
 

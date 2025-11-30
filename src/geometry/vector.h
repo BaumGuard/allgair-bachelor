@@ -98,6 +98,4 @@ private:
         z = 0.0;
 };
 
-
-
 #endif

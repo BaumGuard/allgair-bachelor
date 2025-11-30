@@ -12,11 +12,11 @@ class Line {
 public:
 
     /*
-    Create a line when two points are given
+    Create a line out of two non-identical points
 
     Args:
-     - p1 : Point 1 as Vector
-     - p2 : Point 2 as Vector
+     - p1 : Point 1 as a Vector object
+     - p2 : Point 2 as a Vector object
 
     Returns:
      - Status code
@@ -71,7 +71,6 @@ public:
     Args:
      - l         : Line to find the intersection with the local line
      - intersect : Reference to the vector to save the intersection point it
-     - factor    : Pointer to the variable to save the factor of the second line
 
     Returns:
      - Status code
@@ -81,7 +80,7 @@ public:
         - LINES_PARALLEL  (Failure -> No intersection)
         - NO_INTERSECTION_FOUND (Failure -> No intersection)
     */
-    int lineIntersect ( Line& l, Vector& intersect, double* factor = nullptr ) const;
+    int lineIntersect ( Line& l, Vector& intersect ) const;
 
     /*
     Check if two lines are equal

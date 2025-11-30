@@ -99,6 +99,9 @@ public:
      - *method : Function pointer to the function that computes
                  the maximum, minimum or average pixel value of
                  the subblock
+                  - min
+                  - max
+                  - avg
     */
     int downsampleTile (
         uint factor,

@@ -1,4 +1,5 @@
 #include "field.h"
+
 #include "../geometry/vector.h"
 #include "../geometry/line.h"
 #include "../geometry/polygon.h"
@@ -261,7 +262,7 @@ double Field::getAltitudeAtLatLon ( double lat, double lon, int tile_type ) {
     }
 
 
-    float value;
+    float value = 0.0;
     tile->getValue( easting, northing, value );
 
     return value;
@@ -653,7 +654,7 @@ int Field::surfaceIntersection (
         uint intersections_len = intersections.size();
         for ( uint i = 1; i < intersections_len; i++ ) {
             current_distance = ( intersections[i] - start_point ).length();
-            //intersections[i].printVector();
+
             if ( current_distance < min_distance ) {
                 min_distance = current_distance;
                 min_index = i;

@@ -26,7 +26,8 @@ public:
     Add a point of the polygon
 
     IMPORTANT:
-    The points should be given in a clockwise order
+    The points should be given in a clockwise or counter-clockwise
+    order
 
     Args:
      - point : A point of the polygon as Vector to add
@@ -59,7 +60,7 @@ public:
     Plane getBasePlane() const;
 
     /*
-    Return a reference to the point list of the polygon
+    Return the point list of the polygon
     */
     std::vector<Vector> getPoints () const;
 
@@ -87,16 +88,17 @@ public:
 
     Returns:
      - Status code
-        - INTERSECTION_FOUND (Success)
+        - INTERSECTION_FOUND
 
         - NO_INTERSECTION_FOUND
     */
     int lineIntersection ( Line& l, Vector& intersect ) const;
 
-
+    /*
+    Print a description of the polygon with the base plane
+    and the points
+    */
     void printPolygon ();
-
-    //int p2, p3;
 
 private:
     std::vector<Vector> points;

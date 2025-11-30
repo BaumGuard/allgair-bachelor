@@ -41,7 +41,6 @@ int Polygon::addPoint ( Vector point ) {
     if ( !base_plane.isPointOnPlane(point) ) {
         return POINT_NOT_ON_BASE_PLANE;
     }
-
     if ( isPointAlreadyInPolygon(point) ) {
         return POINT_DUPLICATE;
     }
@@ -61,21 +60,25 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
     // Normal vector of the polygon's base plane
     Vector normal_vector = base_plane.normalVector();
 
-    // Finding the rotation angles alpha and beta to rotate the base plane
-    // so that it becomes parallel to the xy plane
-    // Rotation around the z axis
-    double alpha = -atan2( normal_vector.getY(), normal_vector.getX() );
-    Vector nv_rot = p.rotateVector( alpha, 0.0 );
+    double
+        x_nv = normal_vector.getX(),
+        y_nv = normal_vector.getY(),
+        z_nv = normal_vector.getZ();
 
-    // Rotation around the y axis
-    double beta  = -atan2(nv_rot.getZ(), -nv_rot.getX()) + 1.5*M_PI;
+    // Find the rotation angles alpha and beta to rotate the base plane
+    // so that it becomes parallel to the xy plane
+
+    // Rotation angles around the z axis (alpha) and y axis (beta)
+    double
+        alpha = atan2( y_nv, x_nv );
+        beta  = 0.5*M_PI - atan2( z_nv, sqrt(x_nv*x_nv+y_nv*y_nv) );
 
     // Rotate all points of the polygon around the angles alpha and beta
     // to map the base plane to the xy plane
     std::vector<Vector> mapped_points;
     size_t n_points = points.size();
     for ( size_t i = 0; i < n_points; i++ ) {
-        mapped_points.push_back( points[i].rotateVector(alpha, beta) );
+        mapped_points.push_back( points[i].rotateVector(-alpha, -beta) );
     }
 
     // Adjacent points in the polygon
@@ -87,7 +90,7 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
 
 
     // Rotating the point p around alpha and beta (mapping to the xy plane)
-    Vector p_rot = p.rotateVector( alpha, beta );
+    Vector p_rot = p.rotateVector( -alpha, -beta );
 
     // The y intercept of the probing ray is set to the y coordinate
     // of the point p

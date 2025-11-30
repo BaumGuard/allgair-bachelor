@@ -56,10 +56,6 @@ int Plane::createPlaneFromCoordinates ( double x, double y, double z, double n )
     this->n = n;
 
     base =  Vector( 0.0, 0.0, -n / z );
-    /*
-    v1 =    Vector( 1.0, 0.0, -x / z );
-    v2 =    Vector( 0.0, 1.0, -y / z );
-    */
     v1 =    Vector( 1.0, 0.0, (-n-x) / z );
     v2 =    Vector( 0.0, 1.0, (-n-y) / z );
 
@@ -142,13 +138,20 @@ int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) const
 
 int Plane::reflectLine ( Line& old_line, Line& new_line ) const {
     Vector old_intersect;
+
+    // Factor of the direction vector in the line
+    // Plugged into the line equation it will evaluate to the
+    // intersection point
     double factor;
 
+    // Find the intersection of the given line with the plane
     int status = lineIntersection( old_line, old_intersect, &factor );
     if ( status != INTERSECTION_FOUND ) {
         return status;
     }
 
+    // Change the factor to find an auxiliary point on the line which
+    // is not the intersection with the plane
     factor += 1.0;
 
     Vector plumb_line_base_point =
@@ -156,20 +159,51 @@ int Plane::reflectLine ( Line& old_line, Line& new_line ) const {
 
     Vector normal_vector = normalVector();
 
+    // Create a plumb line starting at the auxiliary point
+    // This is used to reflect a chosen point on the plane
     Line plumb_line;
     plumb_line.createLineFromBaseAndVector( plumb_line_base_point, normal_vector );
 
     Vector plumb_line_intersect;
     lineIntersection( plumb_line, plumb_line_intersect );
 
+    // Vector between the auxiliary point and the plumb line intersection
     Vector delta = plumb_line_intersect - plumb_line_base_point;
 
+    // Reflect the point on the plane
     Vector new_line_p = plumb_line_base_point + 2.0 * delta;
 
+    // Create the reflected line
     new_line.createLineFromTwoPoints( old_intersect, new_line_p );
 
     return SUCCESS;
 } /* reflectLine() */
+
+/*---------------------------------------------------------------*/
+
+double Plane::slope () {
+    // Calculate the angle of the normal vector when being
+    // projected onto the xy plane
+    double alpha = -atan2( y, x );
+
+    Vector nv( x, y, z );
+
+    // Rotate the normal vector around the z axis in order to
+    // eliminate the y coordinate
+    Vector rot_nv = nv.rotateVector( alpha, 0.0 );
+
+    // Calculate the angle between the plane and the xy plane
+    double angle_nv = atan(
+        rot_nv.getZ() / rot_nv.getX()
+    );
+
+    // Calculate the slope depending on wether the angle of the
+    // plane is positive or negative
+    if ( angle_nv > 0.0 ) {
+        return -angle_nv + 0.5 * M_PI;
+    }
+    return angle_nv + 0.5 * M_PI;
+} /* slope() */
 
 /*---------------------------------------------------------------*/
 
@@ -206,12 +240,15 @@ double Plane::getN () const {
 double Plane::distanceOfPointToPlane ( Vector& p ) const {
     Vector nv = normalVector();
 
+    // Create a plumb line from the point through the plane
     Line plumb_line;
     plumb_line.createLineFromBaseAndVector( p, nv );
 
+    // Find the intersection of the plumb line with the plane
     Vector intersect;
     lineIntersection( plumb_line, intersect );
 
+    // Calculate the distance between the point and the intersection
     return ( intersect - p ).length();
 } /* distanceOfPointToPlane() */
 

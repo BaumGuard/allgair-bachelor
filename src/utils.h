@@ -4,10 +4,11 @@
 #include <cstring>
 #include <string>
 
-#define STREQUAL(str1, str2)    !strcmp(str1, str2)
+#define STREQUAL(str1, str2)       !strcmp(str1, str2)
 #define STRNEQUAL(str1, str2, n)   !strncmp(str1, str2, n)
-#define FILE_EXISTS(file_path)  !access(file_path, F_OK)
-#define RAD_TO_DEG(rad)         rad*180.0/M_PI
+#define FILE_EXISTS(file_path)     !access(file_path, F_OK)
+#define RAD_TO_DEG(rad)            rad*180.0/M_PI
+#define DEG_TO_RAD(deg)            (deg*M_PI)/180.0
 
 typedef unsigned int uint;
 

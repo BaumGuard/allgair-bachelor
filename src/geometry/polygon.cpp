@@ -70,7 +70,7 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
 
     // Rotation angles around the z axis (alpha) and y axis (beta)
     double
-        alpha = atan2( y_nv, x_nv );
+        alpha = atan2( y_nv, x_nv ),
         beta  = 0.5*M_PI - atan2( z_nv, sqrt(x_nv*x_nv+y_nv*y_nv) );
 
     // Rotate all points of the polygon around the angles alpha and beta

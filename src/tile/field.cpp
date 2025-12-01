@@ -677,8 +677,6 @@ int Field::surfaceIntersection (
             polygons[k].printPolygon();
             printf("------------\n");
             intersections[k].printVector();
-            printf("------------\n");
-            polygons[k].getBasePlane().getVector1().printVector();
         }
 
         return INTERSECTION_FOUND;

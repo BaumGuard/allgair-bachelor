@@ -8,9 +8,9 @@
 /*---------------------------------------------------------------*/
 
 int Plane::createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) {
-    base = p1;
-    v1 = p2 - p1;
-    v2 = p3 - p1;
+    Vector
+        v1 = p2 - p1,
+        v2 = p3 - p1;
 
     if ( v1.length() == 0.0 || v2.length() == 0.0 ) {
         return VECTOR_LENGTH_0;
@@ -19,7 +19,7 @@ int Plane::createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 ) {
         return VECTORS_LINEAR_DEPENDANT;
     }
 
-    toCoordinateForm();
+    toNormalizedCoordinateForm( p1, v1, v2 );
 
     return SUCCESS;
 } /* createPlaneFromPoints() */
@@ -33,11 +33,8 @@ int Plane::createPlaneFromBaseAndVectors ( Vector& base, Vector& v1, Vector& v2 
     if ( v1.linearDependant(v2) ) {
         return VECTORS_LINEAR_DEPENDANT;
     }
-    this->base = base;
-    this->v1 = v1;
-    this->v2 = v2;
 
-    toCoordinateForm();
+    toNormalizedCoordinateForm( base, v1, v2 );
 
     return SUCCESS;
 } /* createPlaneFromBaseAndVectors() */
@@ -55,9 +52,11 @@ int Plane::createPlaneFromCoordinates ( double x, double y, double z, double n )
     this->z = z;
     this->n = n;
 
-    base =  Vector( 0.0, 0.0, -n / z );
-    v1 =    Vector( 1.0, 0.0, (-n-x) / z );
-    v2 =    Vector( 0.0, 1.0, (-n-y) / z );
+    double vector_length = sqrt( x*x + y*y + z*z );
+    x /= vector_length;
+    y /= vector_length;
+    z /= vector_length;
+    n /= vector_length;
 
     return SUCCESS;
 } /* createPlaneFromCoordinates() */
@@ -70,7 +69,7 @@ Vector Plane::normalVector() const {
 
 /*---------------------------------------------------------------*/
 
-void Plane::toCoordinateForm() {
+void Plane::toNormalizedCoordinateForm( Vector& base, Vector& v1, Vector& v2 ) {
     double
         x_a = v1.getX(),
         y_a = v1.getY(),
@@ -84,6 +83,12 @@ void Plane::toCoordinateForm() {
     y = z_a * x_b - x_a * z_b;
     z = x_a * y_b - y_a * x_b;
     n = -base.getX() * x - base.getY() * y - base.getZ() * z;
+
+    double vector_length = sqrt( x*x + y*y + z*z );
+    x /= vector_length;
+    y /= vector_length;
+    z /= vector_length;
+    n /= vector_length;
 } /* toCoordinateForm() */
 
 /*---------------------------------------------------------------*/
@@ -207,18 +212,6 @@ double Plane::slope () {
 
 /*---------------------------------------------------------------*/
 
-Vector Plane::getBaseVector() const {
-    return base;
-} /* getBaseVector() */
-
-Vector Plane::getVector1() const {
-    return v1;
-} /* getVector1() */
-
-Vector Plane::getVector2() const {
-    return v2;
-} /* getVector2() */
-
 double Plane::getX () const {
     return x;
 } /* getX() */
@@ -238,18 +231,7 @@ double Plane::getN () const {
 /*---------------------------------------------------------------*/
 
 double Plane::distanceOfPointToPlane ( Vector& p ) const {
-    Vector nv = normalVector();
-
-    // Create a plumb line from the point through the plane
-    Line plumb_line;
-    plumb_line.createLineFromBaseAndVector( p, nv );
-
-    // Find the intersection of the plumb line with the plane
-    Vector intersect;
-    lineIntersection( plumb_line, intersect );
-
-    // Calculate the distance between the point and the intersection
-    return ( intersect - p ).length();
+    return fabs( x*p.getX() + y*p.getY() + y*p.getZ() + n );
 } /* distanceOfPointToPlane() */
 
 /*---------------------------------------------------------------*/

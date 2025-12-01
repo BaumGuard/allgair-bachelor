@@ -223,7 +223,6 @@ int GridTile::getValue ( uint x, uint y, float& value ) const {
         return COORDINATES_OUTSIDE_TILE;
     }
 
-    //value = tile[width*(width-y-1)+x];
     value = tile[y*width+x];
 
     return SUCCESS;

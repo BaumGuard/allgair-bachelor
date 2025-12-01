@@ -134,10 +134,6 @@ public:
     double distanceOfPointToPlane ( Vector& p ) const;
 
     /* GETTERS */
-    Vector getBaseVector() const;
-    Vector getVector1() const;
-    Vector getVector2() const;
-
     double getX () const;
     double getY () const;
     double getZ () const;
@@ -155,16 +151,16 @@ private:
         z,
         n;
 
-    Vector
-        base,
-        v1,
-        v2;
-
     /*
-    Convert the parameter form to the coordinate form internally
+    Convert the parameter form to the normalized coordinate form internally
     for easier computation
+
+    Args:
+     - base : Base vector
+     - v1   : First direction vector
+     - v2   : Second direction vector
     */
-    void toCoordinateForm ( void );
+    void toNormalizedCoordinateForm ( Vector& base, Vector& v1, Vector& v2 );
 };
 
 #endif

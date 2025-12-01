@@ -10,13 +10,7 @@
 #include <time.h>
 
 int main () {
-    Plane plane;
-    plane.createPlaneFromCoordinates( 2.0, 0.0, -3.0, -2.0 );
 
-    double angle = plane.slope();
-    printf("%f\n", RAD_TO_DEG(angle));
-
-#if 0
     Field field;
     Coord intersect;
     //field.bresenhamPseudo3D( intersect, 48.17959, 11.52543, 745.2, 48.11685, 11.68722, 24.5 );
@@ -32,6 +26,6 @@ int main () {
 
     printf("%d\n", status);
     printf("%.10f %.10f %f\n", intersect.lat, intersect.lon, intersect.altitude);
-#endif
+
     return 0;
 }

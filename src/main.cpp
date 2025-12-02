@@ -2,6 +2,7 @@
 #include "coord.h"
 #include "utils.h"
 #include "config/config.h"
+#include "web/download.h"
 
 #include <cstdio>
 #include <string>
@@ -22,7 +23,7 @@ int main () {
 
     printf("Execution time : %f\n", exec_time);
 
-    //int status = field.bresenhamPseudo3D( intersect, 47.623289, 10.633178, 1000.0, 47.621091, 10.635238, 100.0, DOM20 );
+    //int status = field.bresenhamPseudo3D( intersect, 47.623289, 10.633178, 1000.0, 47.621091, 10.635238, 100.0, DGM1 );
 
     printf("%d\n", status);
     printf("%.10f %.10f %f\n", intersect.lat, intersect.lon, intersect.altitude);

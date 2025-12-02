@@ -24,4 +24,7 @@ Returns:
 */
 int downloadFile ( std::string url, std::string dir, bool force = false );
 
+
+void createWorkspace ( std::string data_dir );
+
 #endif

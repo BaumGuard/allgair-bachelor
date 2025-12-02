@@ -24,6 +24,13 @@ public:
 
     Args:
      - file_path : File path to the GeoTIFF file
+
+    Returns:
+     - Status code
+        - SUCCESS
+
+        - INVALID_TILE_TYPE
+        - FILE_NOT_FOUND
     */
     int readGeoTiffFile( std::string file_path, int tile_type );
 

@@ -24,6 +24,7 @@ public:
      - Status code
         - SUCCESS
 
+        - FILE_NOT_FOUND
         - FILE_CORRUPT
         - NO_SURFACES
     */

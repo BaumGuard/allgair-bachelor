@@ -36,6 +36,7 @@ public:
      - Status code:
         - SUCCESS
 
+        - POLYGON_NOT_INITIALIZED
         - POINT_NOT_ON_BASE_PLANE
           (Failure: A point of the polygon must be on the base plane)
         - POINT_DUPLICATE

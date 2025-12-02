@@ -45,7 +45,7 @@ public:
 
     Returns:
      - Status code
-        - CREATION_SUCCEEDED
+        - SUCCESS
     */
     int fromGmlFile ( GmlFile& gmlfile, double* success_rate = nullptr );
 

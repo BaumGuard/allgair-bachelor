@@ -22,37 +22,46 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
     // raw file (.gml/.tif)
     std::string binary_file_name;
     std::string raw_file_name;
+
+    std::string data_dir;
+
     switch ( tile_type ) {
         case DGM1:
-            binary_file_name = tile_name + "_DGM1.grid";
-            raw_file_name = tile_name + ".tif";
+            data_dir = DATA_DIR + "/DGM1";
+            binary_file_name =  tile_name + "_DGM1.grid";
+            raw_file_name    =  tile_name + ".tif";
             break;
 
         case DOM20:
+            data_dir = DATA_DIR + "/DOM20";
             binary_file_name = tile_name + "_DOM20.grid";
-            raw_file_name = "32" + tile_name + "_20_DOM.tif";
+            raw_file_name    = "32" + tile_name + "_20_DOM.tif";
             break;
 
         case LOD2:
+            data_dir = DATA_DIR + "/LOD2";
             binary_file_name = tile_name + "_LOD2.data";
-            raw_file_name = tile_name + ".gml";
+            raw_file_name    = tile_name + ".gml";
             break;
     }
 
-    std::string binary_file_path = DATA_DIR + "/" + binary_file_name;
-    std::string raw_file_path = DATA_DIR + "/" + raw_file_name;
+    std::string
+        binary_file_path = data_dir + "/" + binary_file_name,
+        raw_file_path    = data_dir + "/" + raw_file_name;
 
 
     // Check for the existence of the binary file
     printMessage(
         NORMAL,
         "Checking for binary file '%s' in '%s'... ",
-        binary_file_name.data(), DATA_DIR.data()
+        binary_file_name.data(), data_dir.data()
     );
     if ( FILE_EXISTS(binary_file_path.data()) ) {
         GridTile grid_tile;
         VectorTile vector_tile;
 
+        // Read the binary file and load the tile object into the
+        // corresponding map
         switch ( tile_type ) {
             case DGM1:
                 grid_tile.fromBinaryFile( binary_file_path );
@@ -82,13 +91,15 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
         NORMAL,
         "Checking for raw file '%s' in '%s'... ",
         raw_file_name.data(),
-        DATA_DIR.data()
+        data_dir.data()
     );
 
     if ( FILE_EXISTS(raw_file_path.data()) ) {
         GeoTiffFile geotiff;
         GridTile grid_tile;
 
+        // Read the raw file (tif or gml), generate a binary file and
+        // load the data into the corresponding map
         switch ( tile_type ) {
             case DGM1:
                 geotiff.readGeoTiffFile( raw_file_path, DGM1 );
@@ -147,12 +158,14 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
         NORMAL,
         "Downloading the raw file '%s' into '%s'... ",
         raw_file_name.data(),
-        DATA_DIR.data()
+        data_dir.data()
     );
-    if ( downloadFile( url, DATA_DIR ) == SUCCESS ) {
+    if ( downloadFile( url, data_dir ) == SUCCESS ) {
         GeoTiffFile geotiff;
         GridTile grid_tile;
 
+        // Read the raw file (tif or gml), generate a binary file and
+        // load the data into the corresponding map
         switch ( tile_type ) {
             case DGM1:
                 geotiff.readGeoTiffFile( raw_file_path, DGM1 );
@@ -309,75 +322,87 @@ std::vector<std::string> Field::tilesOnRay (
     double lat_end, double lon_end,
     uint tile_width_km
 ) {
-    double x1, y1, x2, y2;
-    LatLonToUTMXY( lat_start, lon_start, 32, x1, y1 );
-    LatLonToUTMXY( lat_end, lon_end, 32, x2, y2 );
+    // UTM representation of the start and end coordinate
+    double x_start, y_start, x_end, y_end;
+    LatLonToUTMXY( lat_start, lon_start, 32, x_start, y_start );
+    LatLonToUTMXY( lat_end, lon_end, 32, x_end, y_end );
 
-    x1 /= 1000.0;
-    y1 /= 1000.0;
-    x2 /= 1000.0;
-    y2 /= 1000.0;
+    // Convert meters to kilometers (used in the tile name)
+    x_start /= 1000.0;
+    y_start /= 1000.0;
+    x_end   /= 1000.0;
+    y_end   /= 1000.0;
 
-    double m = (double)( y2 - y1 ) / (double)( x2 - x1 );
-    double t = y1 - m * x1;
+    // Calculate m and t of the line running through the start and end
+    // coordinate
+    double m = (double)( y_end - y_start ) / (double)( x_end - x_start );
+    double t = y_start - m * x_start;
 
     double
-        x1_f = x1,
-        x2_f = x2;
+        x_start_f = x_start,
+        x_end_f   = x_end;
 
-    double tmp;
 
-    if ( x2 < x1 ) {
-        x1_f = x2;
-        x2_f = x1;
+    if ( x_end < x_start ) {
+        x_start_f = x_end;
+        x_end_f   = x_start;
     }
 
+    // Set the x coordinates to the left edge of the tile
     int
-        x1_i = (int) floor( x1_f ),
-        x2_i = (int) floor( x2_f );
+        x_start_i = (int) floor( x_start_f ),
+        x_end_i   = (int) floor( x_end_f );
 
-    x1_i -= x1_i % tile_width_km;
-    x2_i -= x2_i % tile_width_km;
+    // If the tile width is larger than 1 km, set the coordinates
+    // to the closest left edge
+    x_start_i -= x_start_i % tile_width_km;
+    x_end_i   -= x_end_i % tile_width_km;
 
-    std::string current_tile;
+    std::string current_tile_name;
     std::vector<std::string> tile_names;
 
     int
-        y_bound1,
-        y_bound2;
+        y_bound1,   // y coordinate where the line starts in the
+                    // current interation
+        y_bound2;   // y coordinate where the line ends in the
+                    // current iteration
 
-    for ( int i = x1_i; i < x2_i; i += tile_width_km ) {
+    double tmp;
+
+    for ( int i = x_start_i; i < x_end_i; i += tile_width_km ) {
         y_bound1 = (int) floor( m * i + t );
         y_bound2 = (int) floor( m * (i+1) + t );
 
         y_bound1 -= y_bound1 % tile_width_km;
         y_bound2 -= y_bound2 % tile_width_km;
 
+        // Swap y_bound1 and y_bound2 if the line declines
         if ( y_bound2 < y_bound1 ) {
             tmp = y_bound1;
             y_bound1 = y_bound2;
             y_bound2 = tmp;
         }
 
+        // Add all tiles through which the line runs to the list
         for ( int j = y_bound1; j <= y_bound2; j += tile_width_km ) {
-            current_tile = buildTileName( i, j );
-            tile_names.push_back( current_tile );
+            current_tile_name = buildTileName( i, j );
+            tile_names.push_back( current_tile_name );
         }
     }
 
-    if ( x1 < x2 ) {
-        current_tile = buildTileName(
-            (int)floor(x2) - (int)floor(x2) % tile_width_km,
-            (int)floor(y2) - (int)floor(y2) % tile_width_km
+    if ( x_start < x_end ) {
+        current_tile_name = buildTileName(
+            (int)floor(x_end) - (int)floor(x_end) % tile_width_km,
+            (int)floor(y_end) - (int)floor(y_end) % tile_width_km
         );
-        tile_names.push_back( current_tile );
+        tile_names.push_back( current_tile_name );
     }
     else {
-        current_tile = buildTileName(
-            (int)floor(x1) - (int)floor(x1) % tile_width_km,
-            (int)floor(y1) - (int)floor(y1) % tile_width_km
+        current_tile_name = buildTileName(
+            (int)floor(x_start) - (int)floor(x_start) % tile_width_km,
+            (int)floor(y_start) - (int)floor(y_start) % tile_width_km
         );
-        tile_names.push_back( current_tile );
+        tile_names.push_back( current_tile_name );
     }
 
     return tile_names;
@@ -601,9 +626,13 @@ int Field::surfaceIntersection (
     std::vector<VectorTile> tiles;
 
     uint len = tiles_on_ray.size();
+    int status;
     for ( uint i = 0; i < len; i++ ) {
         if ( !tileAlreadyLoaded(tiles_on_ray[i], LOD2) ) {
-            loadTile( tiles_on_ray[i], LOD2 );
+            status = loadTile( tiles_on_ray[i], LOD2 );
+            if ( status == TILE_NOT_AVAILABLE ) {
+                return TILE_NOT_AVAILABLE;
+            }
         }
         tiles.push_back( vector_tiles_lod2[tiles_on_ray[i]] );
     }
@@ -623,7 +652,6 @@ int Field::surfaceIntersection (
     Line ray;
     ray.createLineFromTwoPoints( start_point, end_point );
 
-    int status;
     bool found_intersection = false;
 
     // List for storing all intersections of the ray with surfaces

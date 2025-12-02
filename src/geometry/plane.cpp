@@ -94,9 +94,9 @@ void Plane::toNormalizedCoordinateForm( Vector& base, Vector& v1, Vector& v2 ) {
 /*---------------------------------------------------------------*/
 
 bool Plane::isPointOnPlane ( Vector& p ) const {
-    double res = x * p.getX() + y * p.getY() + z * p.getZ() + n;
+    double result = x * p.getX() + y * p.getY() + z * p.getZ() + n;
 
-    if ( fabs(res) < 0.01 ) {
+    if ( fabs(result) < 0.01 ) {
         return true;
     }
     return false;
@@ -105,6 +105,7 @@ bool Plane::isPointOnPlane ( Vector& p ) const {
 /*---------------------------------------------------------------*/
 
 int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) const {
+    // Get the base point and direction vector of the line
     Vector
         base_vec = l.getBaseVector(),
         dir_vec  = l.getDirectionVector();
@@ -118,6 +119,8 @@ int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) const
         y_b = dir_vec.getY(),
         z_b = dir_vec.getZ();
 
+    // Calculate the denominator of the line's scalar u to determine
+    // whether an intersection exists (if u != 0)
     double u_denom = x_b*x + y_b*y + z_b*z;
     if ( u_denom == 0.0 && isPointOnPlane(base_vec) ) {
         return LINE_ON_PLANE;
@@ -126,10 +129,11 @@ int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) const
         return LINE_PARALLEL_TO_PLANE;
     }
 
+    // Calculate the numerator of u and u itself
     double u_num = -x_a*x - y_a*y - z_a*z - n;
-
     double u = u_num / u_denom;
 
+    // Use u to calculate the intersection point
     intersect = base_vec + u * dir_vec;
 
     if ( factor != nullptr ) {
@@ -191,6 +195,7 @@ double Plane::slope () {
     // projected onto the xy plane
     double alpha = -atan2( y, x );
 
+    // Normal vector of the plane
     Vector nv( x, y, z );
 
     // Rotate the normal vector around the z axis in order to
@@ -198,11 +203,9 @@ double Plane::slope () {
     Vector rot_nv = nv.rotateVector( alpha, 0.0 );
 
     // Calculate the angle between the plane and the xy plane
-    double angle_nv = atan(
-        rot_nv.getZ() / rot_nv.getX()
-    );
+    double angle_nv = atan( rot_nv.getZ() / rot_nv.getX() );
 
-    // Calculate the slope depending on wether the angle of the
+    // Calculate the slope depending on whether the angle of the
     // plane is positive or negative
     if ( angle_nv > 0.0 ) {
         return -angle_nv + 0.5 * M_PI;

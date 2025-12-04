@@ -52,43 +52,6 @@ public:
     /* DESTRUCTOR */
     ~GridTile ();
 
-
-    /* INPUT / OUTPUT */
-
-    /*
-    Create a binary file of the grid data
-
-    Args:
-     - file_path    : File path of the output file
-     - output_type  : Data type of the pixels
-                       - INT   : 16 bit signed integer
-                       - FLOAT : 32 bit float
-
-    Returns:
-    - Status code
-       - SUCCESS
-
-       - FILE_NOT_CREATABLE
-    */
-    int writeBinaryFile ( std::string file_path, int output_type );
-
-    /*
-    Read a binary grid file
-
-    Args:
-     - file_path : File path of the binary grid file
-
-    Returns:
-     - Status code
-        - SUCCESS
-
-        - FILE_NOT_FOUND
-        - FILE_CORRUPT
-    */
-    int fromBinaryFile ( std::string file_path );
-
-
-
     /*
     Reduce the number of pixels in the tile by a given factor
     and with a given method

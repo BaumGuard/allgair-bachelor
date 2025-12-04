@@ -28,13 +28,11 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
     switch ( tile_type ) {
         case DGM1:
             data_dir = DATA_DIR + "/DGM1";
-            binary_file_name =  tile_name + "_DGM1.grid";
             raw_file_name    =  tile_name + ".tif";
             break;
 
         case DOM20:
             data_dir = DATA_DIR + "/DOM20";
-            binary_file_name = tile_name + "_DOM20.grid";
             raw_file_name    = "32" + tile_name + "_20_DOM.tif";
             break;
 
@@ -51,39 +49,25 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
 
 
     // Check for the existence of the binary file
-    printMessage(
-        NORMAL,
-        "Checking for binary file '%s' in '%s'... ",
-        binary_file_name.data(), data_dir.data()
-    );
-    if ( FILE_EXISTS(binary_file_path.data()) ) {
-        GridTile grid_tile;
+    bool binary_file_exists = FILE_EXISTS(binary_file_path.data());
+    if ( tile_type == LOD2 && binary_file_exists ) {
+        printMessage(
+            NORMAL,
+            "Checking for binary file '%s' in '%s'... ",
+            binary_file_name.data(), data_dir.data()
+        );
+
         VectorTile vector_tile;
 
-        // Read the binary file and load the tile object into the
-        // corresponding map
-        switch ( tile_type ) {
-            case DGM1:
-                grid_tile.fromBinaryFile( binary_file_path );
-                grid_tiles_dgm1[tile_name] = grid_tile;
-                break;
-
-            case DOM20:
-                grid_tile.fromBinaryFile( binary_file_path );
-                grid_tiles_dom20[tile_name] = grid_tile;
-                break;
-
-            case LOD2:
-                vector_tile.fromBinaryFile( binary_file_path );
-                vector_tiles_lod2[tile_name] = vector_tile;
-                break;
-        }
-
+        vector_tile.fromBinaryFile( binary_file_path );
+        vector_tiles_lod2.insert( {tile_name, vector_tile} );
 
         printMessage( NORMAL, "Found\n" );
         return SUCCESS;
     }
-    printMessage( NORMAL, "Not found\n" );
+    else if ( !binary_file_exists ) {
+        printMessage( NORMAL, "Not found\n" );
+    }
 
 
     // Check for the existence of the raw file (.gml/.tif)
@@ -104,19 +88,13 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
             case DGM1:
                 geotiff.readGeoTiffFile( raw_file_path, DGM1 );
                 grid_tile.fromGeoTiffFile( geotiff );
-
-                grid_tile.writeBinaryFile( binary_file_path, FLOAT_PIXEL );
-
-                grid_tiles_dgm1[tile_name] = grid_tile;
+                grid_tiles_dgm1.insert( {tile_name,grid_tile} );
                 break;
 
             case DOM20:
                 geotiff.readGeoTiffFile( raw_file_path, DOM20 );
                 grid_tile.fromGeoTiffFile( geotiff );
-
-                grid_tile.writeBinaryFile( binary_file_path, FLOAT_PIXEL );
-
-                grid_tiles_dom20[tile_name] = grid_tile;
+                grid_tiles_dom20.insert( {tile_name, grid_tile} );
                 break;
 
             case LOD2:
@@ -126,9 +104,7 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
                 VectorTile vector_tile;
                 vector_tile.fromGmlFile( gml_file );
 
-                vector_tile.createBinaryFile( binary_file_path );
-
-                vector_tiles_lod2[tile_name] = vector_tile;
+                vector_tiles_lod2.insert( {tile_name, vector_tile} );
                 break;
         }
 
@@ -170,18 +146,12 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
             case DGM1:
                 geotiff.readGeoTiffFile( raw_file_path, DGM1 );
                 grid_tile.fromGeoTiffFile( geotiff );
-
-                grid_tile.writeBinaryFile( binary_file_path, FLOAT_PIXEL );
-
                 grid_tiles_dgm1.insert( {tile_name, grid_tile} );
                 break;
 
             case DOM20:
                 geotiff.readGeoTiffFile( raw_file_path, DOM20 );
                 grid_tile.fromGeoTiffFile( geotiff );
-
-                grid_tile.writeBinaryFile( binary_file_path, FLOAT_PIXEL );
-
                 grid_tiles_dom20.insert( {tile_name, grid_tile} );
                 break;
 
@@ -189,11 +159,8 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
                 GmlFile gml_file;
                 gml_file.readGmlFile( raw_file_path );
 
-
                 VectorTile vector_tile;
                 vector_tile.fromGmlFile( gml_file );
-
-                vector_tile.createBinaryFile( binary_file_path );
 
                 vector_tiles_lod2.insert( {tile_name, vector_tile} );
                 break;

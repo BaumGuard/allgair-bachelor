@@ -82,7 +82,7 @@ private:
     Load a tile
 
     3 step check:
-     1. Binary file (.grid) in data folder?
+     1. Binary file (.data) in data folder (only for LOD2)?
      2. TIFF file available in data folder?
      3. Download the TIFF file, create a binary file and load
         into grid_tiles

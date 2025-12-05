@@ -136,6 +136,21 @@ public:
     int setValue ( uint x, uint y, float value );
 
 
+    /*
+    Create a tif file from the tile
+
+    Args:
+     - file_path : File path of the output tif
+
+    Returns:
+     - Status code:
+        - SUCCESS
+
+        - FILE_NOT_CREATABLE
+    */
+    int createTifFile ( std::string file_path );
+
+
 private:
     float* tile;
     bool tile_memalloc = false;

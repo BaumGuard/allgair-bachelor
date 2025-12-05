@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <iostream>
 #include <cstring>
+#include <tiffio.h>
+#include <cmath>
 
 /*---------------------------------------------------------------*/
 
@@ -197,48 +199,48 @@ void GridTile::resampleTile (
         return;
     }
 
-
     uint factor_int;
+    uint new_width;
+
+    float* new_tile;
 
     // Downsampling
     if ( factor < 1.0 ) {
-        factor_int = (uint)( 1.0 / factor );
-        uint32_t step = width / factor_int;
+        factor_int = (uint) round( 1.0 / factor );
+        new_width = width / factor_int;
 
-        int len = step * step;
+        int len = new_width * new_width;
 
-        float* subblock = new float [len];
-        float* new_tile = new float [len];
+        float* subblock = new float [factor_int];
+        new_tile = new float [len];
 
         int new_tile_it = 0;
 
         float new_value;
 
-        for ( uint i=0; i<width; i+=step ) {
-            for ( uint j=0; j<width; j+=step ) {
-                getBlock( subblock, step, j, i );
+        for ( uint i = 0; i < width; i += factor_int ) {
+            for ( uint j = 0; j < width; j += factor_int ) {
+                // Get a block of pixels from the current tile
+                // which should be turned into one pixel
+                getBlock( subblock, factor_int, j, i );
 
-                new_value = method( subblock, step );
+                // Apply the specified accumulation method to the pixel block
+                new_value = method( subblock, factor_int );
                 new_tile[new_tile_it] = new_value;
                 new_tile_it++;
             }
         }
 
-        for ( int i = 0; i<len; i++ ) {
-            tile[i] = new_tile[i];
-        }
-        width = step;
-
-        delete[] new_tile;
         delete[] subblock;
+
     } /* Downsampling */
 
     // Upsampling
     else {
         factor_int = (uint) factor;
 
-        uint new_width = width * factor;
-        float* new_tile = new float [new_width * new_width];
+        new_width = width * factor_int;
+        new_tile = new float [new_width * new_width];
 
         // Altitude of the current and the next tile
         // in horizontal and vertial direction
@@ -268,14 +270,15 @@ void GridTile::resampleTile (
                 y_alt_current   = tile[y_outer*width+x_outer];
                 y_alt_next      = tile[(y_outer+1)*width+x_outer];
 
-                m_x = ( x_alt_next - x_alt_current ) / factor;
+
+                m_x = ( x_alt_next - x_alt_current ) / factor_int;
                 t_x = x_alt_current;
 
-                m_y = ( y_alt_next - y_alt_current ) / factor;
+                m_y = ( y_alt_next - y_alt_current ) / factor_int;
                 t_y = y_alt_current;
 
-                for ( uint y_inner = 0; y_inner < factor; y_inner++ ) {
-                    for ( uint x_inner = 0; x_inner < factor; x_inner++ ) {
+                for ( uint y_inner = 0; y_inner < factor_int; y_inner++ ) {
+                    for ( uint x_inner = 0; x_inner < factor_int; x_inner++ ) {
                         // Interpolate the new pixels
                         x_alt_interpolate = m_x * x_inner + t_x;
                         y_alt_interpolate = m_y * y_inner + t_y;
@@ -284,9 +287,9 @@ void GridTile::resampleTile (
                         avg_interpolate = ( x_alt_interpolate + y_alt_interpolate ) / 2.0;
 
                         new_tile_index =
-                            y_outer*factor*new_width + // Outer row
+                            y_outer*factor_int*new_width + // Outer row
                             y_inner*new_width +        // Inner row
-                            x_outer*factor +           // Outer column
+                            x_outer*factor_int +           // Outer column
                             x_inner;                   // Inner column
 
                         new_tile[new_tile_index] = avg_interpolate;
@@ -304,34 +307,60 @@ void GridTile::resampleTile (
             x_alt = tile[(width-1)*width+i];
             y_alt = tile[i*width+width-1];
 
-            for ( uint y_inner = 0; y_inner < factor; y_inner++ ) {
-                for ( uint x_inner = 0; x_inner < factor; x_inner++ ) {
+            for ( uint y_inner = 0; y_inner < factor_int; y_inner++ ) {
+                for ( uint x_inner = 0; x_inner < factor_int; x_inner++ ) {
                     new_tile_index =
-                        i*factor*new_width + // Outer row
-                        y_inner*new_width +  // Inner row
-                        (width-1)*factor +   // Outer column
-                        x_inner;             // Inner column
+                        (width-1) * factor_int * new_width + // Outer row
+                        y_inner * new_width +                // Inner row
+                        i * factor_int +                     // Outer column
+                        x_inner;                             // Inner column
 
                     new_tile[new_tile_index] = x_alt;
 
-
                     new_tile_index =
-                        (width-1)*factor*new_width + // Outer row
-                        y_inner*new_width +          // Inner row
-                        i*factor +                   // Outer column
+                        i * factor_int * new_width + // Outer row
+                        y_inner * new_width +        // Inner row
+                        (width-1) * factor_int +     // Outer column
                         x_inner;                     // Inner column
 
                     new_tile[new_tile_index] = y_alt;
                 }
             }
         }
-
-
-        delete [] tile;
-        tile = new_tile;
-        width = new_width;
     } /* Upsampling */
-} /* downsampleGridTile() */
+
+    delete [] tile;
+    tile = new_tile;
+    width = new_width;
+} /* resampleTile() */
+
+/*---------------------------------------------------------------*/
+
+int GridTile::createTifFile ( std::string file_path ) {
+    TIFF* tif = TIFFOpen( file_path.data(), "w" );
+    if ( !tif ) {
+        return FILE_NOT_CREATABLE;
+    }
+
+    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, width);
+    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, width);
+    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1);
+    TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 32);
+    TIFFSetField(tif, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+    TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+    TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
+
+    for ( uint row = 0; row < width; row++ ) {
+        float* row_data = &tile[(width-row-1) * width];
+        if ( TIFFWriteScanline(tif, row_data, row, 0) < 0 ) {
+            return FILE_NOT_CREATABLE;
+        }
+    }
+
+    TIFFClose(tif);
+    return SUCCESS;
+} /* createTifFile() */
 
 /*---------------------------------------------------------------*/
 

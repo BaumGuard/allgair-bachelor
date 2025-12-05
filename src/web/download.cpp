@@ -13,19 +13,27 @@
 void createWorkspace ( std::string data_dir ) {
     struct stat st = {0};
 
-    std::string dgm1_dir = data_dir + "/DGM1";
+    std::string dgm1_dir  = data_dir + "/DGM1";
+    std::string dgm20_dir = data_dir + "/DGM20";
     std::string dom20_dir = data_dir + "/DOM20";
-    std::string lod2_dir = data_dir + "/LOD2";
+    std::string dom1_dir  = data_dir + "/DOM1";
+    std::string lod2_dir  = data_dir + "/LOD2";
 
     if ( stat(data_dir.data(), &st) == -1 ) {
         mkdir( data_dir.data(), 0700 );
     }
+
     if ( stat(dgm1_dir.data(), &st) == -1 ) {
         mkdir( dgm1_dir.data(), 0700 );
     }
-
+    if ( stat(dgm20_dir.data(), &st) == -1 ) {
+        mkdir( dgm20_dir.data(), 0700 );
+    }
     if ( stat(dom20_dir.data(), &st) == -1 ) {
         mkdir( dom20_dir.data(), 0700 );
+    }
+    if ( stat(dom1_dir.data(), &st) == -1 ) {
+        mkdir( dom1_dir.data(), 0700 );
     }
     if ( stat(lod2_dir.data(), &st) == -1 ) {
         mkdir( lod2_dir.data(), 0700 );

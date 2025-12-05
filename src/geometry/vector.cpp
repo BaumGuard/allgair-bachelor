@@ -91,12 +91,21 @@ void Vector::operator /= ( const double n ) {
 } /* operator /= */
 
 bool Vector::operator == ( Vector& v ) const {
-    return x == v.getX() && y == v.getY() && z == v.getZ();
+    //return x == v.getX() && y == v.getY() && z == v.getZ();
+    return
+        equalWithThreshold( x, v.getX(), 0.001 ) &&
+        equalWithThreshold( y, v.getY(), 0.001 ) &&
+        equalWithThreshold( z, v.getZ(), 0.001 );
 } /* operator == */
 
 bool Vector::operator != ( Vector& v ) const {
-    return !( x == v.getX() && y == v.getY() && z == v.getZ() );
-} /* perator != */
+    return
+        !(
+            equalWithThreshold( x, v.getX(), 0.001 ) &&
+            equalWithThreshold( y, v.getY(), 0.001 ) &&
+            equalWithThreshold( z, v.getZ(), 0.001 )
+        );
+} /* operator != */
 
 
 Vector operator * ( double n, const Vector& v ) {

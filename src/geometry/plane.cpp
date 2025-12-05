@@ -144,10 +144,10 @@ int Plane::lineIntersection ( Line& l, Vector& intersect, double* factor ) const
     // Calculate the denominator of the line's scalar u to determine
     // whether an intersection exists (if u != 0)
     double u_denom = x_b*x + y_b*y + z_b*z;
-    if ( u_denom == 0.0 && isPointOnPlane(base_vec) ) {
+    if ( fabs(u_denom) < 0.001 && isPointOnPlane(base_vec) ) {
         return LINE_ON_PLANE;
     }
-    if ( u_denom == 0.0 ) {
+    if ( fabs(u_denom) < 0.001 ) {
         return LINE_PARALLEL_TO_PLANE;
     }
 

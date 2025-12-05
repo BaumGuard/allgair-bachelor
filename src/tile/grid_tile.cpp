@@ -189,44 +189,148 @@ float* GridTile::getData () const {
 
 /*---------------------------------------------------------------*/
 
-int GridTile::downsampleTile (
-    uint factor,
+void GridTile::resampleTile (
+    float factor,
     float (*method)(float*,uint)
 ) {
-    if ( width % factor != 0 ) {
-        return 1;
+    if ( factor == 1.0 ) {
+        return;
     }
 
-    uint32_t step = width / factor;
 
-    int len = step * step;
+    uint factor_int;
 
-    float* subblock = new float [len];
-    float* new_tile = new float [len];
+    // Downsampling
+    if ( factor < 1.0 ) {
+        factor_int = (uint)( 1.0 / factor );
+        uint32_t step = width / factor_int;
 
-    int new_tile_it = 0;
+        int len = step * step;
 
-    float new_value;
+        float* subblock = new float [len];
+        float* new_tile = new float [len];
 
-    for ( uint i=0; i<width; i+=step ) {
-        for ( uint j=0; j<width; j+=step ) {
-            getBlock( subblock, step, j, i );
+        int new_tile_it = 0;
 
-            new_value = method( subblock, step );
-            new_tile[new_tile_it] = new_value;
-            new_tile_it++;
+        float new_value;
+
+        for ( uint i=0; i<width; i+=step ) {
+            for ( uint j=0; j<width; j+=step ) {
+                getBlock( subblock, step, j, i );
+
+                new_value = method( subblock, step );
+                new_tile[new_tile_it] = new_value;
+                new_tile_it++;
+            }
         }
-    }
 
-    for ( int i = 0; i<len; i++ ) {
-        tile[i] = new_tile[i];
-    }
-    width = step;
+        for ( int i = 0; i<len; i++ ) {
+            tile[i] = new_tile[i];
+        }
+        width = step;
 
-    delete[] new_tile;
-    delete[] subblock;
+        delete[] new_tile;
+        delete[] subblock;
+    } /* Downsampling */
 
-    return 0;
+    // Upsampling
+    else {
+        factor_int = (uint) factor;
+
+        uint new_width = width * factor;
+        float* new_tile = new float [new_width * new_width];
+
+        // Altitude of the current and the next tile
+        // in horizontal and vertial direction
+        float
+            x_alt_current, y_alt_current,
+            x_alt_next, y_alt_next;
+
+        // Slope (m) and y-axis intercept (t) of the interpolation functions
+        float
+            m_x, t_x,
+            m_y, t_y;
+
+        // Altitude interpolation values for the horizontal and vertical
+        // direction and the average of both
+        float
+            x_alt_interpolate,
+            y_alt_interpolate,
+            avg_interpolate;
+
+        // Index in the new tile array
+        uint new_tile_index;
+
+        for ( uint y_outer = 0; y_outer < width-1; y_outer++ ) {
+            for ( uint x_outer = 0; x_outer < width-1; x_outer++ ) {
+                x_alt_current   = tile[y_outer*width+x_outer];
+                x_alt_next      = tile[y_outer*width+x_outer+1];
+                y_alt_current   = tile[y_outer*width+x_outer];
+                y_alt_next      = tile[(y_outer+1)*width+x_outer];
+
+                m_x = ( x_alt_next - x_alt_current ) / factor;
+                t_x = x_alt_current;
+
+                m_y = ( y_alt_next - y_alt_current ) / factor;
+                t_y = y_alt_current;
+
+                for ( uint y_inner = 0; y_inner < factor; y_inner++ ) {
+                    for ( uint x_inner = 0; x_inner < factor; x_inner++ ) {
+                        // Interpolate the new pixels
+                        x_alt_interpolate = m_x * x_inner + t_x;
+                        y_alt_interpolate = m_y * y_inner + t_y;
+
+                        // Average of the x and y direction interpolation
+                        avg_interpolate = ( x_alt_interpolate + y_alt_interpolate ) / 2.0;
+
+                        new_tile_index =
+                            y_outer*factor*new_width + // Outer row
+                            y_inner*new_width +        // Inner row
+                            x_outer*factor +           // Outer column
+                            x_inner;                   // Inner column
+
+                        new_tile[new_tile_index] = avg_interpolate;
+                    } /* x_inner */
+                } /* y_inner */
+            } /* x_outer */
+        } /* y_outer */
+
+
+        float x_alt, y_alt;
+
+        // Fill the right and upper edge with the corresponding pixels from
+        // the original tile (flat without interpolation)
+        for ( uint i = 0; i < width; i++ ) {
+            x_alt = tile[(width-1)*width+i];
+            y_alt = tile[i*width+width-1];
+
+            for ( uint y_inner = 0; y_inner < factor; y_inner++ ) {
+                for ( uint x_inner = 0; x_inner < factor; x_inner++ ) {
+                    new_tile_index =
+                        i*factor*new_width + // Outer row
+                        y_inner*new_width +  // Inner row
+                        (width-1)*factor +   // Outer column
+                        x_inner;             // Inner column
+
+                    new_tile[new_tile_index] = x_alt;
+
+
+                    new_tile_index =
+                        (width-1)*factor*new_width + // Outer row
+                        y_inner*new_width +          // Inner row
+                        i*factor +                   // Outer column
+                        x_inner;                     // Inner column
+
+                    new_tile[new_tile_index] = y_alt;
+                }
+            }
+        }
+
+
+        delete [] tile;
+        tile = new_tile;
+        width = new_width;
+    } /* Upsampling */
 } /* downsampleGridTile() */
 
 /*---------------------------------------------------------------*/

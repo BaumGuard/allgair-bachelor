@@ -9,6 +9,11 @@ enum PixelTypes {
     FLOAT_PIXEL
 };
 
+/* Downsample methods to pass to the function resampleTile */
+float max ( float* block, uint width );
+float min ( float* block, uint width );
+float avg ( float* block, uint width );
+
 /*
 Class to represent a tile (e.g. from a GeoTIFF file)
 */
@@ -53,22 +58,25 @@ public:
     ~GridTile ();
 
     /*
-    Reduce the number of pixels in the tile by a given factor
-    and with a given method
+    Upsample or downsample a tile
+    Reduce a square of pixels into one or turn one pixel into a
+    square of pixels using interpolation
 
     Args:
-     - factor  : The width of the subblocks that should be
-                 combined to one pixel
+     - factor  : Resampling factor
+                  - <1 : Downsample
+                  - >1 : Upsample
      - *method : Function pointer to the function that computes
                  the maximum, minimum or average pixel value of
-                 the subblock
+                 the subblock (only in case of downsampling)
+                 Default method: max
                   - min
                   - max
                   - avg
     */
-    int downsampleTile (
-        uint factor,
-        float (*method)(float*,uint)
+    void resampleTile (
+        float factor,
+        float (*method)(float*,uint) = max
     );
 
 
@@ -142,12 +150,5 @@ private:
         uint x, uint y
     ) const;
 };
-
-/*---------------------------------------------------------------*/
-
-/* Downsample methods to pass to the function downsampleTile */
-float max ( float* block, uint width );
-float min ( float* block, uint width );
-float avg ( float* block, uint width );
 
 #endif

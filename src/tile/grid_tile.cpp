@@ -58,6 +58,7 @@ void GridTile::fromGeoTiffFile ( GeoTiffFile& geotiff ) {
         tile[(width-(i/width)-1)*width+(i%width)] = values[i];
     }
 
+
     tile_memalloc = true;
 } /* fromGeoTiffFile () */
 
@@ -211,7 +212,7 @@ void GridTile::resampleTile (
 
         int len = new_width * new_width;
 
-        float* subblock = new float [factor_int];
+        float* subblock = new float [factor_int * factor_int];
         new_tile = new float [len];
 
         int new_tile_it = 0;

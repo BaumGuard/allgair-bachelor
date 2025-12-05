@@ -21,7 +21,10 @@ union sample {
 
 int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
 
-    if ( tile_type != DGM1 && tile_type != DOM20 ) {
+    if (
+        tile_type != DGM1  && tile_type != DGM20 &&
+        tile_type != DOM20 && tile_type != DOM1
+    ) {
         return INVALID_TILE_TYPE;
     }
 
@@ -51,79 +54,75 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
         dst_it = 0,
         x = 0;
 
-    switch ( tile_type ) {
 
-        // In case of a DGM1 GeoTIFF file, the data is presented in lines
-        // from top to bottom
-        case DGM1:
-            buf_size = TIFFScanlineSize(tiff);
-            buf = new uint8_t [buf_size];
+    // In case of a DGM1 GeoTIFF file, the data is presented in lines
+    // from top to bottom
+    if ( tile_type == DGM1 || tile_type == DGM20 ) {
+        buf_size = TIFFScanlineSize(tiff);
+        buf = new uint8_t [buf_size];
 
-            for ( size_t i = 0; i < image_width; i++ ) {
-                TIFFReadScanline( tiff, buf, i, 0 );
+        for ( size_t i = 0; i < image_width; i++ ) {
+            TIFFReadScanline( tiff, buf, i, 0 );
 
-                for ( size_t j = 0; j < buf_size; j++ ) {
-                    current_sample.bytes[pixel_it] = buf[j];
-                    pixel_it++;
+            for ( size_t j = 0; j < buf_size; j++ ) {
+                current_sample.bytes[pixel_it] = buf[j];
+                pixel_it++;
 
-                    if ( pixel_it == FLOAT_SIZE ) {
-                        data[dst_it] = current_sample.f32;
-                        dst_it++;
-                        pixel_it = 0;
-                        x++;
-                    }
+                if ( pixel_it == FLOAT_SIZE ) {
+                    data[dst_it] = current_sample.f32;
+                    dst_it++;
+                    pixel_it = 0;
+                    x++;
                 }
-                x = 0;
             }
+            x = 0;
+        }
+    }
 
-            break;
+    // In case of a DOM20 GeoTIFF file, the data is presented as a grid
+    // of tiles
+    if ( tile_type == DOM20 || tile_type == DOM1 ) {
+        uint32_t tiff_tile_width;
+        TIFFGetField( tiff, TIFFTAG_TILEWIDTH, &tiff_tile_width );
 
-        // In case of a DOM20 GeoTIFF file, the data is presented as a grid
-        // of tiles
-        case DOM20:
-            uint32_t tiff_tile_width;
-            TIFFGetField( tiff, TIFFTAG_TILEWIDTH, &tiff_tile_width );
+        uint32_t tiles_per_line =
+            (uint32_t) ceil( (float)image_width / (float)tiff_tile_width );
 
-            uint32_t tiles_per_line =
-                (uint32_t) ceil( (float)image_width / (float)tiff_tile_width );
-
-            buf_size = tiff_tile_width * tiff_tile_width * sizeof(float);
-            buf = new uint8_t [buf_size];
+        buf_size = tiff_tile_width * tiff_tile_width * sizeof(float);
+        buf = new uint8_t [buf_size];
 
 
-            uint32_t
-                x_grid,
-                y_grid,
-                index;
+        uint32_t
+            x_grid,
+            y_grid,
+            index;
 
-            for ( size_t y = 0; y < tiles_per_line; y++ ) {
-                for ( size_t x = 0; x < tiles_per_line; x++ ) {
-                    TIFFReadTile( tiff, buf, x, y, 0, 0 );
+        for ( size_t y = 0; y < tiles_per_line; y++ ) {
+            for ( size_t x = 0; x < tiles_per_line; x++ ) {
+                TIFFReadTile( tiff, buf, x, y, 0, 0 );
 
-                    for ( size_t i = 0; i < tiff_tile_width; i++ ) {
-                        for ( size_t j = 0; j < tiff_tile_width; j++ ) {
-                            x_grid = x * tiff_tile_width + j;
-                            y_grid = y * tiff_tile_width + i;
+                for ( size_t i = 0; i < tiff_tile_width; i++ ) {
+                    for ( size_t j = 0; j < tiff_tile_width; j++ ) {
+                        x_grid = x * tiff_tile_width + j;
+                        y_grid = y * tiff_tile_width + i;
 
-                            if ( x_grid >= image_width || y_grid >= image_width ) {
-                                break;
-                            }
-
-                            memcpy(
-                                current_sample.bytes,
-                                &buf[i*tiff_tile_width*FLOAT_SIZE+j*FLOAT_SIZE],
-                                FLOAT_SIZE
-                            );
-
-                            index = y_grid * image_width + x_grid;
-
-                            data[index] = current_sample.f32;
+                        if ( x_grid >= image_width || y_grid >= image_width ) {
+                            break;
                         }
+
+                        memcpy(
+                            current_sample.bytes,
+                            &buf[i*tiff_tile_width*FLOAT_SIZE+j*FLOAT_SIZE],
+                            FLOAT_SIZE
+                        );
+
+                        index = y_grid * image_width + x_grid;
+
+                        data[index] = current_sample.f32;
                     }
                 }
             }
-
-            break;
+        }
     }
 
     TIFFClose( tiff );

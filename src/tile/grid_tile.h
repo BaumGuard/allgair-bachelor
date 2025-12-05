@@ -4,10 +4,6 @@
 #include "vector_tile.h"
 #include "../raw_data/geotiff.h"
 
-enum PixelTypes {
-    INT_PIXEL,
-    FLOAT_PIXEL
-};
 
 /* Downsample methods to pass to the function resampleTile */
 float max ( float* block, uint width );

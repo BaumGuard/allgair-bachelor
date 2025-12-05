@@ -31,7 +31,17 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
             raw_file_name    =  tile_name + ".tif";
             break;
 
+        case DGM20:
+            data_dir = DATA_DIR + "/DGM1";
+            raw_file_name    =  tile_name + ".tif";
+            break;
+
         case DOM20:
+            data_dir = DATA_DIR + "/DOM20";
+            raw_file_name    = "32" + tile_name + "_20_DOM.tif";
+            break;
+
+        case DOM1:
             data_dir = DATA_DIR + "/DOM20";
             raw_file_name    = "32" + tile_name + "_20_DOM.tif";
             break;
@@ -88,13 +98,33 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
             case DGM1:
                 geotiff.readGeoTiffFile( raw_file_path, DGM1 );
                 grid_tile.fromGeoTiffFile( geotiff );
-                grid_tiles_dgm1.insert( {tile_name,grid_tile} );
+                grid_tiles_dgm1.insert( {tile_name, grid_tile} );
+                break;
+
+            case DGM20:
+                geotiff.readGeoTiffFile( raw_file_path, DGM1 );
+                grid_tile.fromGeoTiffFile( geotiff );
+
+                // Resample the DGM1 tile from 1 m resolution to
+                // 20 cm resolution
+                grid_tile.resampleTile( 5.0 );
+                grid_tiles_dgm20.insert( {tile_name, grid_tile} );
                 break;
 
             case DOM20:
                 geotiff.readGeoTiffFile( raw_file_path, DOM20 );
                 grid_tile.fromGeoTiffFile( geotiff );
                 grid_tiles_dom20.insert( {tile_name, grid_tile} );
+                break;
+
+            case DOM1:
+                geotiff.readGeoTiffFile( raw_file_path, DOM20 );
+                grid_tile.fromGeoTiffFile( geotiff );
+
+                // Resample the DOM20 tile from 20 cm resultion to
+                // 1 m resolution
+                grid_tile.resampleTile( 0.2 );
+                grid_tiles_dom1.insert( {tile_name, grid_tile} );
                 break;
 
             case LOD2:
@@ -122,7 +152,15 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
             url = URL_DGM1 + raw_file_name;
             break;
 
+        case DGM20:
+            url = URL_DGM1 + raw_file_name;
+            break;
+
         case DOM20:
+            url = URL_DOM20 + raw_file_name;
+            break;
+
+        case DOM1:
             url = URL_DOM20 + raw_file_name;
             break;
 
@@ -149,10 +187,30 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
                 grid_tiles_dgm1.insert( {tile_name, grid_tile} );
                 break;
 
+            case DGM20:
+                geotiff.readGeoTiffFile( raw_file_path, DGM1 );
+                grid_tile.fromGeoTiffFile( geotiff );
+
+                // Resample the DGM1 tile from 1 m resolution to
+                // 20 cm resolution
+                grid_tile.resampleTile( 5.0 );
+                grid_tiles_dgm20.insert( {tile_name, grid_tile} );
+                break;
+
             case DOM20:
                 geotiff.readGeoTiffFile( raw_file_path, DOM20 );
                 grid_tile.fromGeoTiffFile( geotiff );
                 grid_tiles_dom20.insert( {tile_name, grid_tile} );
+                break;
+
+            case DOM1:
+                geotiff.readGeoTiffFile( raw_file_path, DOM20 );
+                grid_tile.fromGeoTiffFile( geotiff );
+
+                // Resample the DOM20 tile from 20 cm resultion to
+                // 1 m resolution
+                grid_tile.resampleTile( 0.2 );
+                grid_tiles_dom1.insert( {tile_name, grid_tile} );
                 break;
 
             case LOD2:
@@ -181,8 +239,12 @@ bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
     switch ( tile_type ) {
         case DGM1:
             return grid_tiles_dgm1.contains( tile_name );
+        case DGM20:
+            return grid_tiles_dgm20.contains( tile_name );
         case DOM20:
             return grid_tiles_dom20.contains( tile_name );
+        case DOM1:
+            return grid_tiles_dom1.contains( tile_name );
         case LOD2:
             return vector_tiles_lod2.contains( tile_name );
         default:
@@ -236,6 +298,14 @@ double Field::getAltitudeAtLatLon ( double lat, double lon, int tile_type ) {
             tile = &grid_tiles_dgm1[tile_name];
             break;
 
+        case DGM20:
+            tile = &grid_tiles_dgm20[tile_name];
+            break;
+
+        case DOM1:
+            tile = &grid_tiles_dom1[tile_name];
+            break;
+
         case DOM20:
             tile = &grid_tiles_dom20[tile_name];
             break;
@@ -269,6 +339,14 @@ double Field::getAltitudeAtXY ( uint x, uint y, int tile_type ) {
     switch ( tile_type ) {
         case DGM1:
             tile = &grid_tiles_dgm1[tile_name];
+            break;
+
+        case DGM20:
+            tile = &grid_tiles_dgm20[tile_name];
+            break;
+
+        case DOM1:
+            tile = &grid_tiles_dom1[tile_name];
             break;
 
         case DOM20:
@@ -379,12 +457,18 @@ std::vector<std::string> Field::tilesOnRay (
 
 int Field::bresenhamPseudo3D (
     Coord& intersection,
-    double lat_start, double lon_start, double alt_start,
-    double lat_end, double lon_end, double alt_end,
-    int tile_type
+    Coord& start,
+    Coord& end,
+    float ground_level_threshold,
+    int* ground_count,
+    int tile_type,
+    bool cancel_on_ground
 )
 {
-    if ( tile_type != DGM1 && tile_type != DOM20 ) {
+    if (
+        tile_type != DGM1 && tile_type != DGM20 &&
+        tile_type != DOM20 && tile_type != DOM1 )
+    {
         return INVALID_TILE_TYPE;
     }
 
@@ -394,12 +478,12 @@ int Field::bresenhamPseudo3D (
         x_end_f, y_end_f;
 
     LatLonToUTMXY(
-        (double) lat_start, (double) lon_start,
+        (double) start.lat, (double) start.lon,
         32,
         x_start_f, y_start_f
     );
     LatLonToUTMXY(
-        lat_end, lon_end,
+        end.lat, end.lon,
         32,
         x_end_f, y_end_f
     );
@@ -408,10 +492,10 @@ int Field::bresenhamPseudo3D (
     int
         x_start = (int) x_start_f,
         y_start = (int) y_start_f,
-        z_start = (int) round( alt_start ),
+        z_start = (int) round( start.altitude ),
         x_end   = (int) x_end_f,
         y_end   = (int) y_end_f,
-        z_end   = (int) round( alt_end );
+        z_end   = (int) round( end.altitude );
 
     // Distances between the start and end coordinate
     int
@@ -420,14 +504,18 @@ int Field::bresenhamPseudo3D (
         dz = abs( z_end - z_start );
 
     // Axes
-    enum { X, Y, Z };
+    enum IterationAxes {
+        ITERATION_AXIS_X,
+        ITERATION_AXIS_Y,
+        ITERATION_AXIS_Z
+    };
 
     // Find the largest distance
     // The corresponding axis will become the iteration axis
     int axis;
-    if ( dx > dy && dx > dz ) axis = X;
-    else if ( dy > dz ) axis = Y;
-    else axis = Z;
+    if ( dx > dy && dx > dz ) axis = ITERATION_AXIS_X;
+    else if ( dy > dz ) axis = ITERATION_AXIS_Y;
+    else axis = ITERATION_AXIS_Z;
 
     int
         e1, e2,                // Bresenham error (if 0 increment/decrement dep1/dep2)
@@ -443,7 +531,7 @@ int Field::bresenhamPseudo3D (
 
     // Map the x, y and z values to iteration and dependant coordinates
     switch ( axis ) {
-        case X:
+        case ITERATION_AXIS_X:
             e1          = dx;
             e2          = dx;
             start_it    = x_start;
@@ -459,7 +547,7 @@ int Field::bresenhamPseudo3D (
             dep2        = z_start;
             break;
 
-        case Y:
+        case ITERATION_AXIS_Y:
             e1          = dy;
             e2          = dy;
             start_it    = y_start;
@@ -475,7 +563,7 @@ int Field::bresenhamPseudo3D (
             dep2        = z_start;
             break;
 
-        case Z:
+        case ITERATION_AXIS_Z:
             e1          = dz;
             e2          = dz;
             start_it    = z_start;
@@ -490,10 +578,16 @@ int Field::bresenhamPseudo3D (
             dep1        = x_start;
             dep2        = y_start;
             break;
-    }
+    } /* switch ( axis ) */
 
 
     int it = start_it;
+
+    bool intersection_found_yet = false;
+
+    // Counting variable to count how often the ray is below ground
+    // level taking the ground level threshold into account
+    uint internal_ground_count = 0;
 
     // Find an intersection between the ray and the ground
     // using Bresenham's algorithm modified for 3D
@@ -532,48 +626,67 @@ int Field::bresenhamPseudo3D (
 
         // Map back to x, y and z values
         switch ( axis ) {
-            case X:
+            case ITERATION_AXIS_X:
                 x = it;
                 y = dep1;
                 z = dep2;
                 break;
 
-            case Y:
+            case ITERATION_AXIS_Y:
                 x = dep1;
                 y = it;
                 z = dep2;
                 break;
 
-            case Z:
+            case ITERATION_AXIS_Z:
                 x = dep1;
                 y = dep2;
                 z = it;
                 break;
-        }
+        } /* switch ( axis ) */
 
         // Get the altitude at the current x/y position
-        int altitude_at_xy = (int) round( getAltitudeAtXY(x, y, tile_type) );
+        float altitude_at_xy =
+            getAltitudeAtXY(x, y, tile_type) - ground_level_threshold;
 
         // If the value of z is equal or smaller than the altitude
         // at x/y they ray has hit the ground
-        if ( z <= altitude_at_xy ) {
-            double lat_final, lon_final;
+        if ( (float)z <= altitude_at_xy ) {
+            internal_ground_count++;
 
-            UTMXYToLatLon(
-                (double)x, (double)y,
-                32, false,
-                lat_final, lon_final
-            );
+            if ( !intersection_found_yet ) {
+                double lat_final, lon_final;
 
-            // Convert the intersection point back to latitude/longitude
-            intersection.lat = (double) RAD_TO_DEG( lat_final );
-            intersection.lon = (double) RAD_TO_DEG( lon_final );
-            intersection.altitude = z;
+                UTMXYToLatLon(
+                    (double)x, (double)y,
+                    32, false,
+                    lat_final, lon_final
+                );
 
-            return INTERSECTION_FOUND;
-        }
+                // Convert the intersection point back to latitude/longitude
+                intersection.lat = (double) RAD_TO_DEG( lat_final );
+                intersection.lon = (double) RAD_TO_DEG( lon_final );
+                intersection.altitude = z;
+
+                if ( cancel_on_ground ) {
+                    if ( ground_count != nullptr ) {
+                        *ground_count = internal_ground_count;
+                    }
+                    return INTERSECTION_FOUND;
+                }
+
+                intersection_found_yet = true;
+            }
+        } /* if ( z <= altitude_at_xy ) */
+    } /* while ( it != end_it ) */
+
+    if ( ground_count != nullptr ) {
+        *ground_count = internal_ground_count;
     }
 
+    if ( intersection_found_yet ) {
+        return INTERSECTION_FOUND;
+    }
     return NO_INTERSECTION_FOUND;
 } /* bresenhamPseudo3D() */
 
@@ -581,14 +694,14 @@ int Field::bresenhamPseudo3D (
 
 int Field::surfaceIntersection (
     Coord& intersection,
-    double lat_start, double lon_start, double alt_start,
-    double lat_end, double lon_end, double alt_end
+    Coord& start,
+    Coord& end
 )
 {
     // Find all tiles in the path of the ray and load them
     // if not already done
     std::vector<std::string> tiles_on_ray =
-        tilesOnRay( lat_start, lon_start, lat_end, lon_end, 2 );
+        tilesOnRay( start.lat, start.lon, end.lat, end.lon, 2 );
 
     std::vector<VectorTile> tiles;
 
@@ -606,12 +719,12 @@ int Field::surfaceIntersection (
 
     // Transform lat/lon coordinates to UTM32 coordinates
     double start_x, start_y, end_x, end_y;
-    LatLonToUTMXY( lat_start, lon_start, 32, start_x, start_y );
-    LatLonToUTMXY( lat_end, lon_end, 32, end_x, end_y );
+    LatLonToUTMXY( start.lat, start.lon, 32, start_x, start_y );
+    LatLonToUTMXY( end.lat, end.lon, 32, end_x, end_y );
 
     Vector
-        start_point ( start_x, start_y, alt_start ),
-        end_point ( end_x, end_y, alt_end ),
+        start_point ( start_x, start_y, start.altitude ),
+        end_point ( end_x, end_y, end.altitude ),
         intersect;
 
 

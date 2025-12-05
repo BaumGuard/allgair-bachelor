@@ -1,5 +1,6 @@
 #include "line.h"
 
+#include "plane.h"
 #include "../utils.h"
 #include "../status_codes.h"
 
@@ -64,6 +65,24 @@ bool Line::pointIsOnLine ( Vector p ) const {
     }
     return false;
 } /* pointIsOnLine() */
+
+/*---------------------------------------------------------------*/
+
+double Line::distanceOfPointToLine ( Vector& p ) {
+    // Create an auxiliary plane in which the point p is located and
+    // with the normal vector being the direction vector of the line.
+    // The line will then be perpendicular to the plane.
+    Plane aux_plane;
+    aux_plane.createPlaneFromBaseAndNormalVector( p, direction );
+
+    // Calculate the intersection between the auxiliary plane and
+    // the line
+    Vector intersect;
+    aux_plane.lineIntersection( *this, intersect );
+
+    // Return the distance between the intersection and the Point p
+    return ( intersect - p ).length();
+} /* distanceOfPointToLine() */
 
 /*---------------------------------------------------------------*/
 

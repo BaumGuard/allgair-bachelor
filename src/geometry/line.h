@@ -65,6 +65,9 @@ public:
     */
     bool pointIsOnLine ( Vector p ) const;
 
+
+    double distanceOfPointToLine ( Vector& p );
+
     /*
     Find the intersection between this line and another line
 

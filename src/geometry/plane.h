@@ -67,6 +67,21 @@ public:
     int createPlaneFromCoordinates ( double x, double y, double z, double n );
 
     /*
+    Create a plane from a base point and a normal vector
+
+    Args:
+     - base          : Base point on the plane
+     - normal_vector : Normal vector of the plane
+
+    Returns:
+     - Status code
+        - SUCCESS
+
+        - VECTOR_LENGTH_0
+    */
+    int createPlaneFromBaseAndNormalVector ( Vector& base, Vector& normal_vector );
+
+    /*
     Return the normal vector of the plane as Vector
     */
     Vector normalVector() const;

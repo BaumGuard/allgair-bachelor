@@ -63,6 +63,28 @@ int Plane::createPlaneFromCoordinates ( double x, double y, double z, double n )
 
 /*---------------------------------------------------------------*/
 
+int Plane::createPlaneFromBaseAndNormalVector ( Vector& base, Vector& normal_vector ) {
+    if ( normal_vector.length() == 0.0 ) {
+        return VECTOR_LENGTH_0;
+    }
+
+    x = normal_vector.getX();
+    y = normal_vector.getY();
+    z = normal_vector.getZ();
+    n = -base.getX()*x - base.getY()*y - base.getZ()*z;
+
+    double normal_vector_length = normal_vector.length();
+
+    x /= normal_vector_length;
+    y /= normal_vector_length;
+    z /= normal_vector_length;
+    n /= normal_vector_length;
+
+    return SUCCESS;
+} /* createPlaneFromBaseAndNormalVector() */
+
+/*---------------------------------------------------------------*/
+
 Vector Plane::normalVector() const {
     return Vector( x, y, z );
 } /* normalVector() */

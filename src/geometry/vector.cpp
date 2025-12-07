@@ -117,6 +117,15 @@ Vector operator * ( double n, const Vector& v ) {
     return Vector( x, y, z );
 } /* operator * */
 
+/*---------------------------------------------------------------*/
+
+Vector Vector::crossProduct( Vector v ) {
+    return Vector (
+        y * v.getZ() - z * v.getY(),
+        z * v.getX() - x * v.getZ(),
+        x * v.getY() - y * v.getX()
+    );
+}
 
 /*---------------------------------------------------------------*/
 

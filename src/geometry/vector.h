@@ -43,6 +43,18 @@ public:
     bool operator == ( Vector& v ) const;
     bool operator != ( Vector & v ) const;
 
+
+    /*
+    Calculate the cross product of the local vector and vector v
+
+    Args:
+     - v : Second factor of the cross product
+
+    Returns:
+     - Cross product of the local vector and v
+    */
+    Vector crossProduct( Vector v );
+
     /*
     Check if a vector is linear dependant on the local vector
 

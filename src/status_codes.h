@@ -52,7 +52,10 @@ enum Statuscodes {
     CONFIG_FILE_NOT_LOADED_YET  = 30,
     CONFIG_TYPES_FILE_NOT_FOUND = 31,
     INVALID_TYPE_FOR_OPTION     = 32,
-    CONFIG_WRITE_FAILURE        = 33
+    CONFIG_WRITE_FAILURE        = 33,
+
+    // Precalculator
+    INVALID_SIGNAL_CONE_ANGLE   = 34
 };
 
 #endif

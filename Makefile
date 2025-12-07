@@ -9,7 +9,7 @@ BUILDDIR = build
 
 all: $(TARGET)
 
-$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/masker.o $(BUILDDIR)/UTM.o $(BUILDDIR)/tile_name.o $(BUILDDIR)/field.o $(BUILDDIR)/config.o
+$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/masker.o $(BUILDDIR)/UTM.o $(BUILDDIR)/tile_name.o $(BUILDDIR)/field.o $(BUILDDIR)/config.o $(BUILDDIR)/signal_cone.o
 	$(CC) $(LDFLAGS) $(BUILDDIR)/*.o $(SRCDIR)/status_codes.h -o $(TARGET)
 
 $(BUILDDIR)/vector.o: $(SRCDIR)/geometry/vector.h $(SRCDIR)/geometry/vector.cpp
@@ -59,6 +59,9 @@ $(BUILDDIR)/field.o: $(SRCDIR)/tile/field.h $(SRCDIR)/tile/field.cpp
 
 $(BUILDDIR)/config.o: $(SRCDIR)/config/config.h $(SRCDIR)/config/config.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/config/config.cpp -o $(BUILDDIR)/config.o
+
+$(BUILDDIR)/signal_cone.o: $(SRCDIR)/precalc/signal_cone.h $(SRCDIR)/precalc/signal_cone.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/precalc/signal_cone.cpp -o $(BUILDDIR)/signal_cone.o
 
 $(BUILDDIR)/main.o: $(SRCDIR)/main.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/main.cpp -o $(BUILDDIR)/main.o

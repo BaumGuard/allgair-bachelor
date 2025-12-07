@@ -113,6 +113,17 @@ TEST( VectorTest, VectorsUnequal2 ) {
     EXPECT_FALSE( v1 != v2 );
 }
 
+TEST( VectorTest, CrossProduct ) {
+    Vector
+        v1 ( 2.0, -1.0, -4.0 ),
+        v2 ( -3.0, -3.0, 1.0 );
+
+    Vector
+        expected_product ( -13.0, 10.0, -9.0 );
+
+    EXPECT_TRUE( v1.crossProduct(v2) == expected_product );
+}
+
 TEST( VectorTest, VectorLength ) {
     Vector v ( 2.0, -6.0, -3.0 );
 

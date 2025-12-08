@@ -3,20 +3,13 @@
 
 #include "grid_tile.h"
 #include "vector_tile.h"
+#include "tile_types.h"
 #include "../coord.h"
 
 #include <unordered_map>
 #include <vector>
 #include <string>
 
-
-enum TileTypes {
-    DGM1,   // Terrain model (GeoTIFF) (Width: 1 km, Resolution: 1 m)
-    DGM20,  // Upsampled DGM1          (Width: 1 km, Resolution: 20 cm)
-    DOM20,  // Surface model (GeoTIFF) (Width: 1 km, Resolution: 20 cm)
-    DOM1,   // Downsampled DOM20       (Width: 1 km, Resolution: 1 m)
-    LOD2    // Buildings     (Gml)     (Width: 2 km)
-};
 
 /*
 Class for managing grid tiles and vector tiles and performing
@@ -83,16 +76,11 @@ private:
 
 
     /*
-    Load a tile
-
-    3 step check:
-     1. Binary file (.data) in data folder (only for LOD2)?
-     2. TIFF file available in data folder?
-     3. Download the TIFF file, create a binary file and load
-        into grid_tiles
+    Load a tile of a certain type into the corresponding map
 
     Args:
      - tile_name : Name of the tile (easting_northing)
+     - tile_type : Tile type (DOM20, DOM1, DGM1, DGM20, LOD2)
 
     Returns:
      - Status code

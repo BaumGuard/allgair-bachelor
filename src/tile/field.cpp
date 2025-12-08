@@ -3,9 +3,7 @@
 #include "../geometry/vector.h"
 #include "../geometry/line.h"
 #include "../geometry/polygon.h"
-#include "../web/download.h"
-#include "../web/urls.h"
-#include "../raw_data/geotiff.h"
+#include "load_tile.h"
 #include "tile_name.h"
 #include "../lib/UTM.h"
 #include "../utils.h"
@@ -18,219 +16,49 @@ const std::string DATA_DIR = "data";
 /*---------------------------------------------------------------*/
 
 int Field::loadTile ( std::string tile_name, int tile_type ) {
-    // Build the file name/path of the binary file and the
-    // raw file (.gml/.tif)
-    std::string binary_file_name;
-    std::string raw_file_name;
+    GridTile grid_tile;
+    VectorTile vector_tile;
 
-    std::string data_dir;
+    int status;
+    if (
+        tile_type == DOM20 || tile_type == DOM1 ||
+        tile_type == DGM1  || tile_type == DGM20
+    ) {
+        status = getGridTile( grid_tile, tile_name, tile_type );
+        if ( status != SUCCESS ) {
+            return status;
+        }
 
-    switch ( tile_type ) {
-        case DGM1:
-            data_dir = DATA_DIR + "/DGM1";
-            raw_file_name    =  tile_name + ".tif";
-            break;
+        switch ( tile_type ) {
+            case DOM20:
+                grid_tiles_dom20.insert( {tile_name, grid_tile} );
+                break;
+            case DOM1:
+                grid_tiles_dom1.insert( {tile_name, grid_tile} );
+                break;
+            case DGM1:
+                grid_tiles_dgm1.insert( {tile_name, grid_tile} );
+                break;
+            case DGM20:
+                grid_tiles_dgm20.insert( {tile_name, grid_tile} );
+                break;
+        }
 
-        case DGM20:
-            data_dir = DATA_DIR + "/DGM1";
-            raw_file_name    =  tile_name + ".tif";
-            break;
-
-        case DOM20:
-            data_dir = DATA_DIR + "/DOM20";
-            raw_file_name    = "32" + tile_name + "_20_DOM.tif";
-            break;
-
-        case DOM1:
-            data_dir = DATA_DIR + "/DOM20";
-            raw_file_name    = "32" + tile_name + "_20_DOM.tif";
-            break;
-
-        case LOD2:
-            data_dir = DATA_DIR + "/LOD2";
-            binary_file_name = tile_name + "_LOD2.data";
-            raw_file_name    = tile_name + ".gml";
-            break;
+        return SUCCESS;
     }
+    else if ( tile_type == LOD2 ) {
+        status = getVectorTile( vector_tile, tile_name );
+        if ( status != SUCCESS ) {
+            return status;
+        }
 
-    std::string
-        binary_file_path = data_dir + "/" + binary_file_name,
-        raw_file_path    = data_dir + "/" + raw_file_name;
-
-
-    // Check for the existence of the binary file
-    bool binary_file_exists = FILE_EXISTS(binary_file_path.data());
-    if ( tile_type == LOD2 && binary_file_exists ) {
-        printMessage(
-            NORMAL,
-            "Checking for binary file '%s' in '%s'... ",
-            binary_file_name.data(), data_dir.data()
-        );
-
-        VectorTile vector_tile;
-
-        vector_tile.fromBinaryFile( binary_file_path );
         vector_tiles_lod2.insert( {tile_name, vector_tile} );
 
-        printMessage( NORMAL, "Found\n" );
         return SUCCESS;
     }
-    else if ( !binary_file_exists ) {
-        printMessage( NORMAL, "Not found\n" );
+    else {
+        return TILE_NOT_AVAILABLE;
     }
-
-
-    // Check for the existence of the raw file (.gml/.tif)
-    printMessage(
-        NORMAL,
-        "Checking for raw file '%s' in '%s'... ",
-        raw_file_name.data(),
-        data_dir.data()
-    );
-
-    if ( FILE_EXISTS(raw_file_path.data()) ) {
-        GeoTiffFile geotiff;
-        GridTile grid_tile;
-
-        // Read the raw file (tif or gml), generate a binary file and
-        // load the data into the corresponding map
-        switch ( tile_type ) {
-            case DGM1:
-                geotiff.readGeoTiffFile( raw_file_path, DGM1 );
-                grid_tile.fromGeoTiffFile( geotiff );
-                grid_tiles_dgm1.insert( {tile_name, grid_tile} );
-                break;
-
-            case DGM20:
-                geotiff.readGeoTiffFile( raw_file_path, DGM1 );
-                grid_tile.fromGeoTiffFile( geotiff );
-
-                // Resample the DGM1 tile from 1 m resolution to
-                // 20 cm resolution
-                grid_tile.resampleTile( 5.0 );
-                grid_tiles_dgm20.insert( {tile_name, grid_tile} );
-                break;
-
-            case DOM20:
-                geotiff.readGeoTiffFile( raw_file_path, DOM20 );
-                grid_tile.fromGeoTiffFile( geotiff );
-                grid_tiles_dom20.insert( {tile_name, grid_tile} );
-                break;
-
-            case DOM1:
-                geotiff.readGeoTiffFile( raw_file_path, DOM20 );
-                grid_tile.fromGeoTiffFile( geotiff );
-
-                // Resample the DOM20 tile from 20 cm resultion to
-                // 1 m resolution
-                grid_tile.resampleTile( 0.2 );
-                grid_tiles_dom1.insert( {tile_name, grid_tile} );
-                break;
-
-            case LOD2:
-                GmlFile gml_file;
-                gml_file.readGmlFile( raw_file_path );
-
-                VectorTile vector_tile;
-                vector_tile.fromGmlFile( gml_file );
-
-                vector_tiles_lod2.insert( {tile_name, vector_tile} );
-                break;
-        }
-
-
-        printMessage( NORMAL, "Found\n" );
-        return SUCCESS;
-    }
-    printMessage( NORMAL, "Not found\n" );
-
-
-    // Download the raw file
-    std::string url;
-    switch ( tile_type ) {
-        case DGM1:
-            url = URL_DGM1 + raw_file_name;
-            break;
-
-        case DGM20:
-            url = URL_DGM1 + raw_file_name;
-            break;
-
-        case DOM20:
-            url = URL_DOM20 + raw_file_name;
-            break;
-
-        case DOM1:
-            url = URL_DOM20 + raw_file_name;
-            break;
-
-        case LOD2:
-            url = URL_LOD2 + raw_file_name;
-            break;
-    }
-    printMessage(
-        NORMAL,
-        "Downloading the raw file '%s' into '%s'... ",
-        raw_file_name.data(),
-        data_dir.data()
-    );
-    if ( downloadFile( url, data_dir ) == SUCCESS ) {
-        GeoTiffFile geotiff;
-        GridTile grid_tile;
-
-        // Read the raw file (tif or gml), generate a binary file and
-        // load the data into the corresponding map
-        switch ( tile_type ) {
-            case DGM1:
-                geotiff.readGeoTiffFile( raw_file_path, DGM1 );
-                grid_tile.fromGeoTiffFile( geotiff );
-                grid_tiles_dgm1.insert( {tile_name, grid_tile} );
-                break;
-
-            case DGM20:
-                geotiff.readGeoTiffFile( raw_file_path, DGM1 );
-                grid_tile.fromGeoTiffFile( geotiff );
-
-                // Resample the DGM1 tile from 1 m resolution to
-                // 20 cm resolution
-                grid_tile.resampleTile( 5.0 );
-                grid_tiles_dgm20.insert( {tile_name, grid_tile} );
-                break;
-
-            case DOM20:
-                geotiff.readGeoTiffFile( raw_file_path, DOM20 );
-                grid_tile.fromGeoTiffFile( geotiff );
-                grid_tiles_dom20.insert( {tile_name, grid_tile} );
-                break;
-
-            case DOM1:
-                geotiff.readGeoTiffFile( raw_file_path, DOM20 );
-                grid_tile.fromGeoTiffFile( geotiff );
-
-                // Resample the DOM20 tile from 20 cm resultion to
-                // 1 m resolution
-                grid_tile.resampleTile( 0.2 );
-                grid_tiles_dom1.insert( {tile_name, grid_tile} );
-                break;
-
-            case LOD2:
-                GmlFile gml_file;
-                gml_file.readGmlFile( raw_file_path );
-
-                VectorTile vector_tile;
-                vector_tile.fromGmlFile( gml_file );
-
-                vector_tiles_lod2.insert( {tile_name, vector_tile} );
-                break;
-        }
-
-
-        printMessage( NORMAL, "Done\n" );
-        return SUCCESS;
-    }
-
-    printMessage( NORMAL, "Error\n" );
-    return TILE_NOT_AVAILABLE;
 } /* loadTile() */
 
 /*---------------------------------------------------------------*/

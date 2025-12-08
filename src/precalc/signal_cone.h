@@ -4,6 +4,9 @@
 #include "../geometry/line.h"
 #include "../geometry/polygon.h"
 
+#include <vector>
+#include <string>
+
 /*
 Determine the intersection area of a signal cone with the ground plane
 by intersecting rays on the outer surface of the cone with the ground plane
@@ -34,5 +37,8 @@ Returns:
 */
 int signalConeGroundArea (
     Line& center_ray, double cone_angle, int n_samples, Polygon& ground_area );
+
+
+std::vector<std::string> tilesInGroundArea ( Polygon& ellipse );
 
 #endif

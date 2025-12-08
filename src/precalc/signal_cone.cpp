@@ -4,6 +4,9 @@
 #include "../geometry/plane.h"
 #include "../utils.h"
 #include "../status_codes.h"
+#include "../raw_data/gmlfile.h"
+#include "../tile/vector_tile.h"
+#include "../tile/tile_name.h"
 
 #include <cmath>
 
@@ -81,4 +84,80 @@ int signalConeGroundArea (
     }
 
     return SUCCESS;
+} /* signalConeGroundArea() */
+
+/*---------------------------------------------------------------*/
+
+std::vector<std::string> tilesInGroundArea ( Polygon& ellipse ) {
+    std::vector<Vector> ellipse_points = ellipse.getPoints();
+    double
+        min_utmx = ellipse_points[0].getX(),
+        max_utmx = ellipse_points[0].getX(),
+        min_utmy = ellipse_points[0].getY(),
+        max_utmy = ellipse_points[0].getY();
+
+    uint len = ellipse_points.size();
+    for ( uint i = 1; i < len; i++ ) {
+        if ( ellipse_points[i].getX() < min_utmx ) {
+            min_utmx = ellipse_points[i].getX();
+        }
+        if ( ellipse_points[i].getX() > max_utmx ) {
+            max_utmx = ellipse_points[i].getX();
+        }
+        if ( ellipse_points[i].getY() < min_utmy ) {
+            min_utmx = ellipse_points[i].getY();
+        }
+        if ( ellipse_points[i].getY() > max_utmy ) {
+            min_utmx = ellipse_points[i].getY();
+        }
+    }
+
+    min_utmx -= fmod( min_utmx, 2000.0 );
+    max_utmx -= fmod( max_utmx, 2000.0 );
+    min_utmy -= fmod( min_utmy, 2000.0 );
+    max_utmy -= fmod( min_utmy, 2000.0 );
+
+    Vector
+        coord_lower_left,
+        coord_lower_right,
+        coord_upper_left,
+        coord_upper_right;
+
+    std::vector<std::string> tiles_in_ground_area;
+
+    for ( double utmy = min_utmy; utmy <= max_utmy; utmy += 2000.0 ) {
+        for ( double utmx = min_utmx; utmx <= max_utmx; utmx += 2000.0 ) {
+            coord_lower_left  = Vector( utmx,        utmy,        0.0 );
+            coord_lower_right = Vector( utmx+2000.0, utmy,        0.0 );
+            coord_upper_left  = Vector( utmx,        utmy+2000.0, 0.0 );
+            coord_upper_right = Vector( utmx+2000.0, utmy+2000.0, 0.0 );
+
+            if (
+                ellipse.isPointInPolygon( coord_lower_left )  ||
+                ellipse.isPointInPolygon( coord_lower_right ) ||
+                ellipse.isPointInPolygon( coord_upper_left )  ||
+                ellipse.isPointInPolygon( coord_upper_right )
+            ) {
+                uint
+                    utmx_km = (uint)( utmx / 1000.0 ),
+                    utmy_km = (uint)( utmy / 1000.0 );
+
+                std::string tile_name = buildTileName( utmx_km, utmy_km );
+                tiles_in_ground_area.push_back( tile_name );
+            }
+        }
+    }
+
+    return tiles_in_ground_area;
+} /* tilesInGroundArea() */
+
+/*---------------------------------------------------------------*/
+
+std::vector<Polygon> getPolygonsInGroundArea ( std::vector<std::string>& tile_names ) {
+    VectorTile vector_tile;
+
+    uint len = tile_names.size();
+    for ( uint i = 0; i < len; i++ ) {
+
+    }
 }

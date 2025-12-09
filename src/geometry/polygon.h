@@ -63,7 +63,7 @@ public:
     /*
     Return the point list of the polygon
     */
-    std::vector<Vector> getPoints () const;
+    std::vector<Vector>& getPoints ();
 
     /*
     Return the surface type of the polygon

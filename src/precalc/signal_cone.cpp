@@ -7,6 +7,7 @@
 #include "../raw_data/gmlfile.h"
 #include "../tile/vector_tile.h"
 #include "../tile/tile_name.h"
+#include "../tile/load_tile.h"
 
 #include <cmath>
 
@@ -88,34 +89,34 @@ int signalConeGroundArea (
 
 /*---------------------------------------------------------------*/
 
-std::vector<std::string> tilesInGroundArea ( Polygon& ellipse ) {
-    std::vector<Vector> ellipse_points = ellipse.getPoints();
+std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {
+    std::vector<Vector> ground_area_points = ground_area.getPoints();
     double
-        min_utmx = ellipse_points[0].getX(),
-        max_utmx = ellipse_points[0].getX(),
-        min_utmy = ellipse_points[0].getY(),
-        max_utmy = ellipse_points[0].getY();
+        min_utmx = ground_area_points[0].getX(),
+        max_utmx = ground_area_points[0].getX(),
+        min_utmy = ground_area_points[0].getY(),
+        max_utmy = ground_area_points[0].getY();
 
-    uint len = ellipse_points.size();
+    uint len = ground_area_points.size();
     for ( uint i = 1; i < len; i++ ) {
-        if ( ellipse_points[i].getX() < min_utmx ) {
-            min_utmx = ellipse_points[i].getX();
+        if ( ground_area_points[i].getX() < min_utmx ) {
+            min_utmx = ground_area_points[i].getX();
         }
-        if ( ellipse_points[i].getX() > max_utmx ) {
-            max_utmx = ellipse_points[i].getX();
+        if ( ground_area_points[i].getX() > max_utmx ) {
+            max_utmx = ground_area_points[i].getX();
         }
-        if ( ellipse_points[i].getY() < min_utmy ) {
-            min_utmx = ellipse_points[i].getY();
+        if ( ground_area_points[i].getY() < min_utmy ) {
+            min_utmy = ground_area_points[i].getY();
         }
-        if ( ellipse_points[i].getY() > max_utmy ) {
-            min_utmx = ellipse_points[i].getY();
+        if ( ground_area_points[i].getY() > max_utmy ) {
+            max_utmy = ground_area_points[i].getY();
         }
     }
 
     min_utmx -= fmod( min_utmx, 2000.0 );
     max_utmx -= fmod( max_utmx, 2000.0 );
     min_utmy -= fmod( min_utmy, 2000.0 );
-    max_utmy -= fmod( min_utmy, 2000.0 );
+    max_utmy -= fmod( max_utmy, 2000.0 );
 
     Vector
         coord_lower_left,
@@ -133,10 +134,10 @@ std::vector<std::string> tilesInGroundArea ( Polygon& ellipse ) {
             coord_upper_right = Vector( utmx+2000.0, utmy+2000.0, 0.0 );
 
             if (
-                ellipse.isPointInPolygon( coord_lower_left )  ||
-                ellipse.isPointInPolygon( coord_lower_right ) ||
-                ellipse.isPointInPolygon( coord_upper_left )  ||
-                ellipse.isPointInPolygon( coord_upper_right )
+                ground_area.isPointInPolygon( coord_lower_left )  ||
+                ground_area.isPointInPolygon( coord_lower_right ) ||
+                ground_area.isPointInPolygon( coord_upper_left )  ||
+                ground_area.isPointInPolygon( coord_upper_right )
             ) {
                 uint
                     utmx_km = (uint)( utmx / 1000.0 ),
@@ -153,11 +154,37 @@ std::vector<std::string> tilesInGroundArea ( Polygon& ellipse ) {
 
 /*---------------------------------------------------------------*/
 
-std::vector<Polygon> getPolygonsInGroundArea ( std::vector<std::string>& tile_names ) {
+int getPolygonsInGroundArea (
+    std::vector<Polygon>& polygons,
+    Polygon& ground_area,
+    std::vector<std::string>& tile_names
+) {
     VectorTile vector_tile;
 
-    uint len = tile_names.size();
-    for ( uint i = 0; i < len; i++ ) {
+    uint len_tiles = tile_names.size();
+    uint len_polygons;
+    int status;
 
+    Vector test_point;
+
+    for ( uint i = 0; i < len_tiles; i++ ) {
+        status = getVectorTile( vector_tile, tile_names[i] );
+        if ( status != SUCCESS ) {
+            return status;
+        }
+
+        std::vector<Polygon>& tile_polygons = vector_tile.getPolygons();
+        len_polygons = tile_polygons.size();
+
+        for ( uint j = 0; j < len_polygons; j++ ) {
+            test_point = tile_polygons[j].getPoints()[0];
+            test_point.setZ( 0.0 );
+
+            if ( ground_area.isPointInPolygon(test_point) ) {
+                polygons.push_back( tile_polygons[j] );
+            }
+        }
     }
-}
+
+    return SUCCESS;
+} /* getPolygonsInGroundArea() */

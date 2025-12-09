@@ -85,7 +85,7 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
     Vector p1, p2;
     double x_p1, y_p1, x_p2, y_p2;
 
-    // Slope and y intercept of a polygon's  edge
+    // Slope and y intercept of a polygon's edge
     double m_edge, t_edge;
 
 
@@ -180,7 +180,7 @@ Plane Polygon::getBasePlane () const {
 
 /*---------------------------------------------------------------*/
 
-std::vector<Vector> Polygon::getPoints () const {
+std::vector<Vector>& Polygon::getPoints () {
     return points;
 } /* getPoints() */
 

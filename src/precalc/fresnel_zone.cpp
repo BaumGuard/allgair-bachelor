@@ -1,4 +1,4 @@
-#include "signal_cone.h"
+#include "fresnel_zone.h"
 
 #include "../geometry/vector.h"
 #include "../geometry/plane.h"
@@ -12,7 +12,7 @@
 #include <cmath>
 
 /*---------------------------------------------------------------*/
-
+#if 0
 int signalConeGroundArea (
     Line& center_ray, double cone_angle, int n_samples, Polygon& ground_area
 ) {
@@ -86,6 +86,67 @@ int signalConeGroundArea (
 
     return SUCCESS;
 } /* signalConeGroundArea() */
+#endif
+
+
+Polygon fresnelZone (
+    Vector& start_point, Vector& end_point,
+    double radius,
+    uint n_samples
+) {
+    Vector diff = end_point - start_point;
+    Vector ellipse_center = start_point + diff / 2.0;
+    double distance = diff.length();
+
+    double e = distance / 2.0;
+    double b = radius;
+    double a = sqrt( b*b + e*e );
+
+    double step = 4.0 * a / (double)n_samples;
+
+    Polygon ground_area;
+    Plane base_plane;
+    base_plane.createPlaneFromCoordinates( 0.0, 0.0, 1.0, 0.0 );
+    ground_area.initPolygonWithPlane( base_plane );
+
+    for ( double x = -a; x < a; x += step ) {
+        double y = b / a * sqrt( a*a - x*x );
+        Vector sample( x, y, 0.0 );
+        ground_area.addPoint( sample );
+    }
+    for ( double x = a; x > -a; x -= step ) {
+        double y = -b / a * sqrt( a*a - x*x );
+        Vector sample( x, y, 0.0 );
+        ground_area.addPoint( sample );
+    }
+    //ground_area.printPolygon();
+
+    double
+        delta_x = diff.getX(),
+        delta_y = diff.getY();
+
+    double rotation_angle = atan2( delta_y, delta_x );
+
+    std::vector<Vector>& points = ground_area.getPoints();
+    uint len = points.size();
+    double x, y;
+    for ( uint i = 0; i < len; i++ ) {
+        x = points[i].getX() * cos(rotation_angle) -
+            points[i].getY() * sin(rotation_angle);
+
+        y = points[i].getX() * sin(rotation_angle) +
+            points[i].getY() * cos(rotation_angle);
+
+        x += ellipse_center.getX();
+        y += ellipse_center.getY();
+
+        points[i].setX( x );
+        points[i].setY( y );
+    }
+
+    return ground_area;
+} /* fresnelZone() */
+
 
 /*---------------------------------------------------------------*/
 

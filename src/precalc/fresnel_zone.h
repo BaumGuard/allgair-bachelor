@@ -1,5 +1,5 @@
-#ifndef SIGNAL_CONE_H
-#define SIGNAL_CONE_H
+#ifndef FRESNEL_ZONE_H
+#define FRESNEL_ZONE_H
 
 #include "../geometry/line.h"
 #include "../geometry/polygon.h"
@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 
+#if 0
 /*
 Determine the intersection area of a signal cone with the ground plane
 by intersecting rays on the outer surface of the cone with the ground plane
@@ -37,7 +38,29 @@ Returns:
 */
 int signalConeGroundArea (
     Line& center_ray, double cone_angle, int n_samples, Polygon& ground_area );
+#endif
 
+
+/*
+Calculate the 2D Fresnel zone using a start point, an end point
+and the radius of the ellipsoid at the center between the two points
+and return the discretized ellipse as a Polygon object.
+
+Args:
+ - start_point : Start point of the direct line
+ - end_point   : End point of the direct line
+ - radius      : Radius of the ellipsoid at the center of the direct line
+ - n_samples   : Number of samples to determine on the ellipse of the
+                 Fresnel zone
+
+Returns:
+ - Sampled points on the ellipse as a Polygon object
+*/
+Polygon fresnelZone (
+    Vector& start_point, Vector& end_point,
+    double radius,
+    uint n_samples
+);
 
 /*
 Find all the tiles that are either partially or completely inside the

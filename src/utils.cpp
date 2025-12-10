@@ -49,7 +49,11 @@ double roundDouble ( double n, int precision ) {
 /*---------------------------------------------------------------*/
 
 bool equalWithThreshold ( double n1, double n2, double threshold ) {
-    return fabs( fabs( n1 ) - fabs( n2 ) ) < threshold;
+    if ( (n1 < 0.0 && n2 < 0.0) || (n1 > 0.0 && n2 > 0.0) ) {
+        return fabs( fabs( n1 ) - fabs( n2 ) ) < threshold;
+    }
+    return false;
+
 } /* equalWithThreshold() */
 
 /*---------------------------------------------------------------*/

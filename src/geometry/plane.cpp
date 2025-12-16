@@ -255,6 +255,22 @@ double Plane::getN () const {
 
 /*---------------------------------------------------------------*/
 
+bool Plane::operator == ( Plane& plane ) {
+    if (
+        x == plane.getX() && y == plane.getY() &&
+        z == plane.getZ() && n == plane.getN()
+    ) {
+        return true;
+    }
+    return false;
+} /* operator == */
+
+bool Plane::operator != ( Plane& plane ) {
+    return !( *this == plane );
+} /* operator != */
+
+/*---------------------------------------------------------------*/
+
 double Plane::distanceOfPointToPlane ( Vector& p ) const {
     return fabs( x*p.getX() + y*p.getY() + y*p.getZ() + n );
 } /* distanceOfPointToPlane() */

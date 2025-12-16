@@ -154,6 +154,15 @@ public:
     double getZ () const;
     double getN () const;
 
+
+    /* OPERATORS */
+
+    /*
+    Check if two Plane objects are equal or unequal
+    */
+    bool operator == ( Plane& plane );
+    bool operator != ( Plane& plane );
+
     /*
     Print a description of the plane
     */

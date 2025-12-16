@@ -174,7 +174,7 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
 
 /*---------------------------------------------------------------*/
 
-Plane Polygon::getBasePlane () const {
+Plane& Polygon::getBasePlane () {
     return base_plane;
 } /* getBasePlane() */
 
@@ -237,6 +237,40 @@ Vector Polygon::getCentroid() {
 
     return centroid;
 } /* getCentroid() */
+
+/*---------------------------------------------------------------*/
+
+bool Polygon::pointListsEqual( std::vector<Vector>& other_list ) {
+    uint len_local = points.size();
+    uint len_other_list = other_list.size();
+
+    if ( len_local != len_other_list ) {
+        return false;
+    }
+
+    uint min_len = len_local < len_other_list ? len_local : len_other_list;
+    for ( uint i = 0; i < min_len; i++ ) {
+        if ( points[i] != other_list[i] ) {
+            return false;
+        }
+    }
+    return true;
+} /* pointListsEqual() */
+
+bool Polygon::operator == ( Polygon& polygon ) {
+    if (
+        pointListsEqual( polygon.getPoints() )   &&
+        base_plane   == polygon.getBasePlane()   &&
+        surface_type == polygon.getSurfaceType()
+    ) {
+        return true;
+    }
+    return false;
+} /* operator == */
+
+bool Polygon::operator != ( Polygon& polygon ) {
+    return !( *this == polygon );
+} /* operator != */
 
 /*---------------------------------------------------------------*/
 

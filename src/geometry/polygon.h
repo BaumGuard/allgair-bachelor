@@ -58,7 +58,7 @@ public:
     /*
     Return the base plane of the polygon as a Plane object
     */
-    Plane getBasePlane() const;
+    Plane& getBasePlane();
 
     /*
     Return the point list of the polygon
@@ -105,6 +105,13 @@ public:
     */
     Vector getCentroid();
 
+
+    /*
+    Check if two Polygon objects are equal or unequal
+    */
+    bool operator == ( Polygon& polygon );
+    bool operator != ( Polygon& polygon );
+
     /*
     Print a description of the polygon with the base plane
     and the points
@@ -126,6 +133,11 @@ private:
     If true, addPoint will return the status code POINT_DUPLICATE
     */
     bool isPointAlreadyInPolygon ( Vector& p ) const;
+
+    /*
+    Check if two std::vector<Vector> of points are equal
+    */
+    bool pointListsEqual( std::vector<Vector>& other_list );
 };
 
 #endif

@@ -328,8 +328,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
 
         } /* for ( int j=0; j<len_pos_list; j++ ) */
 
-
-        if ( !point_too_far_away ) {
+        if ( !point_too_far_away && polygon.getPoints().size() >= 3 ) {
             add_count++;
             polygons.push_back( polygon );
 

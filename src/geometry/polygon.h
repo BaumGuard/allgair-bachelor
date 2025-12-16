@@ -96,6 +96,16 @@ public:
     int lineIntersection ( Line& l, Vector& intersect ) const;
 
     /*
+    Calculate the centroid of the polygon by averaging
+    the x, y and z coordinates of the points and return it
+    as a Vector object
+
+    Returns:
+     - Centroid point of the polygon
+    */
+    Vector getCentroid();
+
+    /*
     Print a description of the polygon with the base plane
     and the points
     */

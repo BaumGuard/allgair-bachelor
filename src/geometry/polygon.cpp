@@ -219,6 +219,27 @@ int Polygon::lineIntersection ( Line& l, Vector& intersect ) const {
 
 /*---------------------------------------------------------------*/
 
+Vector Polygon::getCentroid() {
+    double sum_x = 0.0, sum_y = 0.0, sum_z = 0.0;
+
+    uint len = points.size();
+    for ( uint i = 0; i < len; i++ ) {
+        sum_x += points[i].getX();
+        sum_y += points[i].getY();
+        sum_z += points[i].getZ();
+    }
+
+    Vector centroid (
+        sum_x / (double)len,
+        sum_y / (double)len,
+        sum_z / (double)len
+    );
+
+    return centroid;
+} /* getCentroid() */
+
+/*---------------------------------------------------------------*/
+
 void Polygon::printPolygon () {
     printf( "POLYGON\n" );
     printf( "\tBase plane:\n" );
@@ -233,12 +254,15 @@ void Polygon::printPolygon () {
     printf( "\tPoints:\n" );
     uint len = points.size();
     for ( size_t i = 0; i < len; i++ ) {
+        /*
         printf(
             "\tx = %f y = %f z = %f\n",
             points[i].getX(),
             points[i].getY(),
             points[i].getZ()
         );
+        */
+        printf("%f, %f\n", points[i].getX(), points[i].getY());
     }
 
     printf( "\n" );

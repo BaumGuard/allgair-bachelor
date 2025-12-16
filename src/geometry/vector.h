@@ -41,7 +41,7 @@ public:
     Vector& operator = ( const Vector& v ) = default;
 
     bool operator == ( Vector& v ) const;
-    bool operator != ( Vector & v ) const;
+    bool operator != ( Vector& v ) const;
 
 
     /*

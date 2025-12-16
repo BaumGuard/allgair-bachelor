@@ -7,40 +7,6 @@
 #include <vector>
 #include <string>
 
-#if 0
-/*
-Determine the intersection area of a signal cone with the ground plane
-by intersecting rays on the outer surface of the cone with the ground plane
-Therefore the function doesn't determine the full ellipse on the ground
-but rather calculates some samples on the edge of the intersection ellipse
-and stores them in a Polygon passed to the function as a reference.
-
-Args:
- - center_ray  : Line in the middle of the cone
-                 The function assumes that the base point of center_ray
-                 is the starting point of the ray and therefore also the
-                 tip of the cone
- - cone_angle  : Angle between the center line of the cone and its outer
-                 surface measured at the tip of the cone (in radians)
-                 Range: [0, 0.5*PI[
- - n_samples   : Number of points to sample on the intersection ellipse
- - ground_area : Reference to the Polygon to store all sampled points in
-
-Returns:
- - Status code:
-    - SUCCESS
-
-    - INVALID_SIGNAL_CONE_ANGLE
-    - LINE_ON_PLANE
-    - LINE_PARALLEL_TO_PLANE
-    - POINT_NOT_ON_BASE_PLANE
-    - POINT_DUPLICATE
-*/
-int signalConeGroundArea (
-    Line& center_ray, double cone_angle, int n_samples, Polygon& ground_area );
-#endif
-
-
 /*
 Calculate the 2D Fresnel zone using a start point, an end point
 and the radius of the ellipsoid at the center between the two points
@@ -83,8 +49,6 @@ Args:
  - polygons :    Reference to the list of polygons where the polygons
                  inside the ground area should be stored in
  - ground_area : Ground area as a Polygon object
- - tile_names  : Names of the tiles in which to look for polygons
-                 that are within the ground area
 
 Returns:
  - Status code:
@@ -94,8 +58,7 @@ Returns:
 */
 int getPolygonsInGroundArea (
     std::vector<Polygon>& polygons,
-    Polygon& ground_area,
-    std::vector<std::string>& tile_names
+    Polygon& ground_area
 );
 
 #endif

@@ -9,7 +9,7 @@ BUILDDIR = build
 
 all: $(TARGET)
 
-$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/UTM.o $(BUILDDIR)/tile_name.o $(BUILDDIR)/field.o $(BUILDDIR)/config.o $(BUILDDIR)/fresnel_zone.o $(BUILDDIR)/load_tile.o
+$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/UTM.o $(BUILDDIR)/tile_name.o $(BUILDDIR)/field.o $(BUILDDIR)/config.o $(BUILDDIR)/fresnel_zone.o $(BUILDDIR)/precalc.o $(BUILDDIR)/load_tile.o
 	$(CC) $(LDFLAGS) $(BUILDDIR)/*.o $(SRCDIR)/status_codes.h -o $(TARGET)
 
 $(BUILDDIR)/vector.o: $(SRCDIR)/geometry/vector.h $(SRCDIR)/geometry/vector.cpp
@@ -63,6 +63,8 @@ $(BUILDDIR)/fresnel_zone.o: $(SRCDIR)/precalc/fresnel_zone.h $(SRCDIR)/precalc/f
 $(BUILDDIR)/load_tile.o: $(SRCDIR)/tile/load_tile.h $(SRCDIR)/tile/load_tile.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/tile/load_tile.cpp -o $(BUILDDIR)/load_tile.o
 
+$(BUILDDIR)/precalc.o: $(SRCDIR)/precalc/precalc.h $(SRCDIR)/precalc/precalc.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/precalc/precalc.cpp -o $(BUILDDIR)/precalc.o
 
 $(BUILDDIR)/main.o: $(SRCDIR)/main.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/main.cpp -o $(BUILDDIR)/main.o

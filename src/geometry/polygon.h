@@ -6,6 +6,7 @@
 #include "../utils.h"
 
 #include <vector>
+#include <cstdint>
 
 /*
 Class to represent polygons lying on a plane
@@ -78,6 +79,27 @@ public:
 
 
     /*
+    Return the ID of the polygon
+    */
+    std::string getID () const;
+
+    /*
+    Set the ID of the polygon
+    */
+    void setID ( std::string id );
+
+    /*
+    Get the subpolygon number
+    */
+    uint getSubpolygonNumber () const;
+
+    /*
+    Set the subpolygon number
+    */
+    void setSubpolygonNumber ( uint subpolygon_nr );
+
+
+    /*
     Find the intersection between a polygon and a line
 
     Args:
@@ -123,8 +145,13 @@ private:
     Plane base_plane;
 
     bool initialized = false;
+    bool hasID = false;
 
     uint surface_type;
+    uint subpolygon_nr;
+
+    std::string id;
+
 
     /*
     Check if a point is already in the polygon

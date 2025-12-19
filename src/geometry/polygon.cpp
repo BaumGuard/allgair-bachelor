@@ -9,6 +9,7 @@
 /*---------------------------------------------------------------*/
 
 void Polygon::initPolygonWithPlane ( Plane p ) {
+    subpolygon_nr = 0;
     base_plane = p;
     initialized = true;
 } /* initPolygonWithPlane() */
@@ -190,13 +191,32 @@ uint Polygon::getSurfaceType () const {
     return surface_type;
 } /* getSurfaceType () */
 
-/*---------------------------------------------------------------*/
-
 // Don't introduce initialization checking here!
 // Overways the binary file parsing won't work here!'
 void Polygon::setSurfaceType ( uint surface_type ) {
     this->surface_type = surface_type;
 } /* setSurfaceType () */
+
+/*---------------------------------------------------------------*/
+
+std::string Polygon::getID () const {
+    return id;
+} /* getID () */
+
+void Polygon::setID ( std::string id ) {
+    this->id = id;
+    hasID = true;
+} /* setID () */
+
+/*---------------------------------------------------------------*/
+
+uint Polygon::getSubpolygonNumber () const {
+    return subpolygon_nr;
+} /* getSubpolygonNumber() */
+
+void Polygon::setSubpolygonNumber ( uint subpolygon_nr ) {
+    this->subpolygon_nr = subpolygon_nr;
+} /* setSubpolygonNumber() */
 
 /*---------------------------------------------------------------*/
 
@@ -276,6 +296,16 @@ bool Polygon::operator != ( Polygon& polygon ) {
 
 void Polygon::printPolygon () {
     printf( "POLYGON\n" );
+/*
+    if ( hasID ) {
+        printf( "\tPolygon ID\n" );
+        printf( "\t%s\n\n", id.data() );
+    }
+    else {
+        printf( "\tPolygon ID\n" );
+        printf( "(NONE)" );
+    }
+*/
     printf( "\tBase plane:\n" );
     printf(
         "\tx = %f y = %f z = %f n = %f\n\n",
@@ -288,15 +318,15 @@ void Polygon::printPolygon () {
     printf( "\tPoints:\n" );
     uint len = points.size();
     for ( size_t i = 0; i < len; i++ ) {
-        /*
+
         printf(
             "\tx = %f y = %f z = %f\n",
             points[i].getX(),
             points[i].getY(),
             points[i].getZ()
         );
-        */
-        printf("%f, %f\n", points[i].getX(), points[i].getY());
+
+        //printf("%f, %f\n", points[i].getX(), points[i].getY());
     }
 
     printf( "\n" );

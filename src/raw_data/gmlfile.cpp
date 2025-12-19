@@ -58,7 +58,7 @@ std::string getXmlAttribute( std::string line, std::string attribute ) {
         return "";
     }
 
-    start += attribute.length() + 3;
+    start += attribute.length() + 2;
 
     std::string attr_value;
 
@@ -214,8 +214,6 @@ int GmlFile::readGmlFile ( std::string file_path ) {
             surface.surface_type = OTHER;
         }
 
-        surface.id = getXmlAttribute( line, "gml:id" );
-
 
         if ( surface.surface_type == ROOF ) {
             getNextLineWithXmlTag( gmlfile, "<gen:stringAttribute name=\"Dachneigung\">" );
@@ -255,6 +253,9 @@ int GmlFile::readGmlFile ( std::string file_path ) {
         line_content = getTextBetweenXmlTags( line );
         surface.z_min_asl = stod( line_content );
 
+        line = getNextLineWithXmlTag( gmlfile, "<gml:Polygon" );
+        line_content = getXmlAttribute( line, "gml:id" );
+        surface.id = line_content;
 
         line = getNextLineWithXmlTag( gmlfile, "<gml:posList>" );
         line_content = getTextBetweenXmlTags( line );

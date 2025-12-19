@@ -30,6 +30,8 @@ std::vector<Polygon>& VectorTile::getPolygons () {
 /*---------------------------------------------------------------*/
 
 union data_block {
+    uint8_t u8;
+
     uint32_t u32;
     double f64;
 
@@ -73,6 +75,15 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
 
         data_sect.u32 = polygons[i].getSurfaceType();
         fwrite( data_sect.bytes, 1, 4, file );
+
+        data_sect.u8 = (uint8_t) polygons[i].getID().length();
+        fwrite( data_sect.bytes, 1, 1, file );
+
+        fwrite( polygons[i].getID().data(), 1, data_sect.u8, file );
+
+        data_sect.u8 = (uint8_t) polygons[i].getSubpolygonNumber();
+        fwrite( data_sect.bytes, 1, 1, file );
+
 
         fprintf( file, "PLAN" );
 
@@ -172,6 +183,14 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
 
         fread( data.bytes, 1, 4, file );
         polygon.setSurfaceType( data.u32 );
+
+        fread( data.bytes, 1, 1, file );
+        char id [64];
+        fread( id, 1, data.u8, file );
+        polygon.setID( std::string(id) );
+
+        fread( data.bytes, 1, 1, file );
+        polygon.setSubpolygonNumber( data.u8 );
 
         fread( data.bytes, 1, 4, file );
         if ( !STRNEQUAL(data.bytes, "PLAN", 4) )
@@ -298,6 +317,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
 
         Polygon polygon;
         polygon.setSurfaceType( surfaces[i].surface_type );
+        polygon.setID( surfaces[i].id );
         polygon.initPolygonWithPlane( base_plane );
 
         len_pos_list = surfaces[i].pos_list.size();
@@ -337,6 +357,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
         else {
             no++;
         }
+
     } /* for ( int i=0; i<len; i++ ) */
 
     if ( success_rate != nullptr ) {

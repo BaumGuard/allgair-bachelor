@@ -268,8 +268,8 @@ bool Polygon::pointListsEqual( std::vector<Vector>& other_list ) {
         return false;
     }
 
-    uint min_len = len_local < len_other_list ? len_local : len_other_list;
-    for ( uint i = 0; i < min_len; i++ ) {
+    uint len = points.size();
+    for ( uint i = 0; i < len; i++ ) {
         if ( points[i] != other_list[i] ) {
             return false;
         }

@@ -263,7 +263,9 @@ int GmlFile::readGmlFile ( std::string file_path ) {
         surface.pos_list.pop_back();
 
 
-        surfaces.push_back( surface );
+        if ( !surfaceAlreadyInList(surfaces, surface) ) {
+            surfaces.push_back( surface );
+        }
     }
 
     if ( surfaces.size() == 0 ) {

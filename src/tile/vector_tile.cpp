@@ -250,6 +250,22 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
 
 /*---------------------------------------------------------------*/
 
+bool isPolygonAlreadyInList (
+    std::vector<Polygon>& polygon_list, Polygon& compare_polygon ) {
+
+    uint len = polygon_list.size();
+    if ( len == 0 ) {
+        return false;
+    }
+
+    for ( uint i = 0; i < len; i++ ) {
+        if ( polygon_list[i] != compare_polygon ) {
+            return false;
+        }
+    }
+    return true;
+} /* isPolygonAlreadyInList() */
+
 int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
     Vector p1, p2, p3;
     Vector dv1, dv2;
@@ -350,7 +366,10 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
 
         if ( !point_too_far_away && polygon.getPoints().size() >= 3 ) {
             add_count++;
-            polygons.push_back( polygon );
+
+            //if ( !isPolygonAlreadyInList(polygons, polygon) ) {
+                polygons.push_back( polygon );
+            //}
 
             yes++;
         }
@@ -363,5 +382,6 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
     if ( success_rate != nullptr ) {
         *success_rate = (double)yes / (double)( yes + no );
     }
+    printf("Size %ld\n", polygons.size());
     return SUCCESS;
 } /* fromGmlFile() */

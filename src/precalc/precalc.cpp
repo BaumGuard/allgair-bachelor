@@ -4,6 +4,19 @@
 #include "../geometry/plane.h"
 #include "fresnel_zone.h"
 
+bool isPolygonInList ( std::vector<Polygon>& polygon_list, Polygon& polygon ) {
+    uint len = polygon_list.size();
+    if ( len == 0 ) {
+        return false;
+    }
+
+    for ( uint i = 0; i < len; i++ ) {
+        if ( polygon_list[i] != polygon ) {
+            return false;
+        }
+    }
+    return true;
+}
 
 std::vector<Polygon> precalculate ( Vector& start_point, Vector& end_point ) {
     // Calculate the ground area of the Fresnel zone
@@ -74,8 +87,12 @@ std::vector<Polygon> precalculate ( Vector& start_point, Vector& end_point ) {
 
         // If the intersection with the destination plane of the reflected center ray
         // is inside the reflected polygon add it to the list of the selected polygons
-        if ( reflected_polygon.isPointInPolygon( reflected_center_point ) ) {
-            selected_polygons.push_back( polygons[i] );
+        if (
+            reflected_polygon.isPointInPolygon( reflected_center_point ) &&
+            !isPolygonInList(selected_polygons, polygons[i])
+        ) {
+                selected_polygons.push_back( polygons[i] );
+                polygons[i].printPolygon();
         }
     }
 

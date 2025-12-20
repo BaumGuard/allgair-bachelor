@@ -147,10 +147,10 @@ private:
     bool initialized = false;
     bool hasID = false;
 
-    uint surface_type;
-    uint subpolygon_nr;
+    uint surface_type = 0;
+    uint subpolygon_nr = 0;
 
-    std::string id;
+    std::string id = "";
 
 
     /*

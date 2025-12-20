@@ -39,7 +39,7 @@ private:
      - Tile with name tile_name already loaded?
     */
     bool tileAlreadyLoaded ( std::string tile_name, int tile_type );
-
+#if 0
     /*
     Check if a tile has already been loaded into grid_tiles or
     vector_tiles using coordinates (latitude, longitude)
@@ -73,7 +73,7 @@ private:
         double lat_end, double lon_end,
         uint tile_width_km
     );
-
+#endif
 
     /*
     Load a tile of a certain type into the corresponding map
@@ -89,7 +89,7 @@ private:
         - TILE_NOT_AVAILABLE
     */
     int loadTile ( std::string tile_name, int tile_type );
-
+#if 0
     /*
     Get the altitude at the given coordinates (grid)
 
@@ -101,7 +101,7 @@ private:
      - Altitude in meters
     */
     double getAltitudeAtLatLon ( double lat, double lon, int tile_type );
-
+#endif
     /*
     Get the altitude at the UTM x, y coordinates (grid)
 
@@ -140,16 +140,16 @@ public:
         - INVALID_TILE_TYPE
     */
     int bresenhamPseudo3D (
-        Coord& intersection,
-        Coord& start,
-        Coord& end,
+        UTM_Coord& intersection,
+        UTM_Coord& start,
+        UTM_Coord& end,
         float ground_level_threshold,
         int* ground_count,
         int tile_type,
         bool cancel_on_ground = false
     );
 
-
+#if 0
     /*
     Find the nearest intersection of a ray with a surface
 
@@ -170,7 +170,7 @@ public:
         Coord& start,
         Coord& end
     );
-
+#endif
 };
 
 #endif

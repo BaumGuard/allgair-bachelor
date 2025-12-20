@@ -4,12 +4,11 @@
 #include "../geometry/line.h"
 #include "../geometry/polygon.h"
 #include "load_tile.h"
-#include "tile_name.h"
-#include "../lib/UTM.h"
 #include "../utils.h"
 
 #include <unistd.h>
 #include <iostream>
+#include <cmath>
 
 const std::string DATA_DIR = "data";
 
@@ -81,7 +80,7 @@ bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
 } /* tileAlreadyLoaded() */
 
 /*---------------------------------------------------------------*/
-
+#if 0
 bool Field::tileAlreadyLoaded ( double lat, double lon, int tile_type ) {
     double xf, yf;
     LatLonToUTMXY( lat, lon, 32, xf, yf );
@@ -145,7 +144,7 @@ double Field::getAltitudeAtLatLon ( double lat, double lon, int tile_type ) {
 
     return value;
 } /* getAltitudeAtLatLon() */
-
+#endif
 /*---------------------------------------------------------------*/
 
 double Field::getAltitudeAtXY ( uint x, uint y, int tile_type ) {
@@ -189,7 +188,7 @@ double Field::getAltitudeAtXY ( uint x, uint y, int tile_type ) {
 } /* getAltitudeAtXY () */
 
 /*---------------------------------------------------------------*/
-
+#if 0
 std::vector<std::string> Field::tilesOnRay (
     double lat_start, double lon_start,
     double lat_end, double lon_end,
@@ -280,13 +279,13 @@ std::vector<std::string> Field::tilesOnRay (
 
     return tile_names;
 } /* tilesOnRay() */
-
+#endif
 /*---------------------------------------------------------------*/
 
 int Field::bresenhamPseudo3D (
-    Coord& intersection,
-    Coord& start,
-    Coord& end,
+    UTM_Coord& intersection,
+    UTM_Coord& start,
+    UTM_Coord& end,
     float ground_level_threshold,
     int* ground_count,
     int tile_type,
@@ -299,7 +298,7 @@ int Field::bresenhamPseudo3D (
     {
         return INVALID_TILE_TYPE;
     }
-
+/*
     // Converting latitude/longitude to UTM coordinates
     double
         x_start_f, y_start_f,
@@ -315,14 +314,14 @@ int Field::bresenhamPseudo3D (
         32,
         x_end_f, y_end_f
     );
-
+*/
     // Cast start and end values to integers
     int
-        x_start = (int) x_start_f,
-        y_start = (int) y_start_f,
+        x_start = (int) start.utmx,
+        y_start = (int) start.utmy,
         z_start = (int) round( start.altitude ),
-        x_end   = (int) x_end_f,
-        y_end   = (int) y_end_f,
+        x_end   = (int) end.utmx,
+        y_end   = (int) end.utmy,
         z_end   = (int) round( end.altitude );
 
     // Distances between the start and end coordinate
@@ -483,6 +482,7 @@ int Field::bresenhamPseudo3D (
             internal_ground_count++;
 
             if ( !intersection_found_yet ) {
+                /*
                 double lat_final, lon_final;
 
                 UTMXYToLatLon(
@@ -494,6 +494,11 @@ int Field::bresenhamPseudo3D (
                 // Convert the intersection point back to latitude/longitude
                 intersection.lat = (double) RAD_TO_DEG( lat_final );
                 intersection.lon = (double) RAD_TO_DEG( lon_final );
+                intersection.altitude = z;
+                */
+
+                intersection.utmx = x;
+                intersection.utmy = y;
                 intersection.altitude = z;
 
                 if ( cancel_on_ground ) {
@@ -519,7 +524,7 @@ int Field::bresenhamPseudo3D (
 } /* bresenhamPseudo3D() */
 
 /*---------------------------------------------------------------*/
-
+#if 0
 int Field::surfaceIntersection (
     Coord& intersection,
     Coord& start,
@@ -620,3 +625,4 @@ int Field::surfaceIntersection (
 
     return NO_INTERSECTION_FOUND;
 } /* surfaceIntersection() */
+#endif

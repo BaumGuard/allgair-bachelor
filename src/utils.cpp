@@ -58,6 +58,12 @@ bool equalWithThreshold ( double n1, double n2, double threshold ) {
 
 /*---------------------------------------------------------------*/
 
+std::string buildTileName ( uint x, uint y ) {
+    return std::to_string(x) + "_" + std::to_string(y);
+} /* buildTileName() */
+
+/*---------------------------------------------------------------*/
+
 std::string extractFilename ( std::string path ) {
     int len = path.length();
 

@@ -3,17 +3,10 @@
 
 typedef struct {
     double
-        lat,
-        lon;
+        utmx,
+        utmy;
 
     double altitude;
-} Coord;
-
-typedef struct {
-    int
-        x,
-        y,
-        z;
-} TileCoord;
+} UTM_Coord;
 
 #endif

@@ -6,7 +6,6 @@
 #include "../status_codes.h"
 #include "../raw_data/gmlfile.h"
 #include "../tile/vector_tile.h"
-#include "../tile/tile_name.h"
 #include "../tile/load_tile.h"
 
 #include <cmath>
@@ -83,7 +82,7 @@ bool listContains ( std::vector<std::string>& list, std::string str ) {
     return false;
 }
 
-std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {ground_area.printPolygon();
+std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {
     std::vector<Vector> ground_area_points = ground_area.getPoints();
     double
         min_utmx = ground_area_points[0].getX(),
@@ -110,7 +109,7 @@ std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {ground_area
     min_utmx -= fmod( min_utmx, 2000.0 );
     max_utmx -= fmod( max_utmx, 2000.0 );
     min_utmy -= fmod( min_utmy, 2000.0 );
-    max_utmy -= fmod( max_utmy, 2000.0 );printf("%f %f %f %f\n", min_utmx, max_utmx, min_utmy, max_utmy);
+    max_utmy -= fmod( max_utmy, 2000.0 );
 
     Vector
         coord_lower_left,

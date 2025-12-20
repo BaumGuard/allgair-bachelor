@@ -4,14 +4,8 @@
 #include <cstring>
 #include <string>
 
-#define STREQUAL(str1, str2)       !strcmp(str1, str2)
 #define STRNEQUAL(str1, str2, n)   !strncmp(str1, str2, n)
-
 #define FILE_EXISTS(file_path)     !access(file_path, F_OK)
-
-#define TWO_PI                     2.0 * M_PI
-#define RAD_TO_DEG(rad)            rad*180.0/M_PI
-#define DEG_TO_RAD(deg)            (deg*M_PI)/180.0
 
 typedef unsigned int uint;
 
@@ -62,6 +56,18 @@ Args:
  - threshold:   : Threshold (must be positive)
 */
 bool inRange ( double n, double threshold );
+
+/*
+Build the tile name string from the UTM easting and northing
+
+Args:
+ - x : Easting in km
+ - y : Northing in km
+
+Returns:
+ - Tile name string "easting_northing"
+*/
+std::string buildTileName ( uint x, uint y );
 
 /*
 Extract the file name from a given file path or URL

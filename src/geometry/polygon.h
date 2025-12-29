@@ -129,6 +129,16 @@ public:
 
 
     /*
+    Calculate the area of the polygon
+    WARNING: In case of highly concave polygons the function
+             might compute a wrong area
+
+    Returns:
+     - Area of the polygon in square meters
+    */
+    double polygonArea ();
+
+    /*
     Check if two Polygon objects are equal or unequal
     */
     bool operator == ( Polygon& polygon );

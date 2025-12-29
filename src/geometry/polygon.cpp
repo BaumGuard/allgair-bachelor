@@ -239,7 +239,7 @@ int Polygon::lineIntersection ( Line& l, Vector& intersect ) const {
 
 /*---------------------------------------------------------------*/
 
-Vector Polygon::getCentroid() {
+Vector Polygon::getCentroid () {
     double sum_x = 0.0, sum_y = 0.0, sum_z = 0.0;
 
     uint len = points.size();
@@ -257,6 +257,33 @@ Vector Polygon::getCentroid() {
 
     return centroid;
 } /* getCentroid() */
+
+/*---------------------------------------------------------------*/
+
+double Polygon::polygonArea () {
+    Vector centroid = getCentroid();
+
+    double area = 0.0;
+
+    uint len = points.size();
+    for ( uint i = 0; i < len; i++ ) {
+        // Vector between the current point and the adjacent point
+        Vector v1 = points[(i+1)%len] - points[i];
+
+        // Vector between the current point and the centroid
+        Vector v2 = centroid - points[i];
+
+        // The length of the vector resulting from the cross product
+        // of v1 and v2 is the area of the parallelogram created by
+        // the vectors v1 and v2
+        Vector product = v1.crossProduct( v2 );
+        area += product.length();
+    }
+
+    // Divide by 2 to get the area of the triangles created by v1 and v2
+    // instead of the parallelograms
+    return area / 2.0;
+} /* polygonArea () */
 
 /*---------------------------------------------------------------*/
 

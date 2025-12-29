@@ -6,6 +6,13 @@
 
 #include <vector>
 
+// Select methods
+enum SelectMethods {
+    BY_MIN_DISTANCE,
+    BY_MAX_AREA
+};
+
+
 /*
 Find all polygons in the Fresnel zone between the start and the end point
 that satisfy the following condition:
@@ -19,12 +26,24 @@ If the reflected centroid is inside the reflected polygon, the algorithm
 adds the polygon to the list of selected polygons.
 
 Args:
- - start_point : Start point as UTM coordinates and altitude
- - end_point   : End point as UTM coordinates and altitude
+ - start_point   : Start point as UTM coordinates and altitude
+ - end_points    : List of end points as UTM coordinates and altitude
+ - select_method : Choose which of the polygons should be returned:
+                    - BY_MIN_DISTANCE : The polygon that is closest to
+                                        the starting point
+                    - BY_MAX_AREA     : The polygon with the largest area
+ - fresnel_zone  : Number of the Fresnel zone (Default: 2)
+ - freq          : Frequency of the signal in Hz
 
 Returns:
  - List of polygons that satisfy the condition above
 */
-std::vector<Polygon> precalculate ( Vector& start_point, Vector& end_point );
+Polygon precalculate (
+    Vector& start_point,
+    std::vector<Vector>& end_points,
+    int select_method,
+    int fresnel_zone = 2,
+    double freq = 868.0e6
+);
 
 #endif

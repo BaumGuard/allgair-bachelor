@@ -10,16 +10,21 @@
 
 #include <cmath>
 
+#define LIGHT_SPEED 300000000.0
+
 /*---------------------------------------------------------------*/
 
 Polygon fresnelZone (
     Vector& start_point, Vector& end_point,
-    double radius,
+    int nth_zone,
+    double freq,
     uint n_samples
 ) {
     Vector diff = end_point - start_point;
     Vector ellipse_center = start_point + diff / 2.0;
     double distance = diff.length();
+
+    double radius = sqrt( (nth_zone*LIGHT_SPEED/freq*distance) / 4.0 );
 
     double e = distance / 2.0;
     double b = radius;

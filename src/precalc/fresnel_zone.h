@@ -15,7 +15,8 @@ and return the discretized ellipse as a Polygon object.
 Args:
  - start_point : Start point of the direct line
  - end_point   : End point of the direct line
- - radius      : Radius of the ellipsoid at the center of the direct line
+ - nth_zone    : Zone number of the Fresnel zone
+ - freq        : Frequency of the signal in Hz
  - n_samples   : Number of samples to determine on the ellipse of the
                  Fresnel zone
 
@@ -24,7 +25,8 @@ Returns:
 */
 Polygon fresnelZone (
     Vector& start_point, Vector& end_point,
-    double radius,
+    int nth_zone,
+    double freq,
     uint n_samples
 );
 

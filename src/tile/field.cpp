@@ -283,9 +283,9 @@ std::vector<std::string> Field::tilesOnRay (
 /*---------------------------------------------------------------*/
 
 int Field::bresenhamPseudo3D (
-    UTM_Coord& intersection,
-    UTM_Coord& start,
-    UTM_Coord& end,
+    Vector& intersection,
+    Vector& start,
+    Vector& end,
     float ground_level_threshold,
     int* ground_count,
     int tile_type,
@@ -317,12 +317,12 @@ int Field::bresenhamPseudo3D (
 */
     // Cast start and end values to integers
     int
-        x_start = (int) start.utmx,
-        y_start = (int) start.utmy,
-        z_start = (int) round( start.altitude ),
-        x_end   = (int) end.utmx,
-        y_end   = (int) end.utmy,
-        z_end   = (int) round( end.altitude );
+        x_start = (int) start.getX(),
+        y_start = (int) start.getY(),
+        z_start = (int) round( start.getZ() ),
+        x_end   = (int) end.getX(),
+        y_end   = (int) end.getY(),
+        z_end   = (int) round( end.getZ() );
 
     // Distances between the start and end coordinate
     int
@@ -497,9 +497,9 @@ int Field::bresenhamPseudo3D (
                 intersection.altitude = z;
                 */
 
-                intersection.utmx = x;
-                intersection.utmy = y;
-                intersection.altitude = z;
+                intersection.setX( x );
+                intersection.setY( y );
+                intersection.setZ( z );
 
                 if ( cancel_on_ground ) {
                     if ( ground_count != nullptr ) {

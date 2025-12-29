@@ -140,9 +140,9 @@ public:
         - INVALID_TILE_TYPE
     */
     int bresenhamPseudo3D (
-        UTM_Coord& intersection,
-        UTM_Coord& start,
-        UTM_Coord& end,
+        Vector& intersection,
+        Vector& start,
+        Vector& end,
         float ground_level_threshold,
         int* ground_count,
         int tile_type,

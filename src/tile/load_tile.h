@@ -3,6 +3,7 @@
 
 #include "grid_tile.h"
 #include "vector_tile.h"
+#include "../web/urls.h"
 
 /*
 Create an instance of GridTile from a tif file
@@ -22,7 +23,7 @@ Returns:
 
     - TILE_NOT_AVAILABLE
 */
-int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type );
+int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type, std::string url = URL_ROOT );
 
 
 /*
@@ -43,6 +44,6 @@ Returns:
 
        - TILE_NOT_AVAILABLE
 */
-int getVectorTile ( VectorTile& vector_tile, std::string tile_name );
+int getVectorTile ( VectorTile& vector_tile, std::string tile_name, std::string url = URL_ROOT );
 
 #endif

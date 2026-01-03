@@ -195,14 +195,20 @@ int getPolygonsInGroundArea (
         for ( uint j = 0; j < len_polygons; j++ ) {
             std::vector<Vector>& points = tile_polygons[j].getPoints();
 
-            if ( points.size() > 0 ) {
-                test_point = points[0];
-            }
-            test_point.setZ( 0.0 );
+            uint len_points = points.size();
+            if ( len_points > 0 ) {
+                for ( uint k = 0; k < len_points; k++ ) {
+                    test_point = points[k];
+                    test_point.setZ( 0.0 );
 
-            if ( ground_area.isPointInPolygon(test_point) ) {
-                polygons.push_back( tile_polygons[j] );
+                    if ( ground_area.isPointInPolygon(test_point) ) {
+                        polygons.push_back( tile_polygons[j] );
+                        break;
+                    }
+                }
+
             }
+
         }
     }
 

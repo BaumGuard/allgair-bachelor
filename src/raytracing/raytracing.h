@@ -1,27 +1,29 @@
 #ifndef RAYTRACING_H
 #define RAYTRACING_H
 
-struct RaytracingResult {
-    uint ground_count,
-    uint vegetation_count
-};
+#include "../geometry/vector.h"
+#include "../utils.h"
+#include "../web/urls.h"
 
-int performRaytracing ( Vector& start_point, std::vector<Vector> end_points, int select_method, double max_point_to_plane_distance = 0.1) {
-    Polygon selected_polygon = precalculate( start_point, end_points, select_method );
+#include <vector>
 
-    Vector reflect_point = selected_polygon.getCentroid();
+int raytracingWithReflection (
+    Vector& start_point, std::vector<Vector> end_points,
+    int select_method,
+    double max_point_to_plane_distance = 0.1,
+    uint fresnel_zone = 2, double freq = 868.0e6,
 
-    int
-        count1, count2,
-        ground_count1, ground_count2,
-        veg_count1, veg_count2;
-
-    Field grid_field;
-    Vector intersection;
+    std::string dgm1_url = std::string(URL_ROOT) + std::string(DGM1_POSTFIX),
+    std::string dom20_url = std::string(URL_ROOT) + std::string(DOM20_POSTFIX),
+    std::string lod2_url = std::string(URL_ROOT) + std::string(LOD2_POSTFIX)
+);
 
 
-    int status;
-    status = field.bresenhamPseudo3D( intersection, start_point, reflect_point, 1.0, &count1, DGM1 )
-}
+int raytracingDirect (
+    Vector& start_point, std::vector<Vector> end_points,
+    int tile_type,
+    std::string dgm1_url,
+    std::string dom20_url
+);
 
 #endif

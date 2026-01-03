@@ -140,7 +140,7 @@ public:
         - INVALID_TILE_TYPE
     */
     int bresenhamPseudo3D (
-        Vector& intersection,
+        /*Vector& intersection,*/
         Vector& start,
         Vector& end,
         float ground_level_threshold,

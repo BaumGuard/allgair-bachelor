@@ -283,7 +283,7 @@ std::vector<std::string> Field::tilesOnRay (
 /*---------------------------------------------------------------*/
 
 int Field::bresenhamPseudo3D (
-    Vector& intersection,
+    /*Vector& intersection,*/
     Vector& start,
     Vector& end,
     float ground_level_threshold,
@@ -497,9 +497,11 @@ int Field::bresenhamPseudo3D (
                 intersection.altitude = z;
                 */
 
+                /*
                 intersection.setX( x );
                 intersection.setY( y );
                 intersection.setZ( z );
+                */
 
                 if ( cancel_on_ground ) {
                     if ( ground_count != nullptr ) {

@@ -259,7 +259,7 @@ Vector Polygon::getCentroid () {
 } /* getCentroid() */
 
 /*---------------------------------------------------------------*/
-
+#if 0
 double Polygon::polygonArea () {
     Vector centroid = getCentroid();
 
@@ -284,6 +284,16 @@ double Polygon::polygonArea () {
     // instead of the parallelograms
     return area / 2.0;
 } /* polygonArea () */
+#endif
+/*---------------------------------------------------------------*/
+
+void Polygon::setArea ( double area ) {
+    this->area = area;
+} /* setArea() */
+
+double Polygon::getArea () {
+    return area;
+} /* getArea() */
 
 /*---------------------------------------------------------------*/
 

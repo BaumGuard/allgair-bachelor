@@ -127,7 +127,7 @@ public:
     */
     Vector getCentroid();
 
-
+#if 0
     /*
     Calculate the area of the polygon
     WARNING: In case of highly concave polygons the function
@@ -137,6 +137,20 @@ public:
      - Area of the polygon in square meters
     */
     double polygonArea ();
+#endif
+
+    /*
+    Set the area of the polygon
+
+    Args:
+     - area : Polygon area in m²
+    */
+    void setArea ( double area );
+
+    /*
+    Return the area of the polygon
+    */
+    double getArea ();
 
     /*
     Check if two Polygon objects are equal or unequal
@@ -159,6 +173,8 @@ private:
 
     uint surface_type = 0;
     uint subpolygon_nr = 0;
+
+    double area = 0.0;
 
     std::string id = "";
 

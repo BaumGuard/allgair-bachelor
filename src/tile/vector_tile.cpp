@@ -334,6 +334,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
         Polygon polygon;
         polygon.setSurfaceType( surfaces[i].surface_type );
         polygon.setID( surfaces[i].id );
+        polygon.setArea( surfaces[i].area );
         polygon.initPolygonWithPlane( base_plane );
 
         len_pos_list = surfaces[i].pos_list.size();

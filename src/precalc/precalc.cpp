@@ -37,12 +37,12 @@ Polygon getPolygonWithMinDistance ( Vector& start_point, std::vector<Polygon>& p
 
 Polygon getPolygonWithMaxArea ( std::vector<Polygon>& polygons ) {
     uint len_polygons = polygons.size();
-    double area = polygons[0].polygonArea();
+    double area = polygons[0].getArea();
     double max_area = area;
     uint max_area_index = 0;
 
     for ( uint i = 1; i < len_polygons; i++ ) {
-        area = polygons[i].polygonArea();
+        area = polygons[i].getArea();
         if ( area > max_area ) {
             max_area = area;
             max_area_index = i;

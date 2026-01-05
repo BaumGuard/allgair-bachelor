@@ -73,17 +73,19 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
         data_sect.u32 = i;
         fwrite( data_sect.bytes, 1, 4, file );
 
-        data_sect.u32 = polygons[i].getSurfaceType();
-        fwrite( data_sect.bytes, 1, 4, file );
+        data_sect.u8 = (uint8_t) polygons[i].getSurfaceType();
+        fwrite( data_sect.bytes, 1, 1, file );
+
+        data_sect.u8 = (uint8_t) polygons[i].getSubpolygonNumber();
+        fwrite( data_sect.bytes, 1, 1, file );
 
         data_sect.u8 = (uint8_t) polygons[i].getID().length();
         fwrite( data_sect.bytes, 1, 1, file );
 
         fwrite( polygons[i].getID().data(), 1, data_sect.u8, file );
 
-        data_sect.u8 = (uint8_t) polygons[i].getSubpolygonNumber();
-        fwrite( data_sect.bytes, 1, 1, file );
-
+        data_sect.f64 = polygons[i].getArea();
+        fwrite( data_sect.bytes, 1, 8, file );
 
         fprintf( file, "PLAN" );
 
@@ -181,16 +183,19 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
         if ( data.u32 != i )
             return FILE_CORRUPT;
 
-        fread( data.bytes, 1, 4, file );
-        polygon.setSurfaceType( data.u32 );
+        fread( data.bytes, 1, 1, file );
+        polygon.setSurfaceType( data.u8 );
+
+        fread( data.bytes, 1, 1, file );
+        polygon.setSubpolygonNumber( data.u8 );
 
         fread( data.bytes, 1, 1, file );
         char id [64];
         fread( id, 1, data.u8, file );
         polygon.setID( std::string(id) );
 
-        fread( data.bytes, 1, 1, file );
-        polygon.setSubpolygonNumber( data.u8 );
+        fread( data.bytes, 1, 8, file );
+        polygon.setArea( data.f64 );
 
         fread( data.bytes, 1, 4, file );
         if ( !STRNEQUAL(data.bytes, "PLAN", 4) )

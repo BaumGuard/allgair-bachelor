@@ -4,7 +4,6 @@
 #include "grid_tile.h"
 #include "vector_tile.h"
 #include "tile_types.h"
-#include "../coord.h"
 
 #include <unordered_map>
 #include <vector>

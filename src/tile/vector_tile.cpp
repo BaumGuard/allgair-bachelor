@@ -31,8 +31,9 @@ std::vector<Polygon>& VectorTile::getPolygons () {
 
 union data_block {
     uint8_t u8;
-
     uint32_t u32;
+
+    float f32;
     double f64;
 
     char bytes [8];
@@ -60,6 +61,9 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
 
     fwrite( data_sect.bytes, 1, 4, file );
 
+    data_sect.f32 = error_rate;
+    fwrite( data_sect.bytes, 1, 4, file );
+
     byte_count += 12;
 
     Plane p;
@@ -74,9 +78,6 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
         fwrite( data_sect.bytes, 1, 4, file );
 
         data_sect.u8 = (uint8_t) polygons[i].getSurfaceType();
-        fwrite( data_sect.bytes, 1, 1, file );
-
-        data_sect.u8 = (uint8_t) polygons[i].getSubpolygonNumber();
         fwrite( data_sect.bytes, 1, 1, file );
 
         data_sect.u8 = (uint8_t) polygons[i].getID().length();
@@ -163,6 +164,9 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
     fread( data.bytes, 1, 4, file );
     uint32_t n_polygons = data.u32;
 
+    fread( data.bytes, 1, 4, file );
+    error_rate = data.f32;
+
     double x, y, z, n;
     Plane base;
     Vector point;
@@ -185,9 +189,6 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
 
         fread( data.bytes, 1, 1, file );
         polygon.setSurfaceType( data.u8 );
-
-        fread( data.bytes, 1, 1, file );
-        polygon.setSubpolygonNumber( data.u8 );
 
         fread( data.bytes, 1, 1, file );
         char id [64];
@@ -271,7 +272,7 @@ bool isPolygonAlreadyInList (
     return true;
 } /* isPolygonAlreadyInList() */
 
-int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
+int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
     Vector p1, p2, p3;
     Vector dv1, dv2;
 
@@ -279,12 +280,11 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
 
     std::vector<Surface>& surfaces = gmlfile.getSurfaces();
 
-    int len = surfaces.size();
-    int len_pos_list;
+    uint len = surfaces.size();
+    uint len_pos_list;
 
     Vector
         pos,
-        subtrahend = gmlfile.getLowerCorner(),
         corr_vec,
         corr_point;
 
@@ -292,23 +292,65 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
 
     int yes = 0, no = 0;
 
-    subtrahend.setZ( 0.0 );
-
     double dist;
 
     int add_count = 0;
 
-    for ( int i=0; i<len; i++ ) {
+    for ( uint i = 0; i < len; i++ ) {
 
         bool point_too_far_away = false;
 
+        // Select the first point of the point list as the
+        // base point of the polygon
         p1 = surfaces[i].pos_list[0];
 
-        int p2_index = 0;
+        uint
+            p2_index,
+            p3_index;
 
 
         len_pos_list = surfaces[i].pos_list.size();
 
+        double length;
+        double max_value = 0.0;
+
+
+        // For the second point choose the point from the list
+        // which is furthest away from the base point
+        for ( uint j = 1; j < len_pos_list; j++ ) {
+            p2 = surfaces[i].pos_list[j];
+            length = (p2 - p1).length();
+
+            if ( length > max_value ) {
+                max_value = length;
+                p2_index = j;
+            }
+        }
+        p2 = surfaces[i].pos_list[p2_index];
+
+        max_value = 0.0;
+
+        // For the third point choose the point from the list
+        // for which the cross product P1P2 x P1P3 is the biggest
+        // while skipping the already chosen second point in the list
+        // By that we find two direction vectors that span the largest
+        // possible area
+        for ( uint j = 1; j < len_pos_list; j++ ) {
+            if ( j != p2_index ) {
+                p3 = surfaces[i].pos_list[j];
+                length = (p2 - p1).crossProduct( p3 - p1 ).length();
+
+                if ( length > max_value ) {
+                    max_value = length;
+                    p3_index = j;
+                }
+            }
+        }
+        p3 = surfaces[i].pos_list[p3_index];
+
+        /*
+        // Find a second point which is more than 1 m away from
+        // the base point
         for ( int k = 1; k < len_pos_list; k++ ) {
             p2 = surfaces[i].pos_list[k];
             dv1 = p2 - p1;
@@ -320,7 +362,9 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
         }
 
 
-        for ( int k=1; k<len_pos_list; k++ ) {
+        // Find a third point which is not on the same line as
+        // the base point and the second point
+        for ( int k = 1; k < len_pos_list; k++ ) {
             if ( k == p2_index ) {
                 continue;
             }
@@ -332,7 +376,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
                 break;
             }
         }
-
+        */
 
         base_plane.createPlaneFromPoints( p1, p2, p3 );
 
@@ -344,14 +388,17 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
 
         len_pos_list = surfaces[i].pos_list.size();
 
-        for ( int j=0; j<len_pos_list; j++ ) {
+        // Add all points to the Polygon object
+        for ( uint j = 0; j < len_pos_list; j++ ) {
             pos = surfaces[i].pos_list[j];
+            dist = base_plane.distanceOfPointToPlane(pos);
 
+            // If the point's distance to the base plane is within
+            // a given tolerance, pull it into the base plane along
+            // the base plane's normal vector
             if ( !base_plane.isPointOnPlane(pos) ) {
 
-                dist = base_plane.distanceOfPointToPlane(pos);
-
-                if ( dist != 0.0 /*< PLANE_DISTANCE_THRESHOLD*/ ) {
+                if ( dist < 0.1 /*< PLANE_DISTANCE_THRESHOLD*/ ) {
                     corr_vec = base_plane.normalVector();
                     corr_line.createLineFromBaseAndVector( pos, corr_vec );
 
@@ -370,24 +417,118 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile, double* success_rate ) {
 
         } /* for ( int j=0; j<len_pos_list; j++ ) */
 
+
+        // If all the distances of the points to the base plane were
+        // within the tolerance and if the Polygon object contains at
+        // least three points, add it to the tile's list of polygons
         if ( !point_too_far_away && polygon.getPoints().size() >= 3 ) {
-            add_count++;
 
             //if ( !isPolygonAlreadyInList(polygons, polygon) ) {
                 polygons.push_back( polygon );
             //}
 
+            add_count++;
             yes++;
         }
         else {
             no++;
         }
+#if 0
+        else {
+            uint subpolygon_cnt = 1;
+
+            uint
+                start_dir1 = 0, end_dir1 = len_pos_list - 1,
+                start_dir2 = len_pos_list - 1;
+
+            uint dir1 = 1, dir2;
+
+
+            while ( start_dir1 != start_dir2 ) {
+                Plane subpolygon_base_plane;
+
+                Vector dir_vec1 =
+                    surfaces[i].pos_list[start_dir1 + 1] - surfaces[i].pos_list[start_dir1];
+
+                Vector dir_vec2;
+                bool linear_independent_vector_found = false;
+                for ( uint j = start_dir2; j > dir1; j-- ) {
+                    dir_vec2 = surfaces[i].pos_list[j] - surfaces[i].pos_list[start_dir1];
+
+                    if ( !dir_vec1.linearDependant(dir_vec2) ) {
+                        linear_independent_vector_found = true;
+                        break;
+                    }
+                }
+
+                if ( !linear_independent_vector_found ) {
+                    printSurfaceDescription( &surfaces[i] );
+                    no++;
+                    break;
+                }
+
+                int status = subpolygon_base_plane.createPlaneFromBaseAndVectors(
+                    surfaces[i].pos_list[start_dir1],
+                    dir_vec1,
+                    dir_vec2
+                );
+                printf("Status %d\n", status);
+
+                Polygon subpolygon;
+                subpolygon.setSurfaceType( surfaces[i].surface_type );
+                subpolygon.setID( surfaces[i].id );
+                subpolygon.initPolygonWithPlane( subpolygon_base_plane );
+
+                for ( uint j = start_dir1; j <= end_dir1; j++ ) {
+                    pos = surfaces[i].pos_list[j];
+
+                    if ( base_plane.isPointOnPlane(pos) ) {
+                        subpolygon.addPoint( pos );
+                    }
+                    else {
+                        break;
+                    }
+                    dir1 = j;
+                }
+
+                for ( uint j = start_dir2; j > dir1; j-- ) {
+                    pos = surfaces[i].pos_list[j];
+
+                    if ( !base_plane.isPointOnPlane(pos) ) {
+                        break;
+                    }
+
+                    dir2 = j;
+                }
+
+                for ( uint j = dir2; j <= start_dir2; j++ ) {
+                    pos = surfaces[i].pos_list[j];
+                    subpolygon.addPoint( pos );
+                }
+
+                start_dir1 = dir1;
+                end_dir1 = dir2;
+                start_dir2 = dir2;
+
+                if ( subpolygon.getPoints().size() >= 3 ) {
+                    subpolygon.setSubpolygonNumber( subpolygon_cnt );
+                    polygons.push_back( subpolygon );
+                    subpolygon_cnt++;
+                }
+                else {
+                    no++;
+                }
+            }
+
+            //no++;
+        }
+#endif
 
     } /* for ( int i=0; i<len; i++ ) */
 
-    if ( success_rate != nullptr ) {
-        *success_rate = (double)yes / (double)( yes + no );
-    }
-    printf("Size %ld\n", polygons.size());
+    // Calculate how many Polygon objects could not be created
+    // successfully for statistical and debugging purposes
+    error_rate = (double)no / (double)( yes + no );
+
     return SUCCESS;
 } /* fromGmlFile() */

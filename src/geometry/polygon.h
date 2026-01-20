@@ -88,16 +88,6 @@ public:
     */
     void setID ( std::string id );
 
-    /*
-    Get the subpolygon number
-    */
-    uint getSubpolygonNumber () const;
-
-    /*
-    Set the subpolygon number
-    */
-    void setSubpolygonNumber ( uint subpolygon_nr );
-
 
     /*
     Find the intersection between a polygon and a line
@@ -172,7 +162,6 @@ private:
     bool hasID = false;
 
     uint surface_type = 0;
-    uint subpolygon_nr = 0;
 
     double area = 0.0;
 

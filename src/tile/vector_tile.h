@@ -47,7 +47,7 @@ public:
      - Status code
         - SUCCESS
     */
-    int fromGmlFile ( GmlFile& gmlfile, double* success_rate = nullptr );
+    int fromGmlFile ( GmlFile& gmlfile );
 
     /*
     Deserialize a binary file and initialize the tile object with
@@ -89,6 +89,8 @@ private:
     Vector
         lower_corner,
         upper_corner;
+
+    float error_rate;
 };
 
 #endif

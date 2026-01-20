@@ -272,7 +272,7 @@ bool Plane::operator != ( Plane& plane ) {
 /*---------------------------------------------------------------*/
 
 double Plane::distanceOfPointToPlane ( Vector& p ) const {
-    return fabs( x*p.getX() + y*p.getY() + y*p.getZ() + n );
+    return fabs( x*p.getX() + y*p.getY() + z*p.getZ() + n );
 } /* distanceOfPointToPlane() */
 
 /*---------------------------------------------------------------*/

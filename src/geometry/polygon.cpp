@@ -9,7 +9,6 @@
 /*---------------------------------------------------------------*/
 
 void Polygon::initPolygonWithPlane ( Plane p ) {
-    subpolygon_nr = 0;
     base_plane = p;
     initialized = true;
 } /* initPolygonWithPlane() */
@@ -207,16 +206,6 @@ void Polygon::setID ( std::string id ) {
     this->id = id;
     hasID = true;
 } /* setID () */
-
-/*---------------------------------------------------------------*/
-
-uint Polygon::getSubpolygonNumber () const {
-    return subpolygon_nr;
-} /* getSubpolygonNumber() */
-
-void Polygon::setSubpolygonNumber ( uint subpolygon_nr ) {
-    this->subpolygon_nr = subpolygon_nr;
-} /* setSubpolygonNumber() */
 
 /*---------------------------------------------------------------*/
 

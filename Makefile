@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -c -Wall -g --std=c++23
-LDFLAGS = -lcurl -ltiff
+LDFLAGS = -lcurl -ltiff -lgdal
 
 TARGET = main
 

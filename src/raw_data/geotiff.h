@@ -52,9 +52,25 @@ public:
     */
     uint getTileWidth () const;
 
+    /*
+    Return the x coordinate of tile's coordinate origin
+    (lower left corner)
+    */
+    uint getUtmOriginX () const;
+
+    /*
+    Return the y coordinate of tile's coordinate origin
+    (lower left corner)
+    */
+    uint getUtmOriginY () const;
+
 private:
     float* data;
     uint tile_width;
+
+    uint
+        utm_origin_x,
+        utm_origin_y;
 
     bool data_memalloc = false;
 

@@ -36,7 +36,6 @@ public:
 
     Args:
      - geotiff : GeoTiffFile object to transform into a GridTile
-     - width   : Width and height of the grid
     */
     void fromGeoTiffFile ( GeoTiffFile& geotiff );
 

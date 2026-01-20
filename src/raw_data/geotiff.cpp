@@ -5,6 +5,7 @@
 #include "../tile/field.h"
 
 #include <tiffio.h>
+#include <gdal.h>
 #include <iostream>
 #include <cmath>
 
@@ -34,7 +35,7 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
     }
 
     std::string file_name = extractFilename( file_path );
-    tile_name = removeFileEnding( file_name );
+    //tile_name = removeFileEnding( file_name );
 
     uint32_t
         image_width,
@@ -45,7 +46,7 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
     uint8_t* buf;
     data = new float [image_width * image_width];
 
-    tile_width = image_width;
+    //tile_width = image_width;
 
     union sample current_sample;
 
@@ -128,6 +129,28 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
     TIFFClose( tiff );
     delete[] buf;
 
+
+    GDALAllRegister();
+
+    GDALDatasetH hDataset = GDALOpen( file_path.data(), GA_ReadOnly );
+    if ( hDataset == NULL ) {
+        return FILE_NOT_FOUND;
+    }
+
+    double gt[6];
+    if ( GDALGetGeoTransform(hDataset, gt) != CE_None ) {
+        GDALClose( hDataset );
+        return FILE_CORRUPT;
+    }
+
+    int height = GDALGetRasterYSize( hDataset );
+
+    utm_origin_x = (uint)( gt[0] + 0 * gt[1] + height * gt[2] );
+    utm_origin_y = (uint)( gt[3] + 0 * gt[4] + height * gt[5] );
+    tile_width = height;
+
+    tile_name = buildTileName( utm_origin_x/1000, utm_origin_y/1000 );
+
     data_memalloc = true;
     return SUCCESS;
 } /* readGeoTiffFile () */
@@ -138,6 +161,9 @@ GeoTiffFile::GeoTiffFile() {}
 
 GeoTiffFile::GeoTiffFile( const GeoTiffFile& old_geotiff ) {
     tile_width = old_geotiff.getTileWidth();
+    utm_origin_x = old_geotiff.getUtmOriginX();
+    utm_origin_y = old_geotiff.getUtmOriginY();
+
     uint len = tile_width * tile_width;
 
     data = new float [len];
@@ -171,3 +197,11 @@ std::string GeoTiffFile::getTileName () const {
 uint GeoTiffFile::getTileWidth () const {
     return tile_width;
 } /* getTileWidth () */
+
+uint GeoTiffFile::getUtmOriginX () const {
+    return utm_origin_x;
+} /* getUtmOriginX () */
+
+uint GeoTiffFile::getUtmOriginY () const {
+    return utm_origin_y;
+} /* getUtmOriginY () */

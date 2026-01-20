@@ -61,7 +61,7 @@ void GridTile::fromGeoTiffFile ( GeoTiffFile& geotiff ) {
 
     tile_memalloc = true;
 } /* fromGeoTiffFile () */
-
+#if 0
 void GridTile::fromVectorTile ( VectorTile& vector_tile, uint width ) {
     this->width = width;
     tile = new float [width*width];
@@ -124,7 +124,7 @@ void GridTile::fromVectorTile ( VectorTile& vector_tile, uint width ) {
 
     tile_memalloc = true;
 } /* fromVectorTile() */
-
+#endif
 /*---------------------------------------------------------------*/
 
 union output_data {
@@ -163,7 +163,7 @@ uint GridTile::getTileWidth () const {
 } /* getGridTileWidth() */
 
 /*---------------------------------------------------------------*/
-
+#if 0
 void GridTile::getBlock (
     float* block_buf, uint block_width,
     uint x, uint y
@@ -177,7 +177,7 @@ void GridTile::getBlock (
         }
     }
 } /* getBlock() */
-
+#endif
 /*---------------------------------------------------------------*/
 
 std::string GridTile::getTileName () const {
@@ -192,6 +192,154 @@ float* GridTile::getData () const {
 
 /*---------------------------------------------------------------*/
 
+float GridTile::block_accumulate (
+    int x_start, int y_start,
+    int x_end, int y_end,
+    int downsampling_method
+) {
+    float sum = 0.0, cnt = 0, min, max;
+    switch ( downsampling_method ) {
+        case AVG:
+            for ( int y = y_start; y < y_end; y++ ) {
+                for ( int x = x_start; x < x_end; x++ ) {
+                    sum += tile[y*width+x];
+                    cnt++;
+                }
+            }
+
+            return sum / cnt;
+
+
+        case MIN:
+            min = tile[y_start*width+x_start];
+            for ( int y = y_start; y < y_end; y++ ) {
+                for ( int x = x_start; x < x_end; x++ ) {
+                    if ( tile[y*width+x] < min ) {
+                        min = tile[y*width+x];
+                    }
+                }
+            }
+
+            return min;
+
+
+        case MAX:
+            max = tile[y_start*width+x_start];
+            for ( int y = y_start; y < y_end; y++ ) {
+                for ( int x = x_start; x < x_end; x++ ) {
+                    if ( tile[y*width+x] > max ) {
+                        max = tile[y*width+x];
+                    }
+                }
+            }
+
+            return max;
+
+        default:
+            return tile[y_start*width+x_start];
+    }
+}
+
+
+int GridTile::resampleTile ( float factor, int downsampling_method ) {
+    int new_width = (int)( width * factor );
+    float* new_tile = new float[new_width * new_width];
+
+    if ( factor == 1.0 ) {
+        return SUCCESS;
+    }
+    if ( factor <= 0.0 ) {
+        return INVALID_RESAMPLING_FACTOR;
+    }
+
+    // Downsampling
+    if ( factor < 1.0 ) {
+
+        float step = 1.0 / factor;
+        float x_idx = 0.0, y_idx = 0.0;
+
+        for ( int y = 0; y < new_width; y++ ) {
+            for ( int x = 0; x < new_width; x++ ) {
+                float new_value = block_accumulate(
+                    (int)x_idx, (int)y_idx,
+                    (int)(x_idx+step), (int)(y_idx+step),
+                    downsampling_method
+                );
+                x_idx += step;
+
+                new_tile[y*new_width+x] = new_value;
+            }
+            x_idx = 0.0;
+            y_idx += step;
+        }
+    } /* Downsampling */
+
+    // Upsampling
+    else {
+
+        float step = factor;
+
+        float x_it = 0.0, y_it = 0.0;
+        uint x_block_start, x_block_end, y_block_start, y_block_end;
+        uint block_width, block_height;
+
+        float height_x, height_y, height_avg;
+
+        for ( uint y_outer = 0; y_outer < width; y_outer++ ) {
+            for ( uint x_outer = 0; x_outer < width; x_outer++ ) {
+                x_block_start = (int)x_it;
+                x_block_end = (int)( x_it + step );
+                y_block_start = (int)y_it;
+                y_block_end = (int)( y_it + step);
+
+                block_width = x_block_end - x_block_start;
+                block_height = y_block_end - y_block_start;
+
+                if ( y_outer < width - 1 && x_outer < width - 1 ) {
+                    for ( uint y_inner = 0; y_inner < block_height; y_inner++ ) {
+                        height_y =
+                            ( tile[y_outer*width+x_outer+1] - tile[y_outer*width+x_outer] ) /
+                            block_height * y_inner + tile[y_outer*width+x_outer];
+
+                        for ( uint x_inner = 0; x_inner < block_width; x_inner++ ) {
+                            height_x =
+                                ( tile[(y_outer+1)*width+x_outer] - tile[y_outer*width+x_outer] ) /
+                                block_width * x_inner + tile[y_outer*width+x_outer];
+
+                            height_avg = ( height_x + height_y ) / 2.0;
+
+                            new_tile[(y_block_start+y_inner)*new_width+x_block_start+x_inner] = height_avg;
+                        }
+                    }
+                }
+                else {
+                    for ( uint y_inner = 0; y_inner < block_height; y_inner++ ) {
+                        for ( uint x_inner = 0; x_inner < block_width; x_inner++ ) {
+                            new_tile[(y_block_start+y_inner)*new_width+x_block_start+x_inner] =
+                                tile[y_outer*width+x_outer];
+                        }
+                    }
+                }
+
+                x_it += step;
+            }
+            x_it = 0.0;
+            y_it += step;
+        }
+    } /* Upsampling */
+
+
+    width = new_width;
+    delete[] tile;
+    tile = new_tile;
+
+    return SUCCESS;
+}
+
+
+
+
+#if 0
 void GridTile::resampleTile (
     float factor,
     float (*method)(float*,uint)
@@ -334,6 +482,7 @@ void GridTile::resampleTile (
     tile = new_tile;
     width = new_width;
 } /* resampleTile() */
+#endif
 
 /*---------------------------------------------------------------*/
 

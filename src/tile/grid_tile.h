@@ -4,11 +4,19 @@
 #include "vector_tile.h"
 #include "../raw_data/geotiff.h"
 
-
+#if 0
 /* Downsample methods to pass to the function resampleTile */
 float max ( float* block, uint width );
 float min ( float* block, uint width );
 float avg ( float* block, uint width );
+#endif
+
+
+enum DownsamplingMethods {
+    AVG,
+    MIN,
+    MAX
+};
 
 /*
 Class to represent a tile (e.g. from a GeoTIFF file)
@@ -52,6 +60,7 @@ public:
     /* DESTRUCTOR */
     ~GridTile ();
 
+#if 0
     /*
     Upsample or downsample a tile
     Reduce a square of pixels into one or turn one pixel into a
@@ -73,6 +82,31 @@ public:
         float factor,
         float (*method)(float*,uint) = max
     );
+#endif
+
+    /*
+    Upsample or downsample a tile
+    Reduce a block of pixels into one (downsampling) or turn one pixel
+    into a block of pixels (upsampling) using lienar interpolation
+
+    Args:
+     - factor :              Factor by which the tile should be rescaled
+                              -  < 1.0 -> Downsampling
+                              - >= 1.0 -> Upsampling
+     - downsampling_method : Method to accumulate a block of pixels to find
+                             the value of the new pixel when downsampling
+                              - AVG : Average value of the block
+                              - MIN : Minimum value within the block
+                              - MAX : Maximum value within the block
+                              (Default: MAX)
+
+    Returns:
+     - Status code
+        - SUCCESS
+
+        - INVALID_RESAMPLING_FACTOR
+    */
+    int resampleTile ( float factor, int downsampling_method = MAX );
 
 
     /* GETTERS AND SETTERS */
@@ -154,11 +188,41 @@ private:
 
     std::string tile_name;
 
+#if 0
     void getBlock (
         float* block_buf,
         uint block_width,
         uint x, uint y
     ) const;
+#endif
+
+    /*
+    Accumulate a block of pixels for downsampling using
+    the specified downsampling method
+
+    Args:
+     - x_start             : Starting x coordinate of the block (lower left corner)
+     - y_start             : Starting y coordinate of the block (lower left corner)
+     - x_end               : End x coordinate of the block
+                             (upper right corner) (not in iteration included)
+     - y_end               : End y coordinate of the block
+                             (upper right corner) (not in iteration included)
+     - downsampling_method : Method to accumulate a block of pixels to find
+                             the value of the new pixel when downsampling
+                              - AVG : Average value of the block
+                              - MIN : Minimum value within the block
+                              - MAX : Maximum value within the block
+                              (Default: MAX)
+                              -> See enum DownsamplingMethods
+
+    Returns:
+     - Downsampled pixel block as a float value
+    */
+    float block_accumulate (
+        int x_start, int y_start,
+        int x_end, int y_end,
+        int downsampling_method
+    );
 };
 
 #endif

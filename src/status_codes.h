@@ -31,31 +31,32 @@ enum Statuscodes {
     TILES_MASKED                = 17,
     TILE_NOT_AVAILABLE          = 18,
     INVALID_TILE_TYPE           = 19,
-    COORDINATES_OUTSIDE_TILE    = 20,
-    VECTOR_INCOMPLETE           = 21,
+    INVALID_RESAMPLING_FACTOR   = 20,
+    COORDINATES_OUTSIDE_TILE    = 21,
+    VECTOR_INCOMPLETE           = 22,
 
     // Raw data
-    NO_SURFACES                 = 22,
+    NO_SURFACES                 = 23,
 
     // Downloader
-    INVALID_URL                 = 23,
+    INVALID_URL                 = 24,
 
     // Files
-    FILE_NOT_FOUND              = 24,
-    FILE_NOT_CREATABLE          = 25,
-    FILE_ALREADY_EXISTS         = 26,
-    FILE_CORRUPT                = 27,
+    FILE_NOT_FOUND              = 25,
+    FILE_NOT_CREATABLE          = 26,
+    FILE_ALREADY_EXISTS         = 27,
+    FILE_CORRUPT                = 28,
 
     // Config
-    UNKNOWN_CONFIG_DATATYPE     = 28,
-    UNKNOWN_CONFIG_OPTION       = 29,
-    CONFIG_FILE_NOT_LOADED_YET  = 30,
-    CONFIG_TYPES_FILE_NOT_FOUND = 31,
-    INVALID_TYPE_FOR_OPTION     = 32,
-    CONFIG_WRITE_FAILURE        = 33,
+    UNKNOWN_CONFIG_DATATYPE     = 29,
+    UNKNOWN_CONFIG_OPTION       = 30,
+    CONFIG_FILE_NOT_LOADED_YET  = 31,
+    CONFIG_TYPES_FILE_NOT_FOUND = 32,
+    INVALID_TYPE_FOR_OPTION     = 33,
+    CONFIG_WRITE_FAILURE        = 34,
 
     // Precalculator
-    INVALID_SIGNAL_CONE_ANGLE   = 34
+    INVALID_SIGNAL_CONE_ANGLE   = 35
 };
 
 #endif

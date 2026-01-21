@@ -23,7 +23,7 @@ Returns:
 
     - TILE_NOT_AVAILABLE
 */
-int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type, std::string url = URL_ROOT );
+int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type );
 
 
 /*
@@ -44,6 +44,6 @@ Returns:
 
        - TILE_NOT_AVAILABLE
 */
-int getVectorTile ( VectorTile& vector_tile, std::string tile_name, std::string url = URL_ROOT );
+int getVectorTile ( VectorTile& vector_tile, std::string tile_name );
 
 #endif

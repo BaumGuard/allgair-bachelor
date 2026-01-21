@@ -1,20 +1,29 @@
 #ifndef URLS_H
 #define URLS_H
 
-#define URL_ROOT "https://download1.bayernwolke.de/a"
+#include <string>
+
 
 /* GeoTIFF */
 
 // Digital terrain model (Resolution 1 m)
-#define DGM1_POSTFIX  "/dgm/dgm1/\0"
+#define URL_DGM1_BAVARIA "https://download1.bayernwolke.de/a/dgm/dgm1/\0"
 
 // Digital surface model (Resolution 20 cm)
-#define DOM20_POSTFIX "/dom20/DOM/\0"
+#define URL_DOM20_BAVARIA "https://download1.bayernwolke.de/a/dom20/DOM/\0"
 
 
 /* GML */
 
 // Digital building model
-#define LOD2_POSTFIX "/lod2/citygml/\0"
+#define URL_LOD2_BAVARIA "https://download1.bayernwolke.de/a/lod2/citygml/\0"
+
+
+
+extern std::string
+    chosen_url_dgm1,
+    chosen_url_dom20,
+    chosen_url_lod2;
+
 
 #endif

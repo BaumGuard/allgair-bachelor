@@ -12,7 +12,7 @@ std::string DATA_DIR = "data";
 
 /*---------------------------------------------------------------*/
 
-int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type, std::string url ) {
+int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
     // Build the file name/path of the tif file
     std::string raw_file_name;
 
@@ -92,22 +92,22 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type, std
 
 
     // Download the raw file
-    //std::string url;
+    std::string url;
     switch ( tile_type ) {
         case DGM1:
-            url += DGM1_POSTFIX + raw_file_name;
+            url = chosen_url_dgm1 + raw_file_name;
             break;
 
         case DGM20:
-            url += DGM1_POSTFIX + raw_file_name;
+            url = chosen_url_dgm1 + raw_file_name;
             break;
 
         case DOM20:
-            url += DOM20_POSTFIX + raw_file_name;
+            url = chosen_url_dom20 + raw_file_name;
             break;
 
         case DOM1:
-            url += DOM20_POSTFIX + raw_file_name;
+            url = chosen_url_dom20 + raw_file_name;
             break;
     }
 
@@ -163,7 +163,7 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type, std
 
 /*---------------------------------------------------------------*/
 
-int getVectorTile ( VectorTile& vector_tile, std::string tile_name, std::string url ) {
+int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
     // Build the file name/path of the binary file and the raw file (.gml)
 
     std::string
@@ -218,7 +218,7 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name, std::string 
 
 
     // Download the raw file
-    url += LOD2_POSTFIX + raw_file_name;
+    std::string url = chosen_url_lod2 + raw_file_name;
 
     printMessage(
         NORMAL,

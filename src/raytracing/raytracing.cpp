@@ -11,10 +11,14 @@ int raytracingWithReflection (
     double max_point_to_plane_distance,
     uint fresnel_zone, double freq,
 
-    std::string dgm1_url,
-    std::string dom20_url,
-    std::string lod2_url
+    std::string url_dgm1,
+    std::string url_dom20,
+    std::string url_lod2
 ) {
+    chosen_url_dgm1  = url_dgm1;
+    chosen_url_dom20 = url_dom20;
+    chosen_url_lod2  = url_lod2;
+
     Polygon selected_polygon = precalculate( start_point, end_points, select_method, fresnel_zone, freq );
 
     Vector reflect_point = selected_polygon.getCentroid();
@@ -51,6 +55,9 @@ int raytracingDirect (
     if ( tile_type != DGM1 && tile_type != DOM20 ) {
         return INVALID_TILE_TYPE;
     }
+
+    chosen_url_dgm1 = dgm1_url;
+    chosen_url_dom20 = dom20_url;
 
     int ground_count;
 

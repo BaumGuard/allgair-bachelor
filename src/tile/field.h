@@ -20,11 +20,13 @@ letting him concentrate on the raytracing
 class Field {
 
 private:
-    std::unordered_map<std::string, GridTile> grid_tiles_dgm1;
-    std::unordered_map<std::string, GridTile> grid_tiles_dgm20;
-    std::unordered_map<std::string, GridTile> grid_tiles_dom20;
-    std::unordered_map<std::string, GridTile> grid_tiles_dom1;
-    std::unordered_map<std::string, VectorTile> vector_tiles_lod2;
+    std::unordered_map<std::string, GridTile> grid_tiles_dgm;
+    //std::unordered_map<std::string, GridTile> grid_tiles_dgm20;
+    std::unordered_map<std::string, GridTile> grid_tiles_dom;
+    //std::unordered_map<std::string, GridTile> grid_tiles_dom1;
+    //std::unordered_map<std::string, VectorTile> vector_tiles_lod2;
+
+    double grid_resolution;
 
     /*
     Check if a tile has already been loaded into grid_tiles or
@@ -111,9 +113,10 @@ private:
     Returns:
      - Altitude in meters
     */
-    double getAltitudeAtXY ( uint x, uint y, int tile_type );
+    double getAltitudeAtXY ( double x, double y, int tile_type );
 
 public:
+    Field ( double grid_resolution );
     /*
     Perform the Bresenham algorithm in pseudo 3D space
 

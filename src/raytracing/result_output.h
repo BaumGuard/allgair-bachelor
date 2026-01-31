@@ -39,7 +39,7 @@ Returns:
     - FILE_NOT_CREATABLE
 */
 int createResultFile_WithReflection (
-    Vector& start_point, std::vector<Vector> end_points,
+    Vector& start_point, Vector& end_point,
     Vector& reflection_point,
     Polygon& reflecting_polygon,
     float distance,
@@ -71,7 +71,7 @@ Returns:
     - FILE_NOT_CREATABLE
 */
 int createResultFile_Direct (
-    Vector& start_point, std::vector<Vector> end_points,
+    Vector& start_point, Vector& end_point,
     float distance,
     uint vegetation_count, uint ground_count
 );

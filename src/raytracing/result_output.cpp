@@ -5,7 +5,7 @@
 #include "../status_codes.h"
 
 int createResultFile_WithReflection (
-    Vector& start_point, std::vector<Vector> end_points,
+    Vector& start_point, Vector& end_point,
     Vector& reflection_point,
     Polygon& reflecting_polygon,
     float distance,
@@ -41,7 +41,7 @@ int createResultFile_WithReflection (
     fprintf( result_file, "\t\t\"start_point\": [%.3f, %.3f, %.3f],\n",
              start_point.getX(), start_point.getY(), start_point.getZ() );
     fprintf( result_file, "\t\t\"end_point\": [%.3f, %.3f, %.3f],\n",
-             end_points[0].getX(), end_points[0].getY(), end_points[0].getZ() );
+             end_point.getX(), end_point.getY(), end_point.getZ() );
     fprintf( result_file, "\t\t\"reflect_point\": [%.3f, %.3f, %.3f]\n",
              reflection_point.getX(), reflection_point.getY(), reflection_point.getZ() );
     fprintf( result_file, "\t},\n" );
@@ -76,7 +76,7 @@ int createResultFile_WithReflection (
 
 
 int createResultFile_Direct (
-    Vector& start_point, std::vector<Vector> end_points,
+    Vector& start_point, Vector& end_point,
     float distance,
     uint vegetation_count, uint ground_count
 ) {
@@ -108,7 +108,7 @@ int createResultFile_Direct (
     fprintf( result_file, "\t\t\"start_point\": [%.3f, %.3f, %.3f],\n",
              start_point.getX(), start_point.getY(), start_point.getZ() );
     fprintf( result_file, "\t\t\"end_point\": [%.3f, %.3f, %.3f]\n",
-             end_points[0].getX(), end_points[0].getY(), end_points[0].getZ() );
+             end_point.getX(), end_point.getY(), end_point.getZ() );
     fprintf( result_file, "\t},\n" );
 
     fprintf( result_file, "\t\"distance\": %.3f,\n", distance );

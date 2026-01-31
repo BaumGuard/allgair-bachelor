@@ -12,6 +12,11 @@
 
 const std::string DATA_DIR = "data";
 
+
+Field::Field ( double grid_resolution ) {
+    this->grid_resolution = grid_resolution;
+}
+
 /*---------------------------------------------------------------*/
 
 int Field::loadTile ( std::string tile_name, int tile_type ) {
@@ -20,31 +25,45 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
 
     int status;
     if (
-        tile_type == DOM20 || tile_type == DOM1 ||
-        tile_type == DGM1  || tile_type == DGM20
+        tile_type == DOM || /*tile_type == DOM1 ||*/
+        tile_type == DGM  /*|| tile_type == DGM20*/
     ) {
-        status = getGridTile( grid_tile, tile_name, tile_type );
-        if ( status != SUCCESS ) {
-            return status;
-        }
+        double resample_factor;
 
         switch ( tile_type ) {
-            case DOM20:
-                grid_tiles_dom20.insert( {tile_name, grid_tile} );
+            case DOM:
+                status = getGridTile( grid_tile, tile_name, DOM20 );
+                if ( status != SUCCESS ) {
+                    return status;
+                }
+                resample_factor = 1.0 / grid_resolution;
+                grid_tile.resampleTile( resample_factor );
+                grid_tiles_dom.insert( {tile_name, grid_tile} );
                 break;
+            /*
             case DOM1:
                 grid_tiles_dom1.insert( {tile_name, grid_tile} );
                 break;
-            case DGM1:
-                grid_tiles_dgm1.insert( {tile_name, grid_tile} );
+            */
+            case DGM:
+                status = getGridTile( grid_tile, tile_name, DGM1 );
+                if ( status != SUCCESS ) {
+                    return status;
+                }
+                resample_factor = 1.0 / grid_resolution;
+                grid_tile.resampleTile( resample_factor );
+                grid_tiles_dgm.insert( {tile_name, grid_tile} );
                 break;
+            /*
             case DGM20:
                 grid_tiles_dgm20.insert( {tile_name, grid_tile} );
                 break;
+            */
         }
 
         return SUCCESS;
     }
+    /*
     else if ( tile_type == LOD2 ) {
         status = getVectorTile( vector_tile, tile_name );
         if ( status != SUCCESS ) {
@@ -55,6 +74,7 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
 
         return SUCCESS;
     }
+    */
     else {
         return TILE_NOT_AVAILABLE;
     }
@@ -64,16 +84,21 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
 
 bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
     switch ( tile_type ) {
-        case DGM1:
-            return grid_tiles_dgm1.contains( tile_name );
+        case DGM:
+            return grid_tiles_dgm.contains( tile_name );
+        /*
         case DGM20:
             return grid_tiles_dgm20.contains( tile_name );
-        case DOM20:
-            return grid_tiles_dom20.contains( tile_name );
+        */
+        case DOM:
+            return grid_tiles_dom.contains( tile_name );
+        /*
         case DOM1:
             return grid_tiles_dom1.contains( tile_name );
+
         case LOD2:
             return vector_tiles_lod2.contains( tile_name );
+        */
         default:
             return false;
     }
@@ -147,10 +172,10 @@ double Field::getAltitudeAtLatLon ( double lat, double lon, int tile_type ) {
 #endif
 /*---------------------------------------------------------------*/
 
-double Field::getAltitudeAtXY ( uint x, uint y, int tile_type ) {
+double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
     uint
-        tile_x = x / 1000,
-        tile_y = y / 1000;
+        tile_x = (uint)( x / 1000.0 ),
+        tile_y = (uint)( y / 1000.0 );
 
     std::string tile_name = buildTileName( tile_x, tile_y );
 
@@ -158,16 +183,13 @@ double Field::getAltitudeAtXY ( uint x, uint y, int tile_type ) {
         loadTile( tile_name, tile_type );
     }
 
-    uint
-        easting = x % 1000,
-        northing = y % 1000;
 
     GridTile* tile;
     switch ( tile_type ) {
-        case DGM1:
-            tile = &grid_tiles_dgm1[tile_name];
+        case DGM:
+            tile = &grid_tiles_dgm[tile_name];
             break;
-
+        /*
         case DGM20:
             tile = &grid_tiles_dgm20[tile_name];
             break;
@@ -175,11 +197,15 @@ double Field::getAltitudeAtXY ( uint x, uint y, int tile_type ) {
         case DOM1:
             tile = &grid_tiles_dom1[tile_name];
             break;
-
-        case DOM20:
-            tile = &grid_tiles_dom20[tile_name];
+        */
+        case DOM:
+            tile = &grid_tiles_dom[tile_name];
             break;
     }
+
+    uint
+        easting  = (uint)( (fmod(x, 1000.0) / 1000.0) * tile->getTileWidth() ),
+        northing = (uint)( (fmod(y, 1000.0) / 1000.0) * tile->getTileWidth() );
 
     float value;
     tile->getValue( easting, northing, value );
@@ -293,8 +319,8 @@ int Field::bresenhamPseudo3D (
 )
 {
     if (
-        tile_type != DGM1 && tile_type != DGM20 &&
-        tile_type != DOM20 && tile_type != DOM1 )
+        tile_type != DGM && /*tile_type != DGM20 &&*/
+        tile_type != DOM /*&& tile_type != DOM1*/ )
     {
         return INVALID_TILE_TYPE;
     }
@@ -317,12 +343,14 @@ int Field::bresenhamPseudo3D (
 */
     // Cast start and end values to integers
     int
-        x_start = (int) start.getX(),
-        y_start = (int) start.getY(),
-        z_start = (int) round( start.getZ() ),
-        x_end   = (int) end.getX(),
-        y_end   = (int) end.getY(),
-        z_end   = (int) round( end.getZ() );
+        x_start = (int) ( start.getX() / grid_resolution ),
+        y_start = (int) ( start.getY() / grid_resolution ),
+        z_start = (int) ( round( start.getZ() ) / grid_resolution ),
+        x_end   = (int) ( end.getX() / grid_resolution ),
+        y_end   = (int) ( end.getY() / grid_resolution ),
+        z_end   = (int) ( round( end.getZ() ) / grid_resolution );
+
+    double utm_x, utm_y;
 
     // Distances between the start and end coordinate
     int
@@ -472,9 +500,13 @@ int Field::bresenhamPseudo3D (
                 break;
         } /* switch ( axis ) */
 
+
+        utm_x = x * grid_resolution;
+        utm_y = y * grid_resolution;
+
         // Get the altitude at the current x/y position
         float altitude_at_xy =
-            getAltitudeAtXY(x, y, tile_type) - ground_level_threshold;
+            getAltitudeAtXY(utm_x, utm_y, tile_type) - ground_level_threshold;
 
         // If the value of z is equal or smaller than the altitude
         // at x/y they ray has hit the ground

@@ -40,10 +40,11 @@ Returns:
 */
 Polygon precalculate (
     Vector& start_point,
-    std::vector<Vector>& end_points,
+    Vector& end_point,
     int select_method,
     int fresnel_zone = 2,
-    double freq = 868.0e6
+    double freq = 868.0e6,
+    int threads = 10
 );
 
 #endif

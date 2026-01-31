@@ -9,8 +9,11 @@
 #include "../tile/load_tile.h"
 
 #include <cmath>
+#include <pthread.h>
 
 #define LIGHT_SPEED 300000000.0
+
+int MAX_THREADS;
 
 /*---------------------------------------------------------------*/
 
@@ -169,12 +172,98 @@ std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {
 
 /*---------------------------------------------------------------*/
 
+Polygon* ground_area_global;
+std::vector<Polygon>* polygon_list;
+pthread_mutex_t polygon_list_mutex;
+
+void* Thread_getPolygonsInGroundArea ( void* arg ) {
+    std::string* tile_name = (std::string*) arg;
+
+    VectorTile vector_tile;
+
+    uint len_polygons;
+    int status;
+
+    Vector test_point;
+
+
+    status = getVectorTile( vector_tile, *tile_name );
+    /*
+    if ( status != SUCCESS ) {
+        return status;
+    }
+    */
+
+    std::vector<Polygon>& tile_polygons = vector_tile.getPolygons();
+    len_polygons = tile_polygons.size();
+
+    for ( uint j = 0; j < len_polygons; j++ ) {
+        std::vector<Vector>& points = tile_polygons[j].getPoints();
+
+        uint len_points = points.size();
+        if ( len_points > 0 ) {
+            for ( uint k = 0; k < len_points; k++ ) {
+                test_point = points[k];
+                test_point.setZ( 0.0 );
+
+                if ( ground_area_global->isPointInPolygon(test_point) ) {
+                    pthread_mutex_lock( &polygon_list_mutex );
+                    polygon_list->push_back( tile_polygons[j] );
+                    pthread_mutex_unlock( &polygon_list_mutex );
+                    break;
+                }
+            }
+
+        }
+
+    }
+
+    return NULL;
+}
+
 int getPolygonsInGroundArea (
     std::vector<Polygon>& polygons,
-    Polygon& ground_area
+    Polygon& ground_area,
+    int n_threads
 ) {
     std::vector<std::string> tile_names = tilesInGroundArea( ground_area );
 
+    int n_tiles = tile_names.size();
+    int n_thread_blocks = n_tiles / MAX_THREADS + 1;
+
+    int list_index = 0;
+
+    polygon_list = &polygons;
+    ground_area_global = &ground_area;
+    pthread_mutex_init( &polygon_list_mutex, NULL );
+    MAX_THREADS = n_threads;
+
+    for ( int i = 0; i < n_thread_blocks; i++ ) {
+        if ( n_tiles / MAX_THREADS > 0 ) {
+            n_threads = MAX_THREADS;
+        }
+        else {
+            n_threads = n_tiles;
+        }
+
+
+        pthread_t* threads = new pthread_t [n_threads];
+
+        for ( int j = 0; j < n_threads; j++ ) {
+            pthread_create(
+                &threads[j], NULL,
+                Thread_getPolygonsInGroundArea, (void*)&tile_names[list_index]
+            );
+            list_index++;
+        }
+        for ( int j = 0; j < n_threads; j++ ) {
+            pthread_join( threads[j], NULL );
+        }
+
+        delete[] threads;
+    }
+
+    /*
     VectorTile vector_tile;
 
     uint len_tiles = tile_names.size();
@@ -211,6 +300,7 @@ int getPolygonsInGroundArea (
 
         }
     }
+    */
 
     return SUCCESS;
 } /* getPolygonsInGroundArea() */

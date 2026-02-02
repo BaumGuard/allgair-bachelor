@@ -38,7 +38,8 @@ Args:
 Returns:
  - List of polygons that satisfy the condition above
 */
-Polygon precalculate (
+int precalculate (
+    Polygon& selected_polygon,
     Vector& start_point,
     Vector& end_point,
     int select_method,

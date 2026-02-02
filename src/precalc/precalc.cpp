@@ -1,5 +1,6 @@
 #include "precalc.h"
 
+#include "../status_codes.h"
 #include "../geometry/line.h"
 #include "../geometry/plane.h"
 #include "fresnel_zone.h"
@@ -140,7 +141,8 @@ void* Thread_precalculate ( void* arg ) {
 }
 
 
-Polygon precalculate (
+int precalculate (
+    Polygon& selected_polygon,
     Vector& start_point, Vector& end_point,
     int select_method,
     int fresnel_zone, double freq, int n_threads
@@ -252,13 +254,17 @@ Polygon precalculate (
     }
 #endif
 
-    switch ( select_method ) {
-        case BY_MIN_DISTANCE:
-            return getPolygonWithMinDistance( start_point, selected_polygons );
+    if ( selected_polygons.size() > 0 ) {
+        switch ( select_method ) {
+            case BY_MIN_DISTANCE:
+                selected_polygon = getPolygonWithMinDistance( start_point, selected_polygons );
+                return SUCCESS;
 
-        case BY_MAX_AREA:
-            return getPolygonWithMaxArea( selected_polygons );
+            case BY_MAX_AREA:
+                selected_polygon = getPolygonWithMaxArea( selected_polygons );
+                return SUCCESS;
+        }
     }
 
-    return selected_polygons[0];
+    return NO_POLYGON_FOUND;
 } /* precalculate() */

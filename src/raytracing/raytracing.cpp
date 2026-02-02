@@ -21,8 +21,13 @@ int raytracingWithReflection (
     chosen_url_dom20 = url_dom20;
     chosen_url_lod2  = url_lod2;
 
-    Polygon selected_polygon =
-        precalculate( start_point, end_point, select_method, fresnel_zone, freq );
+    int status;
+
+    Polygon selected_polygon;
+    status = precalculate( selected_polygon, start_point, end_point, select_method, fresnel_zone, freq );
+    if ( status != SUCCESS ) {
+        return status;
+    }
 
     Vector reflect_point = selected_polygon.getCentroid();
 
@@ -36,7 +41,6 @@ int raytracingWithReflection (
     Vector intersection;
 
 
-    int status;
     status = grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dgm_1, DGM1 );
     status = grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dom_1, DOM1 );
     status = grid_field.bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dgm_2, DGM1 );
@@ -46,7 +50,7 @@ int raytracingWithReflection (
     veg_count    = count_dom_1 + count_dom_2 - ground_count;
 
     // TODO: Calculate distance
-    createResultFile_WithReflection(
+    status = createResultFile_WithReflection(
         start_point, end_point, reflect_point,
         selected_polygon,
         0.0,
@@ -54,6 +58,8 @@ int raytracingWithReflection (
         select_method,
         fresnel_zone
     );
+
+    return status;
 } /* raytracingWithReflection() */
 
 

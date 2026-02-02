@@ -56,7 +56,10 @@ enum Statuscodes {
     CONFIG_WRITE_FAILURE        = 34,
 
     // Precalculator
-    INVALID_SIGNAL_CONE_ANGLE   = 35
+    INVALID_SIGNAL_CONE_ANGLE   = 35,
+
+    // Raytracing
+    NO_POLYGON_FOUND            = 36
 };
 
 #endif

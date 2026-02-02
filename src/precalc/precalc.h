@@ -9,7 +9,8 @@
 // Select methods
 enum SelectMethods {
     BY_MIN_DISTANCE,
-    BY_MAX_AREA
+    BY_MAX_AREA,
+    ALL
 };
 
 
@@ -26,20 +27,22 @@ If the reflected centroid is inside the reflected polygon, the algorithm
 adds the polygon to the list of selected polygons.
 
 Args:
- - start_point   : Start point as UTM coordinates and altitude
- - end_points    : List of end points as UTM coordinates and altitude
- - select_method : Choose which of the polygons should be returned:
-                    - BY_MIN_DISTANCE : The polygon that is closest to
-                                        the starting point
-                    - BY_MAX_AREA     : The polygon with the largest area
- - fresnel_zone  : Number of the Fresnel zone (Default: 2)
- - freq          : Frequency of the signal in Hz
+ - selected_polygons : Reference to the list to add the selected polygons
+ - start_point       : Start point as UTM coordinates and altitude
+ - end_points        : List of end points as UTM coordinates and altitude
+ - select_method     : Choose which of the polygons should be returned:
+                        - BY_MIN_DISTANCE : The polygon that is closest to
+                                            the starting point
+                        - BY_MAX_AREA     : The polygon with the largest area
+                        - ALL             : All selected polygons
+ - fresnel_zone      : Number of the Fresnel zone (Default: 2)
+ - freq              : Frequency of the signal in Hz
 
 Returns:
  - List of polygons that satisfy the condition above
 */
 int precalculate (
-    Polygon& selected_polygon,
+    std::vector<Polygon>& selected_polygons,
     Vector& start_point,
     Vector& end_point,
     int select_method,

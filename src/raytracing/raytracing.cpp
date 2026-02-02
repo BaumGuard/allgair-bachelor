@@ -23,41 +23,46 @@ int raytracingWithReflection (
 
     int status;
 
-    Polygon selected_polygon;
-    status = precalculate( selected_polygon, start_point, end_point, select_method, fresnel_zone, freq );
+    std::vector<Polygon> selected_polygons;
+    status = precalculate( selected_polygons, start_point, end_point, select_method, fresnel_zone, freq );
     if ( status != SUCCESS ) {
         return status;
     }
 
-    Vector reflect_point = selected_polygon.getCentroid();
 
-    int
-        count_dgm_1, count_dgm_2,
-        count_dom_1, count_dom_2,
-        ground_count,
-        veg_count;
+    uint n_polygons = selected_polygons.size();
+    for ( uint i = 0; i < n_polygons; i++ ) {
+        Vector reflect_point = selected_polygons[i].getCentroid();
 
-    Field grid_field( grid_resolution );
-    Vector intersection;
+        int
+            count_dgm_1, count_dgm_2,
+            count_dom_1, count_dom_2,
+            ground_count,
+            veg_count;
+
+        Field grid_field( grid_resolution );
+        Vector intersection;
 
 
-    status = grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dgm_1, DGM1 );
-    status = grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dom_1, DOM1 );
-    status = grid_field.bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dgm_2, DGM1 );
-    status = grid_field.bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dom_2, DOM1 );
+        status = grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dgm_1, DGM1 );
+        status = grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dom_1, DOM1 );
+        status = grid_field.bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dgm_2, DGM1 );
+        status = grid_field.bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dom_2, DOM1 );
 
-    ground_count = count_dgm_1 + count_dgm_2;
-    veg_count    = count_dom_1 + count_dom_2 - ground_count;
+        ground_count = count_dgm_1 + count_dgm_2;
+        veg_count    = count_dom_1 + count_dom_2 - ground_count;
 
-    // TODO: Calculate distance
-    status = createResultFile_WithReflection(
-        start_point, end_point, reflect_point,
-        selected_polygon,
-        0.0,
-        veg_count, ground_count,
-        select_method,
-        fresnel_zone
-    );
+        // TODO: Calculate distance
+        status = createResultFile_WithReflection(
+            start_point, end_point, reflect_point,
+            selected_polygons[i],
+            0.0,
+            veg_count, ground_count,
+            select_method,
+            fresnel_zone
+        );
+
+    }
 
     return status;
 } /* raytracingWithReflection() */

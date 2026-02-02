@@ -60,7 +60,7 @@ pthread_mutex_t selected_polygons_mutex;
 int n_threads;
 double part_size;
 std::vector<Polygon> polygons;
-std::vector<Polygon> selected_polygons;
+std::vector<Polygon> global_selected_polygons;
 
 Vector _start_point, _end_point;
 
@@ -131,7 +131,7 @@ void* Thread_precalculate ( void* arg ) {
             !isPolygonInList(selected_polygons, polygons[i])*/
         ) {
             pthread_mutex_lock( &selected_polygons_mutex );
-            selected_polygons.push_back( polygons[i] );
+            global_selected_polygons.push_back( polygons[i] );
             polygons[i].printPolygon();
             pthread_mutex_unlock( &selected_polygons_mutex );
         }
@@ -142,7 +142,7 @@ void* Thread_precalculate ( void* arg ) {
 
 
 int precalculate (
-    Polygon& selected_polygon,
+    std::vector<Polygon>& selected_polygons,
     Vector& start_point, Vector& end_point,
     int select_method,
     int fresnel_zone, double freq, int n_threads
@@ -254,14 +254,20 @@ int precalculate (
     }
 #endif
 
-    if ( selected_polygons.size() > 0 ) {
+    if ( global_selected_polygons.size() > 0 ) {
         switch ( select_method ) {
             case BY_MIN_DISTANCE:
-                selected_polygon = getPolygonWithMinDistance( start_point, selected_polygons );
+                selected_polygons.push_back(
+                    getPolygonWithMinDistance( start_point, global_selected_polygons )
+                );
                 return SUCCESS;
 
             case BY_MAX_AREA:
-                selected_polygon = getPolygonWithMaxArea( selected_polygons );
+                selected_polygons.push_back( getPolygonWithMaxArea( global_selected_polygons ) );
+                return SUCCESS;
+
+            case ALL:
+                selected_polygons = global_selected_polygons;
                 return SUCCESS;
         }
     }

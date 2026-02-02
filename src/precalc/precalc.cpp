@@ -4,6 +4,7 @@
 #include "../geometry/line.h"
 #include "../geometry/plane.h"
 #include "fresnel_zone.h"
+#include "../raytracing/selection_methods.h"
 
 #include <pthread.h>
 

@@ -6,13 +6,6 @@
 
 #include <vector>
 
-// Select methods
-enum SelectMethods {
-    BY_MIN_DISTANCE,
-    BY_MAX_AREA,
-    ALL
-};
-
 
 /*
 Find all polygons in the Fresnel zone between the start and the end point

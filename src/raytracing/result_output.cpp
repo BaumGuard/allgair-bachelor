@@ -52,12 +52,16 @@ int createResultFile_WithReflection (
     fprintf( result_file, "\t\"area\": %.3f,\n", reflecting_polygon.getArea() );
 
     switch ( selection_method ) {
-        case MAX_AREA:
+        case BY_MAX_AREA:
             fprintf( result_file, "\t\"selection_method\": \"MAX_AREA\",\n" );
             break;
 
-        case MIN_DISTANCE:
+        case BY_MIN_DISTANCE:
             fprintf( result_file, "\t\"selection_method\": \"MIN_DISTANCE\",\n" );
+            break;
+
+        case ALL:
+            fprintf( result_file, "\t\"selection_method\": \"ALL\",\n" );
             break;
     }
 

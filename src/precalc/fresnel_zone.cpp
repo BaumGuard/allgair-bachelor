@@ -138,10 +138,10 @@ std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {
             coord_upper_right = Vector( utmx+2000.0, utmy+2000.0, 0.0 );
 
             if (
-                ground_area.isPointInPolygon( coord_lower_left )  ||
-                ground_area.isPointInPolygon( coord_lower_right ) ||
-                ground_area.isPointInPolygon( coord_upper_left )  ||
-                ground_area.isPointInPolygon( coord_upper_right )
+                ground_area.isPointInPolygon( coord_lower_left,  true )  ||
+                ground_area.isPointInPolygon( coord_lower_right, true )  ||
+                ground_area.isPointInPolygon( coord_upper_left,  true )  ||
+                ground_area.isPointInPolygon( coord_upper_right, true )
             ) {
                 utmx_km = (uint)( utmx / 1000.0 ),
                 utmy_km = (uint)( utmy / 1000.0 );
@@ -182,17 +182,11 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
     VectorTile vector_tile;
 
     uint len_polygons;
-    int status;
 
     Vector test_point;
 
 
-    status = getVectorTile( vector_tile, *tile_name );
-    /*
-    if ( status != SUCCESS ) {
-        return status;
-    }
-    */
+    getVectorTile( vector_tile, *tile_name );
 
     std::vector<Polygon>& tile_polygons = vector_tile.getPolygons();
     len_polygons = tile_polygons.size();
@@ -206,7 +200,7 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
                 test_point = points[k];
                 test_point.setZ( 0.0 );
 
-                if ( ground_area_global->isPointInPolygon(test_point) ) {
+                if ( ground_area_global->isPointInPolygon(test_point, true) ) {
                     pthread_mutex_lock( &polygon_list_mutex );
                     polygon_list->push_back( tile_polygons[j] );
                     pthread_mutex_unlock( &polygon_list_mutex );

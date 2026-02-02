@@ -49,9 +49,12 @@ public:
     Check if the point p is inside or outside the polygon
 
     Args:
-     - p : Point as Vector to check
+     - p     : Point as Vector to check
+     - two_d : 2D mode (don't rotate the polygon so that it becomes
+               parallel to the xy plane, just use the x and y coordinates
+               and ignore the z coordinate)
     */
-    bool isPointInPolygon ( Vector& p ) const;
+    bool isPointInPolygon ( Vector& p, bool two_d = false ) const;
 
 
     /* GETTERS */

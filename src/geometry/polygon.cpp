@@ -52,34 +52,75 @@ int Polygon::addPoint ( Vector point ) {
 
 /*---------------------------------------------------------------*/
 
-bool Polygon::isPointInPolygon ( Vector& p ) const {
-    if ( !base_plane.isPointOnPlane(p) ) {
-        return false;
-    }
-
-    // Normal vector of the polygon's base plane
-    Vector normal_vector = base_plane.normalVector();
-
-    double
-        x_nv = normal_vector.getX(),
-        y_nv = normal_vector.getY(),
-        z_nv = normal_vector.getZ();
-
-    // Find the rotation angles alpha and beta to rotate the base plane
-    // so that it becomes parallel to the xy plane
-
-    // Rotation angles around the z axis (alpha) and y axis (beta)
-    double
-        alpha = atan2( y_nv, x_nv ),
-        beta  = 0.5*M_PI - atan2( z_nv, sqrt(x_nv*x_nv+y_nv*y_nv) );
-
-    // Rotate all points of the polygon around the angles alpha and beta
-    // to map the base plane to the xy plane
+bool Polygon::isPointInPolygon ( Vector& p, bool two_d ) const {
+    // Rotated polygon points
     std::vector<Vector> mapped_points;
+
+    // Number of points in the polygon
     size_t n_points = points.size();
-    for ( size_t i = 0; i < n_points; i++ ) {
-        mapped_points.push_back( points[i].rotateVector(-alpha, -beta) );
+
+    // Rotated point p
+    Vector p_rot;
+
+    // y intercept of the probing ray
+    double t_ray;
+
+    // 3D mode -> Rotate the polygon so that it becomes parallel
+    // to the xy plane
+    if ( !two_d ) {
+        if ( !base_plane.isPointOnPlane(p) ) {
+            return false;
+        }
+
+        // Normal vector of the polygon's base plane
+        Vector normal_vector = base_plane.normalVector();
+
+        double
+            x_nv = normal_vector.getX(),
+            y_nv = normal_vector.getY(),
+            z_nv = normal_vector.getZ();
+
+        // Find the rotation angles alpha and beta to rotate the base plane
+        // so that it becomes parallel to the xy plane
+
+        // Rotation angles around the z axis (alpha) and y axis (beta)
+        double
+            alpha = atan2( y_nv, x_nv ),
+            beta  = 0.5*M_PI - atan2( z_nv, sqrt(x_nv*x_nv+y_nv*y_nv) );
+
+        // Rotate all points of the polygon around the angles alpha and beta
+        // to map the base plane to the xy plane
+        for ( size_t i = 0; i < n_points; i++ ) {
+            mapped_points.push_back( points[i].rotateVector(-alpha, -beta) );
+        }
+
+        // Rotating the point p around alpha and beta (mapping to the xy plane)
+        p_rot = p.rotateVector( -alpha, -beta );
+
+        // The y intercept of the probing ray is set to the y coordinate
+        // of the point p
+        // The probing ray is a horizontal line and starts at the point p
+        // and stretches towards positive infinity
+        t_ray = p_rot.getY();
     }
+
+    // 2D mode -> Don't rotate the polygon and just use the x and y coordinate
+    else {
+        // Add all points to the list mapped_points without rotation
+        for ( size_t i = 0; i < n_points; i++ ) {
+            mapped_points.push_back( points[i] );
+        }
+
+        // Leave the point p unrotated
+        p_rot = p;
+
+        // The y intercept of the probing ray is set to the y coordinate
+        // of the point p
+        // The probing ray is a horizontal line and starts at the point p
+        // and stretches towards positive infinity
+        t_ray = p_rot.getY();
+    }
+
 
     // Adjacent points in the polygon
     Vector p1, p2;
@@ -87,17 +128,6 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
 
     // Slope and y intercept of a polygon's edge
     double m_edge, t_edge;
-
-
-    // Rotating the point p around alpha and beta (mapping to the xy plane)
-    Vector p_rot = p.rotateVector( -alpha, -beta );
-
-    // The y intercept of the probing ray is set to the y coordinate
-    // of the point p
-    // The probing ray is a horizontal line and starts at the point p
-    // and stretches towards positive infinity
-    double t_ray = p_rot.getY();
-
 
     double
         x,          // x coordinate of the intersection
@@ -165,6 +195,7 @@ bool Polygon::isPointInPolygon ( Vector& p ) const {
             intersect_count++;
         }
     }
+
     // If the number of intersections is even, the point p is located
     // outside the polygon and if it is odd, the point p is located inside
     // the polygon

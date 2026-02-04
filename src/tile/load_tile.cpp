@@ -2,7 +2,7 @@
 
 #include "../raw_data/geotiff.h"
 #include "../web/download.h"
-#include "../web/urls.h"
+#include "../config/global_config.h"
 #include "../utils.h"
 #include "../tile/tile_types.h"
 
@@ -42,7 +42,7 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
 
     std::string raw_file_path = data_dir + "/" + raw_file_name;
 
-
+#if 0
     // Check for the existence of the tif file
     printMessage(
         NORMAL,
@@ -50,7 +50,7 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
         raw_file_name.data(),
         data_dir.data()
     );
-
+#endif
     if ( FILE_EXISTS(raw_file_path.data()) ) {
         GeoTiffFile geotiff;
 
@@ -85,10 +85,10 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
                 break;
         }
 
-        printMessage( NORMAL, "Found\n" );
+        //printMessage( NORMAL, "Found\n" );
         return SUCCESS;
     }
-    printMessage( NORMAL, "Not found\n" );
+    //printMessage( NORMAL, "Not found\n" );
 
 
     // Download the raw file
@@ -111,13 +111,14 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
             break;
     }
 
-
+#if 0
     printMessage(
         NORMAL,
         "Downloading the raw file '%s' into '%s'... ",
         raw_file_name.data(),
         data_dir.data()
     );
+#endif
     if ( downloadFile(url, data_dir) == SUCCESS ) {
         GeoTiffFile geotiff;
 
@@ -153,11 +154,11 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
         }
 
 
-        printMessage( NORMAL, "Done\n" );
+        //printMessage( NORMAL, "Done\n" );
         return SUCCESS;
     }
 
-    printMessage( NORMAL, "Error\n" );
+    //printMessage( NORMAL, "Error\n" );
     return TILE_NOT_AVAILABLE;
 }
 
@@ -179,22 +180,24 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
     // Check for the existence of the binary file
     bool binary_file_exists = FILE_EXISTS( binary_file_path.data() );
     if ( binary_file_exists ) {
+        /*
         printMessage(
             NORMAL,
             "Checking for binary file '%s' in '%s'... ",
             binary_file_name.data(), data_dir.data()
         );
+        */
 
         vector_tile.fromBinaryFile( binary_file_path );
 
-        printMessage( NORMAL, "Found\n" );
+        //printMessage( NORMAL, "Found\n" );
         return SUCCESS;
     }
     else if ( !binary_file_exists ) {
-        printMessage( NORMAL, "Not found\n" );
+        //printMessage( NORMAL, "Not found\n" );
     }
 
-
+    /*
     // Check for the existence of the gml file
     printMessage(
         NORMAL,
@@ -202,7 +205,7 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
         raw_file_name.data(),
         data_dir.data()
     );
-
+    */
     if ( FILE_EXISTS(raw_file_path.data()) ) {
         // Read the gml file and generate a binary file
         GmlFile gml_file;
@@ -211,21 +214,21 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
         vector_tile.fromGmlFile( gml_file );
         vector_tile.createBinaryFile( binary_file_path );
 
-        printMessage( NORMAL, "Found\n" );
+        //printMessage( NORMAL, "Found\n" );
         return SUCCESS;
     }
-    printMessage( NORMAL, "Not found\n" );
+    //printMessage( NORMAL, "Not found\n" );
 
 
     // Download the raw file
     std::string url = chosen_url_lod2 + raw_file_name;
-
+/*
     printMessage(
         NORMAL,
         "Downloading the raw file '%s' into '%s'... ",
         raw_file_name.data(),
         data_dir.data()
-    );
+    );*/
     if ( downloadFile(url, data_dir) == SUCCESS ) {
 
         // Read the gml file and generate a binary file
@@ -235,10 +238,10 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
         vector_tile.fromGmlFile( gml_file );
         vector_tile.createBinaryFile( binary_file_path );
 
-        printMessage( NORMAL, "Done\n" );
+        //printMessage( NORMAL, "Done\n" );
         return SUCCESS;
     }
 
-    printMessage( NORMAL, "Error\n" );
+    //printMessage( NORMAL, "Error\n" );
     return TILE_NOT_AVAILABLE;
 }

@@ -4,6 +4,7 @@
 #include "grid_tile.h"
 #include "vector_tile.h"
 #include "tile_types.h"
+#include "../geometry/vector.h"
 
 #include <unordered_map>
 #include <vector>
@@ -146,10 +147,12 @@ public:
         Vector& start,
         Vector& end,
         float ground_level_threshold,
-        int* ground_count,
+        uint* ground_count,
         int tile_type,
         bool cancel_on_ground = false
     );
+
+    friend void* Thread_bresenhamPseudo3D ( void* arg );
 
 #if 0
     /*
@@ -174,5 +177,17 @@ public:
     );
 #endif
 };
+
+void* Thread_bresenhamPseudo3D ( void* arg );
+
+typedef struct {
+    Field& field;
+    Vector& start;
+    Vector& end;
+    float ground_level_threshold;
+    uint* ground_count;
+    int tile_type;
+    bool cancel_on_ground;
+} Bresenham_Data;
 
 #endif

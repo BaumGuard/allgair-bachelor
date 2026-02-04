@@ -313,7 +313,7 @@ int Field::bresenhamPseudo3D (
     Vector& start,
     Vector& end,
     float ground_level_threshold,
-    int* ground_count,
+    uint* ground_count,
     int tile_type,
     bool cancel_on_ground
 )
@@ -556,6 +556,20 @@ int Field::bresenhamPseudo3D (
     }
     return NO_INTERSECTION_FOUND;
 } /* bresenhamPseudo3D() */
+
+
+void* Thread_bresenhamPseudo3D ( void* arg ) {
+    Bresenham_Data* data = (Bresenham_Data*) arg;
+
+    data->field.bresenhamPseudo3D(
+        data->start, data->end,
+        data->ground_level_threshold, data->ground_count,
+        data->tile_type, data->cancel_on_ground
+    );
+
+    return NULL;
+}
+
 
 /*---------------------------------------------------------------*/
 #if 0

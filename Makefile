@@ -9,7 +9,7 @@ BUILDDIR = build
 
 all: $(TARGET)
 
-$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/urls.o $(BUILDDIR)/field.o $(BUILDDIR)/config.o $(BUILDDIR)/fresnel_zone.o $(BUILDDIR)/precalc.o $(BUILDDIR)/raytracing.o $(BUILDDIR)/result_output.o $(BUILDDIR)/load_tile.o
+$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/field.o $(BUILDDIR)/config.o $(BUILDDIR)/fresnel_zone.o $(BUILDDIR)/precalc.o $(BUILDDIR)/raytracing.o $(BUILDDIR)/result_output.o $(BUILDDIR)/global_config.o $(BUILDDIR)/load_tile.o
 	$(CC) $(LDFLAGS) $(BUILDDIR)/*.o $(SRCDIR)/status_codes.h -o $(TARGET)
 
 $(BUILDDIR)/vector.o: $(SRCDIR)/geometry/vector.h $(SRCDIR)/geometry/vector.cpp
@@ -45,9 +45,6 @@ $(BUILDDIR)/surface.o: $(SRCDIR)/raw_data/surface.h $(SRCDIR)/raw_data/surface.c
 $(BUILDDIR)/download.o: $(SRCDIR)/web/download.h $(SRCDIR)/web/download.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/web/download.cpp -o $(BUILDDIR)/download.o
 
-$(BUILDDIR)/urls.o: $(SRCDIR)/web/urls.h $(SRCDIR)/web/urls.cpp
-	$(CC) $(CFLAGS) $(SRCDIR)/web/urls.cpp -o $(BUILDDIR)/urls.o
-
 $(BUILDDIR)/field.o: $(SRCDIR)/tile/field.h $(SRCDIR)/tile/field.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/tile/field.cpp -o $(BUILDDIR)/field.o
 
@@ -68,6 +65,9 @@ $(BUILDDIR)/raytracing.o: $(SRCDIR)/raytracing/raytracing.h $(SRCDIR)/raytracing
 
 $(BUILDDIR)/result_output.o: $(SRCDIR)/raytracing/result_output.h $(SRCDIR)/raytracing/result_output.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/raytracing/result_output.cpp -o $(BUILDDIR)/result_output.o
+
+$(BUILDDIR)/global_config.o: $(SRCDIR)/config/global_config.h $(SRCDIR)/config/global_config.cpp
+	$(CC) $(CFLAGS) $(SRCDIR)/config/global_config.cpp -o $(BUILDDIR)/global_config.o
 
 $(BUILDDIR)/main.o: $(SRCDIR)/main.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/main.cpp -o $(BUILDDIR)/main.o

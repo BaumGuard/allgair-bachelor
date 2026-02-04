@@ -7,6 +7,7 @@
 #include "../tile/tile_types.h"
 
 #include <unistd.h>
+#include <cstdlib>
 
 std::string DATA_DIR = "data";
 
@@ -239,6 +240,9 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
 
         vector_tile.fromGmlFile( gml_file );
         vector_tile.createBinaryFile( binary_file_path );
+
+        std::string delete_gml_command = "rm " + raw_file_path;
+        system( delete_gml_command.data() );
 
         //printMessage( NORMAL, "Done\n" );
         return SUCCESS;

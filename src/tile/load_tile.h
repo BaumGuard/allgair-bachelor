@@ -15,7 +15,7 @@ Create an instance of GridTile from a tif file
 Args:
     - grid_tile : Reference to a GridTile object
     - tile_name : Name of the tile (easting_northing)
-    - tile_type : Tile type (DOM20, DOM1, DGM1, DGM20)
+    - tile_type : Tile type (DOM20, DGM1)
 
 Returns:
     - Status code

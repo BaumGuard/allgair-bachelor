@@ -23,21 +23,21 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
             data_dir = DATA_DIR + "/DGM1";
             raw_file_name = tile_name + ".tif";
             break;
-
+/*
         case DGM20:
             data_dir = DATA_DIR + "/DGM1";
             raw_file_name = tile_name + ".tif";
             break;
-
+*/
         case DOM20:
             data_dir = DATA_DIR + "/DOM20";
             raw_file_name = "32" + tile_name + "_20_DOM.tif";
             break;
-
+/*
         case DOM1:
             data_dir = DATA_DIR + "/DOM20";
             raw_file_name = "32" + tile_name + "_20_DOM.tif";
-            break;
+            break;*/
     }
 
     std::string raw_file_path = data_dir + "/" + raw_file_name;
@@ -60,7 +60,7 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
                 geotiff.readGeoTiffFile( raw_file_path, DGM1 );
                 grid_tile.fromGeoTiffFile( geotiff );
                 break;
-
+/*
             case DGM20:
                 geotiff.readGeoTiffFile( raw_file_path, DGM1 );
                 grid_tile.fromGeoTiffFile( geotiff );
@@ -69,12 +69,12 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
                 // 20 cm resolution
                 grid_tile.resampleTile( 5.0 );
                 break;
-
+*/
             case DOM20:
                 geotiff.readGeoTiffFile( raw_file_path, DOM20 );
                 grid_tile.fromGeoTiffFile( geotiff );
                 break;
-
+/*
             case DOM1:
                 geotiff.readGeoTiffFile( raw_file_path, DOM20 );
                 grid_tile.fromGeoTiffFile( geotiff );
@@ -83,6 +83,7 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
                 // 1 m resolution
                 grid_tile.resampleTile( 0.2 );
                 break;
+*/
         }
 
         //printMessage( NORMAL, "Found\n" );
@@ -97,18 +98,18 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
         case DGM1:
             url = chosen_url_dgm1 + raw_file_name;
             break;
-
+/*
         case DGM20:
             url = chosen_url_dgm1 + raw_file_name;
             break;
-
+*/
         case DOM20:
             url = chosen_url_dom20 + raw_file_name;
             break;
-
+/*
         case DOM1:
             url = chosen_url_dom20 + raw_file_name;
-            break;
+            break;*/
     }
 
 #if 0
@@ -128,7 +129,7 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
                 geotiff.readGeoTiffFile( raw_file_path, DGM1 );
                 grid_tile.fromGeoTiffFile( geotiff );
                 break;
-
+/*
             case DGM20:
                 geotiff.readGeoTiffFile( raw_file_path, DGM1 );
                 grid_tile.fromGeoTiffFile( geotiff );
@@ -137,12 +138,12 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
                 // 20 cm resolution
                 grid_tile.resampleTile( 5.0 );
                 break;
-
+*/
             case DOM20:
                 geotiff.readGeoTiffFile( raw_file_path, DOM20 );
                 grid_tile.fromGeoTiffFile( geotiff );
                 break;
-
+/*
             case DOM1:
                 geotiff.readGeoTiffFile( raw_file_path, DOM20 );
                 grid_tile.fromGeoTiffFile( geotiff );
@@ -151,6 +152,7 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
                 // 1 m resolution
                 grid_tile.resampleTile( 0.2 );
                 break;
+*/
         }
 
 

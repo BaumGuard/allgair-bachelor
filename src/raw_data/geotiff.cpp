@@ -23,8 +23,8 @@ union sample {
 int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
 
     if (
-        tile_type != DGM1  && tile_type != DGM20 &&
-        tile_type != DOM20 && tile_type != DOM1
+        tile_type != DGM1  && /*tile_type != DGM20 &&*/
+        tile_type != DOM20 /*&& tile_type != DOM1*/
     ) {
         return INVALID_TILE_TYPE;
     }
@@ -58,7 +58,7 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
 
     // In case of a DGM1 GeoTIFF file, the data is presented in lines
     // from top to bottom
-    if ( tile_type == DGM1 || tile_type == DGM20 ) {
+    if ( tile_type == DGM1/* || tile_type == DGM20*/ ) {
         buf_size = TIFFScanlineSize(tiff);
         buf = new uint8_t [buf_size];
 
@@ -82,7 +82,7 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
 
     // In case of a DOM20 GeoTIFF file, the data is presented as a grid
     // of tiles
-    if ( tile_type == DOM20 || tile_type == DOM1 ) {
+    if ( tile_type == DOM20/* || tile_type == DOM1*/ ) {
         uint32_t tiff_tile_width;
         TIFFGetField( tiff, TIFFTAG_TILEWIDTH, &tiff_tile_width );
 

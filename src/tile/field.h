@@ -35,7 +35,7 @@ private:
 
     Args:
      - tile_name : Name of the tile (easting_northing)
-     - tile_type : Tile type (DGM1, DGM20, DOM20, DOM1, LOD2)
+     - tile_type : Tile type (DGM1, DOM20, LOD2)
 
     Returns:
      - Tile with name tile_name already loaded?
@@ -132,7 +132,7 @@ public:
      - ground_count           : Pointer to a variable to save the number in how often the
                                 ray is below the ground taking ground_level_threshold into
                                 account
-     - tile_type              : Tile type (DGM1, DGM20, DOM20, DOM1)
+     - tile_type              : Tile type (DGM, DOM)
      - cancel_on_ground       : Stop the algorithm when the ray has hit the ground
 
     Returns:

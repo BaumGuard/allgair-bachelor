@@ -24,7 +24,7 @@ public:
 
     Args:
      - file_path : File path to the GeoTIFF file
-     - tile_type : Tile type (DGM1, DGM20, DOM20, DOM1)
+     - tile_type : Tile type (DGM1, DOM20)
 
     Returns:
      - Status code

@@ -5,6 +5,7 @@
 #include "../geometry/plane.h"
 #include "fresnel_zone.h"
 #include "../raytracing/selection_methods.h"
+#include "../config/global_config.h"
 
 #include <pthread.h>
 
@@ -58,7 +59,6 @@ Polygon getPolygonWithMaxArea ( std::vector<Polygon>& polygons ) {
 
 
 pthread_mutex_t selected_polygons_mutex;
-int n_threads;
 double part_size;
 std::vector<Polygon> polygons;
 std::vector<Polygon> global_selected_polygons;
@@ -69,8 +69,8 @@ void* Thread_precalculate ( void* arg ) {
     int thread_nr = *(int*) arg;
 
     uint
-        start_idx = (uint)( (thread_nr-1) * part_size ),
-        end_idx   = (uint)( thread_nr * part_size );
+        start_idx = (uint)( thread_nr * part_size ),
+        end_idx   = (uint)( (thread_nr+1) * part_size );
 
     for ( uint i = start_idx; i < end_idx; i++ ) {
         // Calculate the center point (centroid) of the current polygon
@@ -122,13 +122,13 @@ void* Thread_precalculate ( void* arg ) {
         Vector reflected_center_point;
         Line reflected_center_ray;
 
-        polygon_base_plane.reflectLine( center_ray, reflected_center_ray );
-        destination_plane.lineIntersection( reflected_center_ray, reflected_center_point );
+        //polygon_base_plane.reflectLine( center_ray, reflected_center_ray );
+        //destination_plane.lineIntersection( reflected_center_ray, reflected_center_point );
 
         // If the intersection with the destination plane of the reflected center ray
         // is inside the reflected polygon add it to the list of the selected polygons
         if (
-            reflected_polygon.isPointInPolygon( reflected_center_point )/* &&
+            reflected_polygon.isPointInPolygon( _end_point )/* &&
             !isPolygonInList(selected_polygons, polygons[i])*/
         ) {
             pthread_mutex_lock( &selected_polygons_mutex );
@@ -146,7 +146,7 @@ int precalculate (
     std::vector<Polygon>& selected_polygons,
     Vector& start_point, Vector& end_point,
     int select_method,
-    int fresnel_zone, double freq, int n_threads
+    int fresnel_zone, double freq
 ) {
     Polygon ground_area = fresnelZone( start_point, end_point, fresnel_zone, 868.0e6, 16 );
     getPolygonsInGroundArea( polygons, ground_area );
@@ -154,20 +154,19 @@ int precalculate (
     _start_point = start_point;
     _end_point = end_point;
 
-    part_size = (double)polygons.size() / (double)n_threads;
-
+    part_size = (double)polygons.size() / (double)MAX_THREADS;
 
     pthread_mutex_init( &selected_polygons_mutex, NULL );
 
-    int* thread_idx = new int [n_threads];
+    int* thread_idx = new int [MAX_THREADS];
 
-    pthread_t* precalc_threads = new pthread_t [n_threads];
-    for ( int i = 0; i < n_threads; i++ ) {
+    pthread_t* precalc_threads = new pthread_t [MAX_THREADS];
+    for ( int i = 0; i < MAX_THREADS; i++ ) {
         thread_idx[i] = i;
         pthread_create( &precalc_threads[i], NULL, Thread_precalculate, (void*)&thread_idx[i] );
     }
 
-    for ( int i = 0; i < n_threads; i++ ) {
+    for ( int i = 0; i < MAX_THREADS; i++ ) {
         pthread_join( precalc_threads[i], NULL );
     }
 

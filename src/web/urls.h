@@ -19,11 +19,4 @@
 #define URL_LOD2_BAVARIA "https://download1.bayernwolke.de/a/lod2/citygml/\0"
 
 
-
-extern std::string
-    chosen_url_dgm1,
-    chosen_url_dom20,
-    chosen_url_lod2;
-
-
 #endif

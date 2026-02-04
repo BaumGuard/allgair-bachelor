@@ -40,8 +40,7 @@ int precalculate (
     Vector& end_point,
     int select_method,
     int fresnel_zone = 2,
-    double freq = 868.0e6,
-    int threads = 10
+    double freq = 868.0e6
 );
 
 #endif

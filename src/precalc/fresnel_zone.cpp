@@ -7,13 +7,12 @@
 #include "../raw_data/gmlfile.h"
 #include "../tile/vector_tile.h"
 #include "../tile/load_tile.h"
+#include "../config/global_config.h"
 
 #include <cmath>
 #include <pthread.h>
 
 #define LIGHT_SPEED 300000000.0
-
-int MAX_THREADS;
 
 /*---------------------------------------------------------------*/
 
@@ -217,8 +216,7 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
 
 int getPolygonsInGroundArea (
     std::vector<Polygon>& polygons,
-    Polygon& ground_area,
-    int n_threads
+    Polygon& ground_area
 ) {
     std::vector<std::string> tile_names = tilesInGroundArea( ground_area );
 
@@ -230,7 +228,8 @@ int getPolygonsInGroundArea (
     polygon_list = &polygons;
     ground_area_global = &ground_area;
     pthread_mutex_init( &polygon_list_mutex, NULL );
-    MAX_THREADS = n_threads;
+
+    int n_threads;
 
     for ( int i = 0; i < n_thread_blocks; i++ ) {
         if ( n_tiles / MAX_THREADS > 0 ) {
@@ -239,7 +238,6 @@ int getPolygonsInGroundArea (
         else {
             n_threads = n_tiles;
         }
-
 
         pthread_t* threads = new pthread_t [n_threads];
 

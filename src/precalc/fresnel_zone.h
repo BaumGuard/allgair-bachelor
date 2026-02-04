@@ -60,8 +60,7 @@ Returns:
 */
 int getPolygonsInGroundArea (
     std::vector<Polygon>& polygons,
-    Polygon& ground_area,
-    int n_threads = 10
+    Polygon& ground_area
 );
 
 #endif

@@ -9,7 +9,7 @@ int createResultFile_WithReflection (
     Vector& reflection_point,
     Polygon& reflecting_polygon,
     float distance,
-    uint vegetation_count, uint ground_count,
+    uint ground_count, uint vegetation_count, uint infrastructure_count,
     uint selection_method,
     uint fresnel_zone
 ) {
@@ -66,8 +66,9 @@ int createResultFile_WithReflection (
     }
 
     fprintf( result_file, "\t\"counters\": {\n" );
+    fprintf( result_file, "\t\t\"ground\": %d,\n", ground_count );
     fprintf( result_file, "\t\t\"vegetation\": %d,\n", vegetation_count );
-    fprintf( result_file, "\t\t\"ground\": %d\n", ground_count );
+    fprintf( result_file, "\t\t\"infrastructure\" : %d\n", infrastructure_count );
     fprintf( result_file, "\t}\n" );
 
     fprintf( result_file, "}" );
@@ -82,7 +83,7 @@ int createResultFile_WithReflection (
 int createResultFile_Direct (
     Vector& start_point, Vector& end_point,
     float distance,
-    uint vegetation_count, uint ground_count
+    uint ground_count, uint vegetation_count, uint infrastructure_count
 ) {
     time_t rawtime;
     time( &rawtime );
@@ -119,8 +120,9 @@ int createResultFile_Direct (
 
 
     fprintf( result_file, "\t\"counters\": {\n" );
+    fprintf( result_file, "\t\t\"ground\": %d,\n", ground_count );
     fprintf( result_file, "\t\t\"vegetation\": %d,\n", vegetation_count );
-    fprintf( result_file, "\t\t\"ground\": %d\n", ground_count );
+    fprintf( result_file, "\t\t\"infrastructure\": %d\n", infrastructure_count );
     fprintf( result_file, "\t}\n" );
 
     fprintf( result_file, "}" );

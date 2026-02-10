@@ -1,0 +1,3 @@
+/home/jonas/allgair-bachelor/python/CMakeFiles/raytracing.dir
+/home/jonas/allgair-bachelor/python/CMakeFiles/edit_cache.dir
+/home/jonas/allgair-bachelor/python/CMakeFiles/rebuild_cache.dir

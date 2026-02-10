@@ -5,10 +5,12 @@
 #include "vector_tile.h"
 #include "tile_types.h"
 #include "../geometry/vector.h"
+#include "../config/global_config.h"
 
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <pthread.h>
 
 
 /*
@@ -22,10 +24,11 @@ class Field {
 
 private:
     std::unordered_map<std::string, GridTile> grid_tiles_dgm;
-    //std::unordered_map<std::string, GridTile> grid_tiles_dgm20;
     std::unordered_map<std::string, GridTile> grid_tiles_dom;
-    //std::unordered_map<std::string, GridTile> grid_tiles_dom1;
+    std::unordered_map<std::string, GridTile> grid_tiles_dom_masked;
     //std::unordered_map<std::string, VectorTile> vector_tiles_lod2;
+
+    pthread_mutex_t dgm_mutex, dom_mutex, dom_masked_mutex;
 
     double grid_resolution;
 
@@ -149,7 +152,8 @@ public:
         float ground_level_threshold,
         uint* ground_count,
         int tile_type,
-        bool cancel_on_ground = false
+        bool cancel_on_ground = false,
+        int n_threads = MAX_THREADS
     );
 
     friend void* Thread_bresenhamPseudo3D ( void* arg );

@@ -9,12 +9,19 @@
 #include <unistd.h>
 #include <iostream>
 #include <cmath>
+#include <gdal.h>
 
 const std::string DATA_DIR = "data";
 
 
 Field::Field ( double grid_resolution ) {
     this->grid_resolution = grid_resolution;
+
+    pthread_mutex_init( &dgm_mutex, NULL );
+    pthread_mutex_init( &dom_mutex, NULL );
+    pthread_mutex_init( &dom_masked_mutex, NULL );
+
+    GDALAllRegister();
 }
 
 /*---------------------------------------------------------------*/
@@ -24,27 +31,10 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
     VectorTile vector_tile;
 
     int status;
-    if (
-        tile_type == DOM || /*tile_type == DOM1 ||*/
-        tile_type == DGM  /*|| tile_type == DGM20*/
-    ) {
+    if ( tile_type == DGM || tile_type == DOM || tile_type == DOM_MASKED ) {
         double resample_factor;
 
         switch ( tile_type ) {
-            case DOM:
-                status = getGridTile( grid_tile, tile_name, DOM20 );
-                if ( status != SUCCESS ) {
-                    return status;
-                }
-                resample_factor = 1.0 / grid_resolution;
-                grid_tile.resampleTile( resample_factor );
-                grid_tiles_dom.insert( {tile_name, grid_tile} );
-                break;
-            /*
-            case DOM1:
-                grid_tiles_dom1.insert( {tile_name, grid_tile} );
-                break;
-            */
             case DGM:
                 status = getGridTile( grid_tile, tile_name, DGM1 );
                 if ( status != SUCCESS ) {
@@ -53,12 +43,30 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
                 resample_factor = 1.0 / grid_resolution;
                 grid_tile.resampleTile( resample_factor );
                 grid_tiles_dgm.insert( {tile_name, grid_tile} );
+
                 break;
-            /*
-            case DGM20:
-                grid_tiles_dgm20.insert( {tile_name, grid_tile} );
+
+            case DOM:
+                status = getGridTile( grid_tile, tile_name, DOM20 );
+                if ( status != SUCCESS ) {
+                    return status;
+                }
+                resample_factor = 0.2 / grid_resolution;
+                grid_tile.resampleTile( resample_factor );
+                grid_tiles_dom.insert( {tile_name, grid_tile} );
+
                 break;
-            */
+
+            case DOM_MASKED:
+                status = getGridTile( grid_tile, tile_name, DOM20_MASKED );
+                if ( status != SUCCESS ) {
+                    return status;
+                }
+                resample_factor = 0.2 / grid_resolution;
+                grid_tile.resampleTile( resample_factor );
+                grid_tiles_dom_masked.insert( {tile_name, grid_tile} );
+
+                break;
         }
 
         return SUCCESS;
@@ -86,19 +94,13 @@ bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
     switch ( tile_type ) {
         case DGM:
             return grid_tiles_dgm.contains( tile_name );
-        /*
-        case DGM20:
-            return grid_tiles_dgm20.contains( tile_name );
-        */
+
         case DOM:
             return grid_tiles_dom.contains( tile_name );
-        /*
-        case DOM1:
-            return grid_tiles_dom1.contains( tile_name );
 
-        case LOD2:
-            return vector_tiles_lod2.contains( tile_name );
-        */
+        case DOM_MASKED:
+            return grid_tiles_dom_masked.contains( tile_name );
+
         default:
             return false;
     }
@@ -179,8 +181,33 @@ double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
 
     std::string tile_name = buildTileName( tile_x, tile_y );
 
-    if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
-        loadTile( tile_name, tile_type );
+    switch ( tile_type ) {
+        case DGM:
+            pthread_mutex_lock( &dgm_mutex );
+            if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
+                loadTile( tile_name, tile_type );
+            }
+            pthread_mutex_unlock( &dgm_mutex );
+
+            break;
+
+        case DOM:
+            pthread_mutex_lock( &dom_mutex );
+            if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
+                loadTile( tile_name, tile_type );
+            }
+            pthread_mutex_unlock( &dom_mutex );
+
+            break;
+
+        case DOM_MASKED:
+            pthread_mutex_lock( &dom_masked_mutex );
+            if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
+                loadTile( tile_name, tile_type );
+            }
+            pthread_mutex_unlock( &dom_masked_mutex );
+
+            break;
     }
 
 
@@ -189,17 +216,13 @@ double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
         case DGM:
             tile = &grid_tiles_dgm[tile_name];
             break;
-        /*
-        case DGM20:
-            tile = &grid_tiles_dgm20[tile_name];
-            break;
 
-        case DOM1:
-            tile = &grid_tiles_dom1[tile_name];
-            break;
-        */
         case DOM:
             tile = &grid_tiles_dom[tile_name];
+            break;
+
+        case DOM_MASKED:
+            tile = &grid_tiles_dom_masked[tile_name];
             break;
     }
 
@@ -308,6 +331,26 @@ std::vector<std::string> Field::tilesOnRay (
 #endif
 /*---------------------------------------------------------------*/
 
+struct Bresenham_Thread_Data {
+    int
+        x_start, x_end,
+        y_start, y_end,
+        z_start, z_end;
+
+    float ground_level_threshold;
+    int tile_type;
+    bool* intersection_found;
+
+    bool cancel_on_ground;
+
+    double grid_resolution;
+
+    int* global_obstacle_count;
+    pthread_mutex_t* obstacle_count_mutex;
+
+    Field* field;
+};
+
 int Field::bresenhamPseudo3D (
     /*Vector& intersection,*/
     Vector& start,
@@ -315,32 +358,14 @@ int Field::bresenhamPseudo3D (
     float ground_level_threshold,
     uint* ground_count,
     int tile_type,
-    bool cancel_on_ground
+    bool cancel_on_ground,
+    int n_threads
 )
 {
-    if (
-        tile_type != DGM && /*tile_type != DGM20 &&*/
-        tile_type != DOM /*&& tile_type != DOM1*/ )
-    {
+    if ( tile_type != DGM && tile_type != DOM && tile_type != DOM_MASKED ) {
         return INVALID_TILE_TYPE;
     }
-/*
-    // Converting latitude/longitude to UTM coordinates
-    double
-        x_start_f, y_start_f,
-        x_end_f, y_end_f;
 
-    LatLonToUTMXY(
-        (double) start.lat, (double) start.lon,
-        32,
-        x_start_f, y_start_f
-    );
-    LatLonToUTMXY(
-        end.lat, end.lon,
-        32,
-        x_end_f, y_end_f
-    );
-*/
     // Cast start and end values to integers
     int
         x_start = (int) ( start.getX() / grid_resolution ),
@@ -350,13 +375,91 @@ int Field::bresenhamPseudo3D (
         y_end   = (int) ( end.getY() / grid_resolution ),
         z_end   = (int) ( round( end.getZ() ) / grid_resolution );
 
-    double utm_x, utm_y;
+    // Distances between the start and end coordinate
+    int
+        dx = abs( x_end - x_start ),
+        dy = abs( y_end - y_start ),
+        dz = abs( z_end - z_start );
+
+
+    double
+        x_step = (double)dx / (double)n_threads,
+        y_step = (double)dy / (double)n_threads,
+        z_step = (double)dz / (double)n_threads;
+
+    double x_start_f = 0.0, y_start_f = 0.0, z_start_f = 0.0;
+
+    pthread_t* threads = new pthread_t [n_threads];
+    struct Bresenham_Thread_Data* data = new Bresenham_Thread_Data [n_threads];
+
+    pthread_mutex_t obstacle_count_mutex;
+    pthread_mutex_init( &obstacle_count_mutex, NULL );
+    int global_obstacle_count = 0;
+    bool intersection_found = false;
+
+    for ( int i = 0; i < n_threads; i++ ) {
+        data[i].x_start = (int) x_start_f;
+        data[i].y_start = (int) y_start_f;
+        data[i].y_start = (int) z_start_f;
+
+        x_start_f += x_step;
+        y_start_f += y_step;
+        z_start_f += z_step;
+
+        data[i].x_end = (int) x_start_f;
+        data[i].y_end = (int) y_start_f;
+        data[i].z_end = (int) z_start_f;
+
+        data[i].ground_level_threshold = ground_level_threshold;
+        data[i].tile_type = tile_type;
+        data[i].intersection_found = &intersection_found;
+        data[i].cancel_on_ground = cancel_on_ground;
+
+        data[i].grid_resolution = grid_resolution;
+
+        data[i].obstacle_count_mutex = &obstacle_count_mutex;
+        data[i].global_obstacle_count = &global_obstacle_count;
+
+        data[i].field = this;
+
+        pthread_create( &threads[i], NULL, Thread_bresenhamPseudo3D, (void*)&data[i] );
+    }
+
+    for ( int i = 0; i < n_threads; i++ ) {
+        pthread_join( threads[i], NULL );
+    }
+
+
+    if ( ground_count != nullptr ) {
+        *ground_count = global_obstacle_count;
+    }
+
+    if ( intersection_found ) {
+        return INTERSECTION_FOUND;
+    }
+    return NO_INTERSECTION_FOUND;
+} /* bresenhamPseudo3D() */
+
+
+void* Thread_bresenhamPseudo3D ( void* arg ) {
+    Bresenham_Thread_Data* data = (Bresenham_Thread_Data*) arg;
+
+    // Cast start and end values to integers
+    int
+        x_start = data->x_start,
+        y_start = data->y_start,
+        z_start = data->z_start,
+        x_end   = data->x_end,
+        y_end   = data->y_end,
+        z_end   = data->z_end;
 
     // Distances between the start and end coordinate
     int
         dx = abs( x_end - x_start ),
         dy = abs( y_end - y_start ),
         dz = abs( z_end - z_start );
+
+    double utm_x, utm_y;
 
     // Axes
     enum IterationAxes {
@@ -438,15 +541,17 @@ int Field::bresenhamPseudo3D (
 
     int it = start_it;
 
-    bool intersection_found_yet = false;
-
     // Counting variable to count how often the ray is below ground
     // level taking the ground level threshold into account
-    uint internal_ground_count = 0;
+    uint internal_obstacle_count = 0;
 
     // Find an intersection between the ray and the ground
     // using Bresenham's algorithm modified for 3D
     while ( it != end_it ) {
+        if ( data->cancel_on_ground && data->intersection_found ) {
+            break;
+        }
+
         e1 -= it1;
         e2 -= it2;
 
@@ -501,71 +606,33 @@ int Field::bresenhamPseudo3D (
         } /* switch ( axis ) */
 
 
-        utm_x = x * grid_resolution;
-        utm_y = y * grid_resolution;
+        utm_x = x * data->grid_resolution;
+        utm_y = y * data->grid_resolution;
 
         // Get the altitude at the current x/y position
         float altitude_at_xy =
-            getAltitudeAtXY(utm_x, utm_y, tile_type) - ground_level_threshold;
+            data->field->getAltitudeAtXY(utm_x, utm_y, data->tile_type) - data->ground_level_threshold;
 
         // If the value of z is equal or smaller than the altitude
         // at x/y they ray has hit the ground
         if ( (float)z <= altitude_at_xy ) {
-            internal_ground_count++;
+            internal_obstacle_count++;
 
-            if ( !intersection_found_yet ) {
-                /*
-                double lat_final, lon_final;
+            if ( !*(data->intersection_found) ) {
+                pthread_mutex_lock( data->obstacle_count_mutex );
+                *(data->intersection_found) = true;
+                pthread_mutex_unlock( data->obstacle_count_mutex );
 
-                UTMXYToLatLon(
-                    (double)x, (double)y,
-                    32, false,
-                    lat_final, lon_final
-                );
-
-                // Convert the intersection point back to latitude/longitude
-                intersection.lat = (double) RAD_TO_DEG( lat_final );
-                intersection.lon = (double) RAD_TO_DEG( lon_final );
-                intersection.altitude = z;
-                */
-
-                /*
-                intersection.setX( x );
-                intersection.setY( y );
-                intersection.setZ( z );
-                */
-
-                if ( cancel_on_ground ) {
-                    if ( ground_count != nullptr ) {
-                        *ground_count = internal_ground_count;
-                    }
-                    return INTERSECTION_FOUND;
+                if ( data->cancel_on_ground ) {
+                    break;
                 }
-
-                intersection_found_yet = true;
             }
         } /* if ( z <= altitude_at_xy ) */
     } /* while ( it != end_it ) */
 
-    if ( ground_count != nullptr ) {
-        *ground_count = internal_ground_count;
-    }
-
-    if ( intersection_found_yet ) {
-        return INTERSECTION_FOUND;
-    }
-    return NO_INTERSECTION_FOUND;
-} /* bresenhamPseudo3D() */
-
-
-void* Thread_bresenhamPseudo3D ( void* arg ) {
-    Bresenham_Data* data = (Bresenham_Data*) arg;
-
-    data->field.bresenhamPseudo3D(
-        data->start, data->end,
-        data->ground_level_threshold, data->ground_count,
-        data->tile_type, data->cancel_on_ground
-    );
+    pthread_mutex_lock( data->obstacle_count_mutex );
+    *(data->global_obstacle_count) += internal_obstacle_count;
+    pthread_mutex_unlock( data->obstacle_count_mutex );
 
     return NULL;
 }

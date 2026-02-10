@@ -2,12 +2,14 @@
 
 #include "../status_codes.h"
 #include "../utils.h"
+#include "../config/global_config.h"
 
 #include <cstdint>
 #include <iostream>
 #include <cstring>
 #include <tiffio.h>
 #include <cmath>
+#include <pthread.h>
 
 /*---------------------------------------------------------------*/
 
@@ -16,6 +18,8 @@ GridTile::GridTile () {}
 GridTile::GridTile( const GridTile& old_gridtile ) {
     width = old_gridtile.getTileWidth();
     tile_name = old_gridtile.getTileName();
+
+    tile_origin = old_gridtile.getOrigin();
 
     uint len = width * width;
     tile = new float [len];
@@ -44,6 +48,9 @@ void GridTile::fromGeoTiffFile ( GeoTiffFile& geotiff ) {
     this->width = geotiff.getTileWidth();
     float* values = geotiff.getData();
     tile_name = geotiff.getTileName();
+
+    tile_origin.setX( (double)geotiff.getUtmOriginX() );
+    tile_origin.setY( (double)geotiff.getUtmOriginY() );
 
     int len = width * width;
 
@@ -139,8 +146,7 @@ union output_data {
 int GridTile::getValue ( uint x, uint y, float& value ) const {
     if ( x >= width || y >= width ) {
         return COORDINATES_OUTSIDE_TILE;
-    }
-
+    };
     value = tile[y*width+x];
 
     return SUCCESS;
@@ -158,9 +164,127 @@ int GridTile::setValue ( uint x, uint y, float value ) {
 
 /*---------------------------------------------------------------*/
 
+Vector GridTile::getOrigin () const {
+    return tile_origin;
+} /* getOrigin() */
+
+/*---------------------------------------------------------------*/
+
 uint GridTile::getTileWidth () const {
     return width;
 } /* getGridTileWidth() */
+
+/*---------------------------------------------------------------*/
+
+
+struct indices {
+    uint start;
+    uint end;
+};
+
+GridTile* global_grid_tile;
+VectorTile* global_vector_tile;
+
+void* Thread_maskTile ( void* arg ) {
+    struct indices* thread_data = (struct indices*) arg;
+
+    std::vector<Polygon>& polygon_list = global_vector_tile->getPolygons();
+
+    Vector tile_origin = global_grid_tile->getOrigin();
+
+    for ( uint i = thread_data->start; i < thread_data->end; i++ ) {
+        if ( polygon_list[i].getSurfaceType() != GROUND ) {
+            continue;
+        }
+
+        double
+            min_utmx = polygon_list[i].getPoints()[0].getX(),
+            max_utmx = polygon_list[i].getPoints()[0].getX(),
+            min_utmy = polygon_list[i].getPoints()[0].getY(),
+            max_utmy = polygon_list[i].getPoints()[0].getY();
+
+        uint len_point_list = polygon_list[i].getPoints().size();
+        for ( uint j = 1; j < len_point_list; j++ ) {
+            if ( polygon_list[i].getPoints()[j].getX() < min_utmx ) {
+                min_utmx = polygon_list[i].getPoints()[j].getX();
+            }
+            if ( polygon_list[i].getPoints()[j].getX() > max_utmx ) {
+                max_utmx = polygon_list[i].getPoints()[j].getX();
+            }
+            if ( polygon_list[i].getPoints()[j].getY() < min_utmy ) {
+                min_utmy = polygon_list[i].getPoints()[j].getY();
+            }
+            if ( polygon_list[i].getPoints()[j].getY() > max_utmy ) {
+                max_utmy = polygon_list[i].getPoints()[j].getY();
+            }
+        }
+
+
+        double
+            start_x = min_utmx - fmod( min_utmx, 0.2 ),
+            end_x   = max_utmx - fmod( max_utmx, 0.2 ),
+            start_y = min_utmy - fmod( min_utmy, 0.2 ),
+            end_y   = max_utmy - fmod( max_utmy, 0.2 );
+
+        Vector test_point( 0.0, 0.0, 0.0 );
+
+        for ( double y = start_y; y <= end_y; y += 0.2 ) {
+            for ( double x = start_x; x <= end_x; x += 0.2 ) {
+                test_point.setX( x );
+                test_point.setY( y );
+
+                if ( polygon_list[i].isPointInPolygon(test_point, true) ) {
+                    Vector coord_in_tile = ( test_point - tile_origin ) / 0.2;
+
+                    int
+                        tile_x = (uint) coord_in_tile.getX(),
+                        tile_y = (uint) coord_in_tile.getY();
+
+                    if ( tile_x < 0.0 || tile_y < 0.0 ) {
+                        continue;
+                    }
+
+                    global_grid_tile->setValue( tile_x, tile_y, 0.0 );
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+
+
+void GridTile::maskTile ( VectorTile& vector_tile, int n_threads ) {
+    if ( n_threads <= 1 ) {
+        n_threads = MAX_THREADS;
+    }
+
+    global_grid_tile = this;
+    global_vector_tile = &vector_tile;
+    uint len_polygon_list = vector_tile.getPolygons().size();
+
+    double part_size = (double) len_polygon_list / (double) n_threads;
+    double start = 0.0;
+
+    struct indices* data = new struct indices [n_threads];
+    pthread_t* threads = new pthread_t [n_threads];
+
+    for ( int i = 0; i < n_threads; i++ ) {
+        data[i].start = start;
+        start += part_size;
+        data[i].end = start;
+
+        pthread_create( &threads[i], NULL, Thread_maskTile, (void*)&data[i] );
+    }
+
+    for ( int i = 0; i < n_threads; i++ ) {
+        pthread_join( threads[i], NULL );
+    }
+
+    delete[] data;
+    delete[] threads;
+}
+
 
 /*---------------------------------------------------------------*/
 #if 0

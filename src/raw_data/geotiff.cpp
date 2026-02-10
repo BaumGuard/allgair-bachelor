@@ -22,10 +22,7 @@ union sample {
 
 int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
 
-    if (
-        tile_type != DGM1  && /*tile_type != DGM20 &&*/
-        tile_type != DOM20 /*&& tile_type != DOM1*/
-    ) {
+    if ( tile_type != DGM1  && tile_type != DOM20 && tile_type != DOM20_MASKED ) {
         return INVALID_TILE_TYPE;
     }
 
@@ -33,9 +30,6 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
     if ( tiff == NULL ) {
         return FILE_NOT_FOUND;
     }
-
-    std::string file_name = extractFilename( file_path );
-    //tile_name = removeFileEnding( file_name );
 
     uint32_t
         image_width,
@@ -58,7 +52,7 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
 
     // In case of a DGM1 GeoTIFF file, the data is presented in lines
     // from top to bottom
-    if ( tile_type == DGM1/* || tile_type == DGM20*/ ) {
+    if ( tile_type == DGM1 || tile_type == DOM20_MASKED ) {
         buf_size = TIFFScanlineSize(tiff);
         buf = new uint8_t [buf_size];
 
@@ -82,12 +76,9 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
 
     // In case of a DOM20 GeoTIFF file, the data is presented as a grid
     // of tiles
-    if ( tile_type == DOM20/* || tile_type == DOM1*/ ) {
+    else if ( tile_type == DOM20 ) {
         uint32_t tiff_tile_width;
         TIFFGetField( tiff, TIFFTAG_TILEWIDTH, &tiff_tile_width );
-
-        uint32_t tiles_per_line =
-            (uint32_t) ceil( (float)image_width / (float)tiff_tile_width );
 
         buf_size = tiff_tile_width * tiff_tile_width * sizeof(float);
         buf = new uint8_t [buf_size];
@@ -98,14 +89,14 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
             y_grid,
             index;
 
-        for ( size_t y = 0; y < tiles_per_line; y++ ) {
-            for ( size_t x = 0; x < tiles_per_line; x++ ) {
+        for ( size_t y = 0; y < image_width; y += tiff_tile_width ) {
+            for ( size_t x = 0; x < image_width; x += tiff_tile_width ) {
                 TIFFReadTile( tiff, buf, x, y, 0, 0 );
 
                 for ( size_t i = 0; i < tiff_tile_width; i++ ) {
                     for ( size_t j = 0; j < tiff_tile_width; j++ ) {
-                        x_grid = x * tiff_tile_width + j;
-                        y_grid = y * tiff_tile_width + i;
+                        x_grid = x + j;
+                        y_grid = y + i;
 
                         if ( x_grid >= image_width || y_grid >= image_width ) {
                             break;
@@ -129,27 +120,41 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
     TIFFClose( tiff );
     delete[] buf;
 
+    if ( tile_type != DOM20_MASKED ) {
+        GDALDatasetH hDataset = GDALOpen( file_path.data(), GA_ReadOnly );
+        if ( hDataset == NULL ) {
+            GDALClose( hDataset );
+            return FILE_NOT_FOUND;
+        }
 
-    GDALAllRegister();
+        double gt[6];
+        if ( GDALGetGeoTransform(hDataset, gt) != CE_None ) {
+            GDALClose( hDataset );
+            return FILE_CORRUPT;
+        }
 
-    GDALDatasetH hDataset = GDALOpen( file_path.data(), GA_ReadOnly );
-    if ( hDataset == NULL ) {
-        return FILE_NOT_FOUND;
-    }
+        int height = GDALGetRasterYSize( hDataset );
 
-    double gt[6];
-    if ( GDALGetGeoTransform(hDataset, gt) != CE_None ) {
         GDALClose( hDataset );
-        return FILE_CORRUPT;
+
+        utm_origin_x = (uint)( gt[0] + 0 * gt[1] + height * gt[2] );
+        utm_origin_y = (uint)( gt[3] + 0 * gt[4] + height * gt[5] );
+        tile_width = height;
+
+        tile_name = buildTileName( utm_origin_x/1000, utm_origin_y/1000 );
     }
+    else {
+        tile_name = extractFilename( file_path );
+        tile_name = removeFileEnding( tile_name );
+        tile_name = tile_name.substr( 2, 8 );
 
-    int height = GDALGetRasterYSize( hDataset );
+        std::string* tile_name_parts = splitString( tile_name, '_' );
 
-    utm_origin_x = (uint)( gt[0] + 0 * gt[1] + height * gt[2] );
-    utm_origin_y = (uint)( gt[3] + 0 * gt[4] + height * gt[5] );
-    tile_width = height;
+        utm_origin_x = std::stoi( tile_name_parts[0] ) * 1000;
+        utm_origin_y = std::stoi( tile_name_parts[1] ) * 1000;
 
-    tile_name = buildTileName( utm_origin_x/1000, utm_origin_y/1000 );
+        tile_width = 5000;
+    }
 
     data_memalloc = true;
     return SUCCESS;

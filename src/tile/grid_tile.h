@@ -164,6 +164,15 @@ public:
     */
     int setValue ( uint x, uint y, float value );
 
+    /*
+    Return the tile origin (lower left corner) as a Vector object
+    */
+    Vector getOrigin() const;
+
+
+
+    void maskTile ( VectorTile& vector_tile, int n_threads = 12 );
+
 
     /*
     Create a tif file from the tile
@@ -187,6 +196,8 @@ private:
     uint width;
 
     std::string tile_name;
+
+    Vector tile_origin;
 
 #if 0
     void getBlock (

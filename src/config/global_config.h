@@ -12,4 +12,7 @@ extern std::string
 // Maximum number of threads
 extern int MAX_THREADS;
 
+// Resolution of the grid tiles in meters
+extern double GRID_RESOLUTION;
+
 #endif

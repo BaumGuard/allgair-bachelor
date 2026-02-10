@@ -8,3 +8,5 @@ std::string
     chosen_url_lod2  = URL_LOD2_BAVARIA;
 
 int MAX_THREADS;
+
+double GRID_RESOLUTION;

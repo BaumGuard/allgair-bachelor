@@ -6,6 +6,7 @@
 #include "fresnel_zone.h"
 #include "../raytracing/selection_methods.h"
 #include "../config/global_config.h"
+#include "../raw_data/surface.h"
 
 #include <pthread.h>
 
@@ -73,7 +74,12 @@ void* Thread_precalculate ( void* arg ) {
         end_idx   = (uint)( (thread_nr+1) * part_size );
 
     for ( uint i = start_idx; i < end_idx; i++ ) {
-        // Calculate the center point (centroid) of the current polygon
+        // Ignore ground surface (only use walls and roofs)
+        if ( polygons[i].getSurfaceType() == GROUND ) {
+            continue;
+        }
+
+        // Get the center point (centroid) of the current polygon
         Vector centroid = polygons[i].getCentroid();
 
         // Create a line between the polygon's centroid and the end point
@@ -148,6 +154,9 @@ int precalculate (
     int select_method,
     int fresnel_zone, double freq
 ) {
+    polygons.clear();
+    global_selected_polygons.clear();
+
     Polygon ground_area = fresnelZone( start_point, end_point, fresnel_zone, 868.0e6, 16 );
     getPolygonsInGroundArea( polygons, ground_area );
 

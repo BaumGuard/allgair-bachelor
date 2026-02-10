@@ -117,16 +117,16 @@ std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {
     max_utmx -= fmod( max_utmx, 2000.0 );
     min_utmy -= fmod( min_utmy, 2000.0 );
     max_utmy -= fmod( max_utmy, 2000.0 );
-
+    /*
     Vector
         coord_lower_left,
         coord_lower_right,
         coord_upper_left,
         coord_upper_right;
-
+    */
     std::vector<std::string> tiles_in_ground_area;
 
-
+    /*
     uint utmx_km, utmy_km;
 
     for ( double utmy = min_utmy; utmy <= max_utmy; utmy += 2000.0 ) {
@@ -165,7 +165,21 @@ std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {
             tiles_in_ground_area.push_back( tile_name );
         }
     }
+    */
 
+    uint
+        min_utmx_km = (uint) min_utmx / 1000,
+        max_utmx_km = (uint) max_utmx / 1000,
+        min_utmy_km = (uint) min_utmy / 1000,
+        max_utmy_km = (uint) max_utmy / 1000;
+
+
+    for ( uint y = min_utmy_km; y <= max_utmy_km; y += 2 ) {
+        for ( uint x = min_utmx_km; x <= max_utmx_km; x += 2 ) {
+            std::string tile_name = buildTileName( x, y );
+            tiles_in_ground_area.push_back( tile_name );
+        }
+    }
     return tiles_in_ground_area;
 } /* tilesInGroundArea() */
 

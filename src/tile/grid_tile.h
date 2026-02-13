@@ -3,13 +3,8 @@
 
 #include "vector_tile.h"
 #include "../raw_data/geotiff.h"
+#include "../config/global_config.h"
 
-#if 0
-/* Downsample methods to pass to the function resampleTile */
-float max ( float* block, uint width );
-float min ( float* block, uint width );
-float avg ( float* block, uint width );
-#endif
 
 
 enum DownsamplingMethods {
@@ -170,8 +165,16 @@ public:
     Vector getOrigin() const;
 
 
+    /*
+    Mask DOM20 tile with LOD2 building model to remove buildings
+    (infrastructure) from the DOM20 surface model
 
-    void maskTile ( VectorTile& vector_tile, int n_threads = 12 );
+    Args:
+     - vector_tile : Reference to the LOD2 tile object which is in
+                     the same region as the DOM20 tile
+     - n_threads   : Number of threads to execute simultaneously
+    */
+    void maskTile ( VectorTile& vector_tile, int n_threads = MAX_THREADS );
 
 
     /*

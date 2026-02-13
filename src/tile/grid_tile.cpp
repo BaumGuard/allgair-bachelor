@@ -174,6 +174,7 @@ uint GridTile::getTileWidth () const {
     return width;
 } /* getGridTileWidth() */
 
+
 /*---------------------------------------------------------------*/
 
 
@@ -240,19 +241,22 @@ void* Thread_maskTile ( void* arg ) {
                         tile_x = (uint) coord_in_tile.getX(),
                         tile_y = (uint) coord_in_tile.getY();
 
-                    if ( tile_x < 0.0 || tile_y < 0.0 ) {
+                    if ( tile_x < 0 || tile_y < 0 ) {
                         continue;
                     }
 
-                    global_grid_tile->setValue( tile_x, tile_y, 0.0 );
+                    for ( int y_kernel = tile_y-10; y_kernel <= tile_y+10; y_kernel++ ) {
+                        for ( int x_kernel = tile_x-10; x_kernel <= tile_x+10; x_kernel++ ) {
+                            global_grid_tile->setValue( x_kernel, y_kernel, 0.0 );
+                        }
+                    }
+
                 }
             }
         }
     }
-
     return NULL;
-}
-
+} /* Thread_maskTile() */
 
 void GridTile::maskTile ( VectorTile& vector_tile, int n_threads ) {
     if ( n_threads <= 1 ) {
@@ -284,7 +288,6 @@ void GridTile::maskTile ( VectorTile& vector_tile, int n_threads ) {
     delete[] data;
     delete[] threads;
 }
-
 
 /*---------------------------------------------------------------*/
 #if 0
@@ -362,7 +365,7 @@ float GridTile::block_accumulate (
         default:
             return tile[y_start*width+x_start];
     }
-}
+} /* block_accumulate() */
 
 
 int GridTile::resampleTile ( float factor, int downsampling_method ) {
@@ -458,7 +461,7 @@ int GridTile::resampleTile ( float factor, int downsampling_method ) {
     tile = new_tile;
 
     return SUCCESS;
-}
+} /* resampleTile() */
 
 
 
@@ -635,45 +638,3 @@ int GridTile::createTifFile ( std::string file_path ) {
     TIFFClose(tif);
     return SUCCESS;
 } /* createTifFile() */
-
-/*---------------------------------------------------------------*/
-
-float max ( float* block, uint width ) {
-    int len = width * width;
-
-    float max_value = block[0];
-
-    for ( int i=1; i<len; i++ ) {
-        if ( block[i] > max_value ) {
-            max_value = block[i];
-        }
-    }
-
-    return max_value;
-} /* max() */
-
-float min ( float* block, uint width ) {
-    int len = width * width;
-
-    float min_value = block[0];
-
-    for ( int i=1; i<len; i++ ) {
-        if ( block[i] < min_value ) {
-            min_value = block[i];
-        }
-    }
-
-    return min_value;
-} /* min() */
-
-float avg ( float* block, uint width ) {
-    int len = width * width;
-
-    float sum = 0.0;
-
-    for ( int i=0; i<len; i++ ) {
-        sum += block[i];
-    }
-
-    return sum / (float)len;
-} /* avg() */

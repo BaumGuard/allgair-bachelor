@@ -23,10 +23,11 @@ letting him concentrate on the raytracing
 class Field {
 
 private:
+    // Hashmaps for the tiles
     std::unordered_map<std::string, GridTile> grid_tiles_dgm;
     std::unordered_map<std::string, GridTile> grid_tiles_dom;
     std::unordered_map<std::string, GridTile> grid_tiles_dom_masked;
-    //std::unordered_map<std::string, VectorTile> vector_tiles_lod2;
+    std::unordered_map<std::string, VectorTile> vector_tiles_lod2;
 
     pthread_mutex_t dgm_mutex, dom_mutex, dom_masked_mutex;
 
@@ -119,6 +120,34 @@ private:
     */
     double getAltitudeAtXY ( double x, double y, int tile_type );
 
+
+    /*
+    Find all polygons in the vector tiles that are located within the
+    ground area
+
+    Args:
+    - polygons :    Reference to the list of polygons where the polygons
+                    inside the ground area should be stored in
+    - ground_area : Ground area as a Polygon object
+
+    Returns:
+    - Status code:
+        - SUCCESS
+
+        - TILE_NOT_AVAILABLE
+    */
+    int getPolygonsInGroundArea (
+        std::vector<Polygon>& polygons,
+        Polygon& ground_area
+    );
+
+
+
+    friend void* Thread_bresenhamPseudo3D ( void* arg );
+    friend void* Thread_precalculate ( void* arg );
+    friend void* Thread_getPolygonsInGroundArea ( void* arg );
+
+
 public:
     Field ( double grid_resolution );
     /*
@@ -150,13 +179,49 @@ public:
         Vector& start,
         Vector& end,
         float ground_level_threshold,
-        uint* ground_count,
+        int* ground_count,
         int tile_type,
         bool cancel_on_ground = false,
         int n_threads = MAX_THREADS
     );
 
-    friend void* Thread_bresenhamPseudo3D ( void* arg );
+
+    /*
+    Find all polygons in the Fresnel zone between the start and the end point
+    that satisfy the following condition:
+    For every polygon in the Fresnel zone the algorithm first creates a line
+    between the polygon's centroid and the end point and uses the direction
+    vector of this line and the end point to create a plane perpendicular to
+    the line.
+    The algorithm proceeds by reflecting every corner point of the polygon
+    and the centroid onto the newly created plane.
+    If the reflected centroid is inside the reflected polygon, the algorithm
+    adds the polygon to the list of selected polygons.
+
+    Args:
+    - selected_polygons : Reference to the list to add the selected polygons
+    - start_point       : Start point as UTM coordinates and altitude
+    - end_points        : List of end points as UTM coordinates and altitude
+    - select_method     : Choose which of the polygons should be returned:
+                            - BY_MIN_DISTANCE : The polygon that is closest to
+                                                the starting point
+                            - BY_MAX_AREA     : The polygon with the largest area
+                            - ALL             : All selected polygons
+    - fresnel_zone      : Number of the Fresnel zone (Default: 2)
+    - freq              : Frequency of the signal in Hz
+
+    Returns:
+    - List of polygons that satisfy the condition above
+    */
+    int precalculate (
+        std::vector<Polygon>& selected_polygons,
+        Vector& start_point,
+        Vector& end_point,
+        int select_method,
+        int fresnel_zone = 2,
+        double freq = 868.0e6
+    );
+
 
 #if 0
     /*
@@ -183,13 +248,15 @@ public:
 };
 
 void* Thread_bresenhamPseudo3D ( void* arg );
+void* Thread_precalculate ( void* arg );
+void* Thread_getPolygonsInGroundArea ( void* arg );
 
 typedef struct {
     Field& field;
     Vector& start;
     Vector& end;
     float ground_level_threshold;
-    uint* ground_count;
+    int* ground_count;
     int tile_type;
     bool cancel_on_ground;
 } Bresenham_Data;

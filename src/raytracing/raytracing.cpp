@@ -3,7 +3,6 @@
 #include "../geometry/polygon.h"
 #include "../precalc/precalc.h"
 #include "../tile/tile_types.h"
-#include "result_output.h"
 #include "../config/global_config.h"
 
 #include <unistd.h>
@@ -12,7 +11,21 @@
 #define NUM_CORES sysconf( _SC_NPROCESSORS_ONLN )
 
 
-#if 0
+void createResultFileName ( char* dst_string ) {
+    time_t rawtime;
+    time( &rawtime );
+
+    struct tm *info;
+    info = localtime( &rawtime );
+
+    char filename_timestamp[32];
+    strftime( filename_timestamp, 32, "%Y%m%d_%H%M%S", info );
+
+    snprintf( dst_string, 64, "results/Result_%s.json", filename_timestamp );
+} /* createResultFileName() */
+
+/*---------------------------------------------------------------*/
+
 Raytracer::Raytracer (
     Vector& start_point,
     int select_method,
@@ -42,16 +55,40 @@ Raytracer::Raytracer (
         MAX_THREADS = NUM_CORES;
     }
 
+    createResultFileName( result_file_name );
+    result_file = fopen( result_file_name, "w" );
+
+    fprintf( result_file, "[\n" );
+
     chosen_url_dgm1 = url_dgm1;
     chosen_url_dom20 = url_dom20;
     chosen_url_lod2 = url_lod2;
-}
+} /* Raytracer() */
+
+/*---------------------------------------------------------------*/
+
+Raytracer::~Raytracer () {
+    fclose( result_file );
+
+    fopen( result_file_name, "r+" );
+    fseek( result_file, 0, SEEK_END );
+    long pos = ftell( result_file );
+    fseek( result_file, pos-2, SEEK_SET);
+    fprintf( result_file, "\n]\n" );
+    fclose( result_file );
+
+    delete grid_field;
+} /* ~Raytracer() */
+
+/*---------------------------------------------------------------*/
 
 int Raytracer::raytracingWithReflection ( Vector& end_point ) {
     int status;
 
     std::vector<Polygon> selected_polygons;
-    status = precalculate( selected_polygons, start_point, end_point, select_method, fresnel_zone, freq );
+    status = grid_field->precalculate(
+        selected_polygons, start_point, end_point, select_method, fresnel_zone, freq );
+
     if ( status != SUCCESS ) {
         return status;
     }
@@ -60,170 +97,7 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
     for ( uint i = 0; i < n_polygons; i++ ) {
         Vector reflect_point = selected_polygons[i].getCentroid();
 
-        uint
-            count_dgm_1, count_dgm_2,
-            count_dom_1, count_dom_2,
-            ground_count,
-            veg_count;
-
-        Vector intersection;
-#if 0
-        pthread_t
-            bresenham1_thread,
-            bresenham2_thread,
-            bresenham3_thread,
-            bresenham4_thread;
-
-        Bresenham_Data bresenham1_data = {
-            .field = *grid_field,
-            .start = start_point,
-            .end = reflect_point,
-            .ground_level_threshold = 1.0,
-            .ground_count = &count_dgm_1,
-            .tile_type = DGM
-        };
-        Bresenham_Data bresenham2_data = {
-            .field = *grid_field,
-            .start = start_point,
-            .end = reflect_point,
-            .ground_level_threshold = 1.0,
-            .ground_count = &count_dom_1,
-            .tile_type = DOM
-        };
-        Bresenham_Data bresenham3_data = {
-            .field = *grid_field,
-            .start = reflect_point,
-            .end = end_point,
-            .ground_level_threshold = 1.0,
-            .ground_count = &count_dgm_2,
-            .tile_type = DGM
-        };
-        Bresenham_Data bresenham4_data = {
-            .field = *grid_field,
-            .start = reflect_point,
-            .end = end_point,
-            .ground_level_threshold = 1.0,
-            .ground_count = &count_dom_2,
-            .tile_type = DOM
-        };
-
-        pthread_create( &bresenham1_thread, NULL, Thread_bresenhamPseudo3D, &bresenham1_data );
-        pthread_create( &bresenham2_thread, NULL, Thread_bresenhamPseudo3D, &bresenham2_data );
-        pthread_create( &bresenham3_thread, NULL, Thread_bresenhamPseudo3D, &bresenham3_data );
-        pthread_create( &bresenham4_thread, NULL, Thread_bresenhamPseudo3D, &bresenham4_data );
-
-        pthread_join( bresenham1_thread, NULL );
-        pthread_join( bresenham2_thread, NULL );
-        pthread_join( bresenham3_thread, NULL );
-        pthread_join( bresenham4_thread, NULL );
-
-        /*
-        status = grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dgm_1, DGM );
-        status = grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dom_1, DOM );
-        status = grid_field.bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dgm_2, DGM );
-        status = grid_field.bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dom_2, DOM );
-        */
-        ground_count = count_dgm_1 + count_dgm_2;
-        veg_count    = count_dom_1 + count_dom_2 - ground_count;
-
-        status = createResultFile_WithReflection(
-            start_point, end_point, reflect_point,
-            selected_polygons[i],
-            ( reflect_point - start_point ).length(),
-            veg_count, ground_count,
-            select_method,
-            fresnel_zone
-        );
-#endif
-    }
-
-    return status;
-}
-
-int Raytracer::raytracingDirect ( Vector& end_point, int tile_type ) {
-    uint ground_count;
-
-    int status = grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &ground_count, tile_type );
-
-    createResultFile_Direct(
-        start_point, end_point,
-        ( end_point - start_point ).length(),
-        0, ground_count
-    );
-
-    return status;
-}
-#endif
-
-
-/*
-void initRaytracing () {
-    Vector& start_point,
-    int select_method,
-    double max_point_to_plane_distance,
-    uint fresnel_zone, double freq,
-    double grid_resolution,
-    int max_threads,
-
-    std::string url_dgm1,
-    std::string url_dom20,
-    std::string url_lod2
-} {
-    chosen_url_dgm1  = url_dgm1;
-    chosen_url_dom20 = url_dom20;
-    chosen_url_lod2  = url_lod2;
-
-    GRID_RESOLUTION = grid_resolution;
-
-    if ( max_threads >= 1 ) {
-        MAX_THREADS = max_threads;
-    }
-    else {
-        MAX_THREADS = NUM_CORES;
-    }
-}
-*/
-
-int raytracingWithReflection (
-    Vector& start_point, Vector& end_point,
-    int select_method,
-    double max_point_to_plane_distance,
-    uint fresnel_zone, double freq,
-    double grid_resolution,
-    int max_threads,
-
-    std::string url_dgm1,
-    std::string url_dom20,
-    std::string url_lod2
-) {
-
-    chosen_url_dgm1  = url_dgm1;
-    chosen_url_dom20 = url_dom20;
-    chosen_url_lod2  = url_lod2;
-
-    GRID_RESOLUTION = grid_resolution;
-
-    if ( max_threads >= 1 ) {
-        MAX_THREADS = max_threads;
-    }
-    else {
-        MAX_THREADS = NUM_CORES;
-    }
-
-    int status;
-
-    std::vector<Polygon> selected_polygons;
-    status = precalculate( selected_polygons, start_point, end_point, select_method, fresnel_zone, freq );
-    if ( status != SUCCESS ) {
-        return status;
-    }
-
-
-    uint n_polygons = selected_polygons.size();
-    for ( uint i = 0; i < n_polygons; i++ ) {
-        Vector reflect_point = selected_polygons[i].getCentroid();
-
-        uint
+        int
             count_dgm_1, count_dgm_2,
             count_dom_1, count_dom_2,
             count_dom_masked_1, count_dom_masked_2,
@@ -231,86 +105,24 @@ int raytracingWithReflection (
             vegetation_count,
             infrastructure_count;
 
-        Field grid_field( grid_resolution );
         Vector intersection;
-#if 0
-        pthread_t
-            bresenham1_thread,
-            bresenham2_thread,
-            bresenham3_thread,
-            bresenham4_thread,
-            bresenham5_thread,
-            bresenham6_thread;
 
-        Bresenham_Data bresenham1_data = {
-            .field = grid_field,
-            .start = start_point,
-            .end = reflect_point,
-            .ground_level_threshold = 1.0,
-            .ground_count = &count_dgm_1,
-            .tile_type = DGM
-        };
-        Bresenham_Data bresenham2_data = {
-            .field = grid_field,
-            .start = start_point,
-            .end = reflect_point,
-            .ground_level_threshold = 1.0,
-            .ground_count = &count_dom_1,
-            .tile_type = DOM
-        };
-        Bresenham_Data bresenham3_data = {
-            .field = grid_field,
-            .start = start_point,
-            .end = reflect_point,
-            .ground_level_threshold = 1.0,
-            .ground_count = &count_dom_masked_1,
-            .tile_type = DOM_MASKED
-        };
-        Bresenham_Data bresenham4_data = {
-            .field = grid_field,
-            .start = reflect_point,
-            .end = end_point,
-            .ground_level_threshold = 1.0,
-            .ground_count = &count_dgm_2,
-            .tile_type = DGM
-        };
-        Bresenham_Data bresenham5_data = {
-            .field = grid_field,
-            .start = reflect_point,
-            .end = end_point,
-            .ground_level_threshold = 1.0,
-            .ground_count = &count_dom_2,
-            .tile_type = DOM
-        };
-        Bresenham_Data bresenham6_data = {
-            .field = grid_field,
-            .start = reflect_point,
-            .end = end_point,
-            .ground_level_threshold = 1.0,
-            .ground_count = &count_dom_masked_2,
-            .tile_type = DOM_MASKED
-        };
-#endif
+        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dgm_1, DGM );
+        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dom_1, DOM );
+        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dom_masked_1, DOM_MASKED );
+        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dgm_2, DGM );
+        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dom_2, DOM );
+        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dom_masked_2, DOM_MASKED );
 
-        grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dgm_1, DGM );
-        grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dom_1, DOM );
-        grid_field.bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dom_masked_1, DOM_MASKED );
-        grid_field.bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dgm_2, DGM );
-        grid_field.bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dom_2, DOM );
-        grid_field.bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dom_masked_2, DOM_MASKED );
-
-        ground_count         = count_dgm_1 + count_dgm_2;
-        vegetation_count     = count_dom_masked_1 + count_dom_masked_2 - ground_count;
+        ground_count = count_dgm_1 + count_dgm_2;
+        vegetation_count = count_dom_masked_1 + count_dom_masked_2 - ground_count;
         infrastructure_count = count_dom_1 + count_dom_2 - vegetation_count - ground_count;
 
-
-        status = createResultFile_WithReflection(
-            start_point, end_point, reflect_point,
+        status = writeResultObject_WithReflection(
+            end_point, reflect_point,
             selected_polygons[i],
             ( reflect_point - start_point ).length(),
-            ground_count, vegetation_count, infrastructure_count,
-            select_method,
-            fresnel_zone
+            ground_count, vegetation_count, infrastructure_count
         );
 
     }
@@ -318,46 +130,113 @@ int raytracingWithReflection (
     return status;
 } /* raytracingWithReflection() */
 
+/*---------------------------------------------------------------*/
 
-int raytracingDirect (
-    Vector& start_point, Vector& end_point,
-    double grid_resolution,
-    int max_threads,
+int Raytracer::raytracingDirect ( Vector& end_point ) {
+    int count_dgm, count_dom, count_dom_masked;
 
-    std::string dgm1_url,
-    std::string dom20_url,
-    int n_threads
-) {
-    chosen_url_dgm1 = dgm1_url;
-    chosen_url_dom20 = dom20_url;
+    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &count_dgm, DGM );
+    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &count_dom, DOM );
+    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &count_dom_masked, DOM_MASKED );
 
-    GRID_RESOLUTION = grid_resolution;
+    int
+        ground_count = count_dgm,
+        vegetation_count = count_dom_masked - count_dgm,
+        infrastructure_count = count_dom - vegetation_count - ground_count;
 
-    if ( max_threads >= 1 ) {
-        MAX_THREADS = max_threads;
-    }
-    else {
-        MAX_THREADS = NUM_CORES;
-    }
+    //printf("DGM %d - DOM %d  - DOM_MASKED %d\n", count_dgm, count_dom, count_dom_masked);
 
-    uint
-        dgm_count, dom_count, dom_masked_count,
-        ground_count, veg_count, infrastructure_count;
-
-    Field grid_field( grid_resolution );
-    grid_field.bresenhamPseudo3D( start_point, end_point, 1.0, &dgm_count, DGM );
-    grid_field.bresenhamPseudo3D( start_point, end_point, 1.0, &dom_count, DOM );
-    grid_field.bresenhamPseudo3D( start_point, end_point, 1.0, &dom_masked_count, DOM_MASKED );
-
-    ground_count = dgm_count;
-    veg_count = dom_masked_count - ground_count;
-    infrastructure_count = dom_count - veg_count - ground_count;
-
-    createResultFile_Direct(
-        start_point, end_point,
+    writeResultObject_Direct(
+        end_point,
         ( end_point - start_point ).length(),
-        ground_count, veg_count, infrastructure_count
+        ground_count, vegetation_count, infrastructure_count
     );
 
-    return SUCCESS;
+    return 1;
 } /* raytracingDirect() */
+
+/*---------------------------------------------------------------*/
+
+int Raytracer::writeResultObject_WithReflection (
+    Vector& end_point,
+    Vector& reflection_point,
+    Polygon& reflecting_polygon,
+    float distance,
+    uint ground_count, uint vegetation_count, uint infrastructure_count
+) {
+    fprintf( result_file, "\t{\n" );
+    //fprintf( result_file, "\t\"timestamp\": \"%s\",\n", timestamp );
+
+    fprintf( result_file, "\t\t\"raytracing_method\": \"REFLECTION\",\n" );
+
+    fprintf( result_file, "\t\t\"points\": {\n" );
+    fprintf( result_file, "\t\t\t\"start_point\": [%.3f, %.3f, %.3f],\n",
+             start_point.getX(), start_point.getY(), start_point.getZ() );
+    fprintf( result_file, "\t\t\t\"end_point\": [%.3f, %.3f, %.3f],\n",
+             end_point.getX(), end_point.getY(), end_point.getZ() );
+    fprintf( result_file, "\t\t\t\"reflect_point\": [%.3f, %.3f, %.3f]\n",
+             reflection_point.getX(), reflection_point.getY(), reflection_point.getZ() );
+    fprintf( result_file, "\t\t},\n" );
+
+    fprintf( result_file, "\t\t\"reflecting_polygon\": \"%s\",\n",
+             reflecting_polygon.getID().data() );
+    fprintf( result_file, "\t\t\"distance\": %.3f,\n", distance );
+    fprintf( result_file, "\t\t\"area\": %.3f,\n", reflecting_polygon.getArea() );
+
+    switch ( select_method ) {
+        case BY_MAX_AREA:
+            fprintf( result_file, "\t\t\"selection_method\": \"MAX_AREA\",\n" );
+            break;
+
+        case BY_MIN_DISTANCE:
+            fprintf( result_file, "\t\t\"selection_method\": \"MIN_DISTANCE\",\n" );
+            break;
+
+        case ALL:
+            fprintf( result_file, "\t\t\"selection_method\": \"ALL\",\n" );
+            break;
+    }
+
+    fprintf( result_file, "\t\t\"counters\": {\n" );
+    fprintf( result_file, "\t\t\t\"ground\": %d,\n", ground_count );
+    fprintf( result_file, "\t\t\t\"vegetation\": %d,\n", vegetation_count );
+    fprintf( result_file, "\t\t\t\"infrastructure\" : %d\n", infrastructure_count );
+    fprintf( result_file, "\t\t}\n" );
+
+    fprintf( result_file, "\t},\n" );
+
+    return SUCCESS;
+} /* writeResultObject_WithReflection() */
+
+/*---------------------------------------------------------------*/
+
+int Raytracer::writeResultObject_Direct (
+    Vector& end_point,
+    float distance,
+    uint ground_count, uint vegetation_count, uint infrastructure_count
+) {
+    fprintf( result_file, "\t{\n" );
+    //fprintf( result_file, "\t\"timestamp\": \"%s\",\n", timestamp );
+
+    fprintf( result_file, "\t\t\"raytracing_method\": \"DIRECT\",\n" );
+
+    fprintf( result_file, "\t\t\"points\": {\n" );
+    fprintf( result_file, "\t\t\t\"start_point\": [%.3f, %.3f, %.3f],\n",
+             start_point.getX(), start_point.getY(), start_point.getZ() );
+    fprintf( result_file, "\t\t\t\"end_point\": [%.3f, %.3f, %.3f]\n",
+             end_point.getX(), end_point.getY(), end_point.getZ() );
+    fprintf( result_file, "\t\t},\n" );
+
+    fprintf( result_file, "\t\t\"distance\": %.3f,\n", distance );
+
+
+    fprintf( result_file, "\t\t\"counters\": {\n" );
+    fprintf( result_file, "\t\t\t\"ground\": %d,\n", ground_count );
+    fprintf( result_file, "\t\t\t\"vegetation\": %d,\n", vegetation_count );
+    fprintf( result_file, "\t\t\t\"infrastructure\": %d\n", infrastructure_count );
+    fprintf( result_file, "\t\t}\n" );
+
+    fprintf( result_file, "\t},\n" );
+
+    return SUCCESS;
+} /* writeResultObject_Direct() */

@@ -5,14 +5,19 @@
 #include "../geometry/polygon.h"
 #include "load_tile.h"
 #include "../utils.h"
+#include "../precalc/fresnel_zone.h"
+#include "../precalc/precalc.h"
+#include "../raytracing/selection_methods.h"
 
 #include <unistd.h>
 #include <iostream>
 #include <cmath>
 #include <gdal.h>
+#include <time.h>
 
 const std::string DATA_DIR = "data";
 
+/*---------------------------------------------------------------*/
 
 Field::Field ( double grid_resolution ) {
     this->grid_resolution = grid_resolution;
@@ -22,7 +27,7 @@ Field::Field ( double grid_resolution ) {
     pthread_mutex_init( &dom_masked_mutex, NULL );
 
     GDALAllRegister();
-}
+} /* Field() */
 
 /*---------------------------------------------------------------*/
 
@@ -33,6 +38,8 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
     int status;
     if ( tile_type == DGM || tile_type == DOM || tile_type == DOM_MASKED ) {
         double resample_factor;
+
+        clock_t start, end;
 
         switch ( tile_type ) {
             case DGM:
@@ -71,7 +78,6 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
 
         return SUCCESS;
     }
-    /*
     else if ( tile_type == LOD2 ) {
         status = getVectorTile( vector_tile, tile_name );
         if ( status != SUCCESS ) {
@@ -82,7 +88,6 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
 
         return SUCCESS;
     }
-    */
     else {
         return TILE_NOT_AVAILABLE;
     }
@@ -100,6 +105,9 @@ bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
 
         case DOM_MASKED:
             return grid_tiles_dom_masked.contains( tile_name );
+
+        case LOD2:
+            return vector_tiles_lod2.contains( tile_name );
 
         default:
             return false;
@@ -356,7 +364,7 @@ int Field::bresenhamPseudo3D (
     Vector& start,
     Vector& end,
     float ground_level_threshold,
-    uint* ground_count,
+    int* ground_count,
     int tile_type,
     bool cancel_on_ground,
     int n_threads
@@ -398,17 +406,17 @@ int Field::bresenhamPseudo3D (
     bool intersection_found = false;
 
     for ( int i = 0; i < n_threads; i++ ) {
-        data[i].x_start = (int) x_start_f;
-        data[i].y_start = (int) y_start_f;
-        data[i].y_start = (int) z_start_f;
+        data[i].x_start = (int) x_start_f + x_start;
+        data[i].y_start = (int) y_start_f + y_start;
+        data[i].z_start = (int) z_start_f + z_start;
 
         x_start_f += x_step;
         y_start_f += y_step;
         z_start_f += z_step;
 
-        data[i].x_end = (int) x_start_f;
-        data[i].y_end = (int) y_start_f;
-        data[i].z_end = (int) z_start_f;
+        data[i].x_end = (int) x_start_f + x_start - 1;
+        data[i].y_end = (int) y_start_f + y_start - 1;
+        data[i].z_end = (int) z_start_f + z_start - 1;
 
         data[i].ground_level_threshold = ground_level_threshold;
         data[i].tile_type = tile_type;
@@ -442,6 +450,8 @@ int Field::bresenhamPseudo3D (
 
 
 void* Thread_bresenhamPseudo3D ( void* arg ) {
+    clock_t start, end;
+    start = clock();
     Bresenham_Thread_Data* data = (Bresenham_Thread_Data*) arg;
 
     // Cast start and end values to integers
@@ -459,7 +469,7 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
         dy = abs( y_end - y_start ),
         dz = abs( z_end - z_start );
 
-    double utm_x, utm_y;
+    double utm_x, utm_y, altitude;
 
     // Axes
     enum IterationAxes {
@@ -609,13 +619,15 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
         utm_x = x * data->grid_resolution;
         utm_y = y * data->grid_resolution;
 
+        altitude = z * data->grid_resolution;
+
         // Get the altitude at the current x/y position
         float altitude_at_xy =
             data->field->getAltitudeAtXY(utm_x, utm_y, data->tile_type) - data->ground_level_threshold;
 
         // If the value of z is equal or smaller than the altitude
         // at x/y they ray has hit the ground
-        if ( (float)z <= altitude_at_xy ) {
+        if ( altitude <= altitude_at_xy ) {
             internal_obstacle_count++;
 
             if ( !*(data->intersection_found) ) {
@@ -634,8 +646,10 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
     *(data->global_obstacle_count) += internal_obstacle_count;
     pthread_mutex_unlock( data->obstacle_count_mutex );
 
+    end = clock();
+    //printf("Thread duration %f\n", (double)(end-start) / (double)CLOCKS_PER_SEC);
     return NULL;
-}
+} /* Thread_bresenhamPseudo3D() */
 
 
 /*---------------------------------------------------------------*/
@@ -741,3 +755,310 @@ int Field::surfaceIntersection (
     return NO_INTERSECTION_FOUND;
 } /* surfaceIntersection() */
 #endif
+
+/*---------------------------------------------------------------*/
+
+struct Precalculate_Thread_Data {
+    Vector start_point;
+    Vector end_point;
+
+    uint start_idx;
+    uint end_idx;
+
+    std::vector<Polygon>* polygons;
+    std::vector<Polygon>* selected_polygons;
+
+    pthread_mutex_t* selected_polygons_mutex;
+};
+
+int Field::precalculate (
+    std::vector<Polygon>& selected_polygons,
+    Vector& start_point, Vector& end_point,
+    int select_method,
+    int fresnel_zone, double freq
+) {
+    std::vector<Polygon> polygons_in_ground_area;
+    std::vector<Polygon> global_selected_polygons;
+
+    Polygon ground_area = fresnelZone( start_point, end_point, fresnel_zone, 868.0e6, 16 );
+    getPolygonsInGroundArea( polygons_in_ground_area, ground_area );
+
+    double part_size = (double)polygons_in_ground_area.size() / (double)MAX_THREADS;
+
+    pthread_mutex_t selected_polygons_mutex;
+    pthread_mutex_init( &selected_polygons_mutex, NULL );
+
+    struct Precalculate_Thread_Data* data =
+        new struct Precalculate_Thread_Data [MAX_THREADS];
+
+    double start_idx = 0.0;
+
+    pthread_t* precalc_threads = new pthread_t [MAX_THREADS];
+    for ( int i = 0; i < MAX_THREADS; i++ ) {
+        data[i].start_idx = (uint) start_idx;
+        start_idx += part_size;
+        data[i].end_idx = (uint) start_idx;
+
+        data[i].start_point = start_point;
+        data[i].end_point = end_point;
+
+        data[i].polygons = &polygons_in_ground_area;
+        data[i].selected_polygons = &global_selected_polygons;
+
+        data[i].selected_polygons_mutex = &selected_polygons_mutex;
+
+
+        pthread_create( &precalc_threads[i], NULL, Thread_precalculate, (void*)&data[i] );
+    }
+
+    for ( int i = 0; i < MAX_THREADS; i++ ) {
+        pthread_join( precalc_threads[i], NULL );
+    }
+
+    pthread_mutex_destroy( &selected_polygons_mutex );
+    delete[] data;
+    delete[] precalc_threads;
+
+    if ( global_selected_polygons.size() > 0 ) {
+        switch ( select_method ) {
+            case BY_MIN_DISTANCE:
+                selected_polygons.push_back(
+                    getPolygonWithMinDistance( start_point, global_selected_polygons )
+                );
+                return SUCCESS;
+
+            case BY_MAX_AREA:
+                selected_polygons.push_back( getPolygonWithMaxArea( global_selected_polygons ) );
+                return SUCCESS;
+
+            case ALL:
+                selected_polygons = global_selected_polygons;
+                return SUCCESS;
+        }
+    }
+
+    return NO_POLYGON_FOUND;
+} /* precalculate() */
+
+
+void* Thread_precalculate ( void* arg ) {
+    struct Precalculate_Thread_Data* data = (struct Precalculate_Thread_Data*) arg;
+
+    for ( uint i = data->start_idx; i < data->end_idx; i++ ) {
+        // Ignore ground surface (only use walls and roofs)
+        if ( (*data->polygons)[i].getSurfaceType() == GROUND ) {
+            continue;
+        }
+
+        // Get the center point (centroid) of the current polygon
+        Vector centroid = (*data->polygons)[i].getCentroid();
+
+        // Create a line between the polygon's centroid and the end point
+        Line center_ray;
+        center_ray.createLineFromTwoPoints( centroid, data->end_point );
+
+        // Create a plane with the end point on it and the direction
+        // vector of center_ray being the normal vector
+        Plane destination_plane;
+        Vector dest_plane_normal_vector = center_ray.getDirectionVector();
+        destination_plane.createPlaneFromBaseAndNormalVector(
+            data->end_point, dest_plane_normal_vector );
+
+        // Get a list of the points of the current polygon
+        std::vector<Vector>& points = (*data->polygons)[i].getPoints();
+
+        // Get the base plane of the current polygon
+        Plane polygon_base_plane = (*data->polygons)[i].getBasePlane();
+
+        // Create a Polygon object for the reflected polygon which
+        // is on the plane destination_plane
+        Polygon reflected_polygon;
+        reflected_polygon.initPolygonWithPlane( destination_plane );
+
+        uint len_points = points.size();
+        for ( uint j = 0; j < len_points; j++ ) {
+            // Ray from the starting point to the jth point of the polygon
+            Line first_ray;
+            first_ray.createLineFromTwoPoints( data->start_point, points[j] );
+
+            // Reflect first_ray on the polygon's base plane
+            Line second_ray;
+            polygon_base_plane.reflectLine( first_ray, second_ray );
+
+            // Find the intersection between the reflected ray and the
+            // destination plane
+            // This will become a corner of the polygon
+            Vector dest_intersect;
+            destination_plane.lineIntersection( second_ray, dest_intersect );
+
+            reflected_polygon.addPoint( dest_intersect );
+        }
+
+        // Reflect the center ray on the polygon's base plane and find the intersection
+        // with the destination plane
+        Vector reflected_center_point;
+        Line reflected_center_ray;
+
+        //polygon_base_plane.reflectLine( center_ray, reflected_center_ray );
+        //destination_plane.lineIntersection( reflected_center_ray, reflected_center_point );
+
+        // If the intersection with the destination plane of the reflected center ray
+        // is inside the reflected polygon add it to the list of the selected polygons
+        if (
+            reflected_polygon.isPointInPolygon( data->end_point )/* &&
+            !isPolygonInList(selected_polygons, polygons[i])*/
+        ) {
+            pthread_mutex_lock( data->selected_polygons_mutex );
+            data->selected_polygons->push_back( (*data->polygons)[i] );
+            (*data->polygons)[i].printPolygon();
+            pthread_mutex_unlock( data->selected_polygons_mutex );
+        }
+    }
+
+    return NULL;
+} /* Thread_precalculate() */
+
+/*---------------------------------------------------------------*/
+
+struct PolygonsInGroundArea_Thread_Data {
+    Field* field;
+    Polygon* ground_area;
+
+    std::string tile_name;
+    pthread_mutex_t* polygon_list_mutex;
+    std::vector<Polygon>* polygon_list;
+};
+
+
+void* Thread_getPolygonsInGroundArea ( void* arg ) {
+    struct PolygonsInGroundArea_Thread_Data* data =
+        (struct PolygonsInGroundArea_Thread_Data*) arg;
+
+    if ( !data->field->tileAlreadyLoaded( data->tile_name, LOD2 ) ) {
+        data->field->loadTile( data->tile_name, LOD2 );
+    }
+    VectorTile& vector_tile = data->field->vector_tiles_lod2[data->tile_name];
+
+    uint len_polygons;
+
+    Vector test_point;
+
+    std::vector<Polygon>& tile_polygons = vector_tile.getPolygons();
+    len_polygons = tile_polygons.size();
+
+    for ( uint j = 0; j < len_polygons; j++ ) {
+        std::vector<Vector>& points = tile_polygons[j].getPoints();
+
+        uint len_points = points.size();
+        if ( len_points > 0 ) {
+            for ( uint k = 0; k < len_points; k++ ) {
+                test_point = points[k];
+                test_point.setZ( 0.0 );
+
+                if ( data->ground_area->isPointInPolygon(test_point, true) ) {
+                    pthread_mutex_lock( data->polygon_list_mutex );
+                    data->polygon_list->push_back( tile_polygons[j] );
+                    pthread_mutex_unlock( data->polygon_list_mutex );
+                    break;
+                }
+            }
+
+        }
+
+    }
+
+    return NULL;
+} /* Thread_getPolygonsInGroundArea() */
+
+
+int Field::getPolygonsInGroundArea (
+    std::vector<Polygon>& polygons,
+    Polygon& ground_area
+) {
+    std::vector<std::string> tile_names = tilesInGroundArea( ground_area );
+
+    std::vector<Polygon> polygon_list;
+
+    int n_tiles = tile_names.size();
+    int n_thread_blocks = n_tiles / MAX_THREADS + 1;
+
+    int list_index = 0;
+
+    pthread_mutex_t polygon_list_mutex;
+    pthread_mutex_init( &polygon_list_mutex, NULL );
+
+    int n_threads;
+
+    for ( int i = 0; i < n_thread_blocks; i++ ) {
+        if ( n_tiles / MAX_THREADS > 0 ) {
+            n_threads = MAX_THREADS;
+        }
+        else {
+            n_threads = n_tiles;
+        }
+
+        pthread_t* threads = new pthread_t [n_threads];
+        struct PolygonsInGroundArea_Thread_Data* data =
+            new struct PolygonsInGroundArea_Thread_Data [n_threads];
+
+        for ( int j = 0; j < n_threads; j++ ) {
+            data[j].field = this;
+            data[j].ground_area = &ground_area;
+            data[j].polygon_list = &polygon_list;
+            data[j].tile_name = tile_names[list_index++];
+            data[j].polygon_list_mutex = &polygon_list_mutex;
+
+            pthread_create(
+                &threads[j], NULL,
+                Thread_getPolygonsInGroundArea, (void*)&data[j]
+            );
+        }
+        for ( int j = 0; j < n_threads; j++ ) {
+            pthread_join( threads[j], NULL );
+        }
+
+        delete[] threads;
+        delete[] data;
+    }
+
+    /*
+    VectorTile vector_tile;
+
+    uint len_tiles = tile_names.size();
+    uint len_polygons;
+    int status;
+
+    Vector test_point;
+
+    for ( uint i = 0; i < len_tiles; i++ ) {
+        status = getVectorTile( vector_tile, tile_names[i] );
+        if ( status != SUCCESS ) {
+            return status;
+        }
+
+        std::vector<Polygon>& tile_polygons = vector_tile.getPolygons();
+        len_polygons = tile_polygons.size();
+
+        for ( uint j = 0; j < len_polygons; j++ ) {
+            std::vector<Vector>& points = tile_polygons[j].getPoints();
+
+            uint len_points = points.size();
+            if ( len_points > 0 ) {
+                for ( uint k = 0; k < len_points; k++ ) {
+                    test_point = points[k];
+                    test_point.setZ( 0.0 );
+
+                    if ( ground_area.isPointInPolygon(test_point) ) {
+                        polygons.push_back( tile_polygons[j] );
+                        break;
+                    }
+                }
+
+            }
+
+        }
+    }
+    */
+
+    return SUCCESS;
+} /* getPolygonsInGroundArea() */

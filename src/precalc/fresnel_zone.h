@@ -43,24 +43,5 @@ Returns:
 */
 std::vector<std::string> tilesInGroundArea ( Polygon& ground_area );
 
-/*
-Find all polygons in the vector tiles that are located within the
-ground area
-
-Args:
- - polygons :    Reference to the list of polygons where the polygons
-                 inside the ground area should be stored in
- - ground_area : Ground area as a Polygon object
-
-Returns:
- - Status code:
-    - SUCCESS
-
-    - TILE_NOT_AVAILABLE
-*/
-int getPolygonsInGroundArea (
-    std::vector<Polygon>& polygons,
-    Polygon& ground_area
-);
 
 #endif

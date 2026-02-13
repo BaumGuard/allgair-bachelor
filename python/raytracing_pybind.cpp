@@ -5,6 +5,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <time.h>
+#include <stdio.h>
 
 namespace py = pybind11;
 
@@ -15,7 +17,7 @@ PYBIND11_MODULE( raytracing, m ) {
         "raytracing_with_reflection",
         [](
             const std::tuple<double, double, double>& start_point,
-            const std::tuple<double, double, double>& end_point,
+            const std::vector<std::tuple<double, double, double>>& end_points,
             int select_method,
             double max_point_to_plane_distance,
             uint fresnel_zone,
@@ -33,15 +35,10 @@ PYBIND11_MODULE( raytracing, m ) {
                 std::get<2>(start_point)
             );
 
-            Vector _end_point(
-                std::get<0>(end_point),
-                std::get<1>(end_point),
-                std::get<2>(end_point)
-            );
-
-            return raytracingWithReflection(
-                _start_point, _end_point,
-                select_method, max_point_to_plane_distance,
+            Raytracer raytracer (
+                _start_point,
+                select_method,
+                max_point_to_plane_distance,
                 fresnel_zone, freq,
                 grid_resolution,
                 max_threads,
@@ -50,9 +47,20 @@ PYBIND11_MODULE( raytracing, m ) {
                 url_dom20,
                 url_lod2
             );
+
+            uint len_end_points = end_points.size();
+            for ( uint i = 0; i < len_end_points; i++ ) {
+                Vector end_point(
+                    std::get<0>(end_points[i]),
+                    std::get<1>(end_points[i]),
+                    std::get<2>(end_points[i])
+                );
+
+                raytracer.raytracingWithReflection( end_point );
+            }
         },
         py::arg( "start_point" ),
-        py::arg( "end_point" ),
+        py::arg( "end_points" ),
         py::arg( "select_method" ),
         py::arg( "max_point_to_plane_distance" ) = 0.1,
         py::arg( "fresnel_zone" ) = 2,
@@ -69,8 +77,7 @@ PYBIND11_MODULE( raytracing, m ) {
         "raytracing_direct",
         [](
             const std::tuple<double, double, double>& start_point,
-            const std::tuple<double, double, double>& end_point,
-            int tile_type,
+            const std::vector<std::tuple<double, double, double>>& end_points,
             double grid_resolution,
             int max_threads,
 
@@ -83,25 +90,43 @@ PYBIND11_MODULE( raytracing, m ) {
                 std::get<2>(start_point)
             );
 
-            Vector _end_point(
-                std::get<0>(end_point),
-                std::get<1>(end_point),
-                std::get<2>(end_point)
-            );
-
-            return raytracingDirect(
-                _start_point, _end_point,
-                tile_type,
+            Raytracer raytracer (
+                _start_point,
+                BY_MAX_AREA,
+                0.1,
+                2, 868.0e6,
                 grid_resolution,
-                max_threads,
-
-                url_dgm1,
-                url_dom20
+                max_threads
             );
+
+            clock_t start, end;
+            uint len_end_points = end_points.size();
+            for ( uint i = 0; i < len_end_points; i++ ) {
+                Vector _end_point(
+                    std::get<0>(end_points[i]),
+                    std::get<1>(end_points[i]),
+                    std::get<2>(end_points[i])
+                );
+
+                struct timespec start, end;
+                clock_gettime(CLOCK_MONOTONIC, &start);
+
+                raytracer.raytracingDirect( _end_point );
+
+                clock_gettime(CLOCK_MONOTONIC, &end);
+
+                double elapsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
+                printf("%d\n", i);
+                printf("Duration: %f s\n", elapsed);
+
+
+                if ( PyErr_CheckSignals() != 0 ) {
+                    throw pybind11::error_already_set();
+                }
+            }
         },
         py::arg( "start_point" ),
-        py::arg( "end_point" ),
-        py::arg( "tile_type" ),
+        py::arg( "end_points" ),
         py::arg( "grid_resolution" ) = 1.0,
         py::arg( "max_threads" ) = 0,
         py::arg( "url_dgm1" ) = std::string( URL_DGM1_BAVARIA ),

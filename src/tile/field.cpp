@@ -980,14 +980,19 @@ int Field::getPolygonsInGroundArea (
     std::vector<Polygon> polygon_list;
 
     int n_tiles = tile_names.size();
-    int n_thread_blocks = n_tiles / MAX_THREADS + 1;
+    int n_thread_blocks = n_tiles / MAX_THREADS;
+    if ( n_tiles < MAX_THREADS ) {
+        n_thread_blocks += 1;
+    }
 
     int list_index = 0;
 
     pthread_mutex_t polygon_list_mutex;
     pthread_mutex_init( &polygon_list_mutex, NULL );
 
-    int n_threads;
+    int n_threads = MAX_THREADS;
+
+
 
     for ( int i = 0; i < n_thread_blocks; i++ ) {
         if ( n_tiles / MAX_THREADS > 0 ) {
@@ -1020,6 +1025,8 @@ int Field::getPolygonsInGroundArea (
         delete[] threads;
         delete[] data;
     }
+
+    polygons = polygon_list;
 
     /*
     VectorTile vector_tile;

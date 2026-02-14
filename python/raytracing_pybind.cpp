@@ -18,7 +18,7 @@ PYBIND11_MODULE( raytracing, m ) {
         [](
             const std::tuple<double, double, double>& start_point,
             const std::vector<std::tuple<double, double, double>>& end_points,
-            int select_method,
+            std::string select_method,
             double max_point_to_plane_distance,
             uint fresnel_zone,
             double freq,
@@ -35,9 +35,24 @@ PYBIND11_MODULE( raytracing, m ) {
                 std::get<2>(start_point)
             );
 
+            int _select_method;
+            if ( select_method == "max_area" ) {
+                _select_method = BY_MAX_AREA;
+            }
+            else if ( select_method == "min_distance" ) {
+                _select_method = BY_MIN_DISTANCE;
+            }
+            else if ( select_method == "all" ) {
+                _select_method = ALL;
+            }
+            else {
+                printf( "ERROR: Wrong selection method '%s'\n", select_method.data() );
+                return 1;
+            }
+
             Raytracer raytracer (
                 _start_point,
-                select_method,
+                _select_method,
                 max_point_to_plane_distance,
                 fresnel_zone, freq,
                 grid_resolution,
@@ -55,9 +70,15 @@ PYBIND11_MODULE( raytracing, m ) {
                     std::get<1>(end_points[i]),
                     std::get<2>(end_points[i])
                 );
-
+                printf("%d\n", i);
                 raytracer.raytracingWithReflection( end_point );
+
+                if ( PyErr_CheckSignals() != 0 ) {
+                    throw pybind11::error_already_set();
+                }
             }
+
+            return 0;
         },
         py::arg( "start_point" ),
         py::arg( "end_points" ),
@@ -124,6 +145,8 @@ PYBIND11_MODULE( raytracing, m ) {
                     throw pybind11::error_already_set();
                 }
             }
+
+            return 0;
         },
         py::arg( "start_point" ),
         py::arg( "end_points" ),

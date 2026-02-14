@@ -116,6 +116,8 @@ Split string into two parts at the delimiter
 
 Args:
  - str          : String to split into two parts
+ - strings      : Pointer to an array with 2 elements to save
+                  the string parts in
  - delimiter    : Symbol at which the string should be split
 
 Returns:
@@ -123,7 +125,7 @@ Returns:
     - first element: Trimmed string before the delimiter
     - second element : Trimmed string after the delimiter
 */
-std::string* splitString ( std::string str, char delimiter );
+void splitString ( std::string str, std::string* strings, char delimiter );
 
 
 bool stringIsSint ( std::string str );

@@ -141,8 +141,7 @@ void trimString ( std::string& str ) {
 
 /*---------------------------------------------------------------*/
 
-std::string* splitString ( std::string str, char delimiter ) {
-    static std::string strings [2];
+void splitString ( std::string str, std::string* strings, char delimiter ) {
     strings[0].clear();
     strings[1].clear();
 
@@ -165,6 +164,4 @@ std::string* splitString ( std::string str, char delimiter ) {
 
     trimString( strings[0] );
     trimString( strings[1] );
-
-    return strings;
 } /* splitString () */

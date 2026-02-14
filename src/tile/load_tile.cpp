@@ -159,17 +159,17 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
 /*---------------------------------------------------------------*/
 
 int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
-
-    std::string* tile_name_parts = splitString( tile_name, '_' );
+    //printf("TILENAME BEFORE %s\n", tile_name.data());
+    std::string tile_name_parts [2];
+    splitString( tile_name, tile_name_parts, '_' );
     uint
         easting  = std::stoi( tile_name_parts[0] ),
         northing = std::stoi( tile_name_parts[1] );
 
-    easting  = easting  - easting  % 2;
-    northing = northing - northing % 2;
+    easting  = easting  - (easting  % 2);
+    northing = northing - (northing % 2);
 
     tile_name = buildTileName( easting, northing );
-
     // Build the file name/path of the binary file and the raw file (.gml)
 
     std::string
@@ -180,7 +180,6 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
     std::string
         binary_file_path = data_dir + "/" + binary_file_name,
         raw_file_path    = data_dir + "/" + raw_file_name;
-
 
     // Check for the existence of the binary file
     bool binary_file_exists = FILE_EXISTS( binary_file_path.data() );
@@ -194,7 +193,6 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
         */
 
         vector_tile.fromBinaryFile( binary_file_path );
-
         //printMessage( NORMAL, "Found\n" );
         return SUCCESS;
     }

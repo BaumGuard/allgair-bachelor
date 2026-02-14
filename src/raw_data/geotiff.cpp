@@ -148,7 +148,8 @@ int GeoTiffFile::readGeoTiffFile ( std::string file_path, int tile_type ) {
         tile_name = removeFileEnding( tile_name );
         tile_name = tile_name.substr( 2, 8 );
 
-        std::string* tile_name_parts = splitString( tile_name, '_' );
+        std::string tile_name_parts [2];
+        splitString( tile_name, tile_name_parts, '_' );
 
         utm_origin_x = std::stoi( tile_name_parts[0] ) * 1000;
         utm_origin_y = std::stoi( tile_name_parts[1] ) * 1000;

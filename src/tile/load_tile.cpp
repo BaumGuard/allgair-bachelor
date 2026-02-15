@@ -9,8 +9,6 @@
 #include <unistd.h>
 #include <cstdlib>
 
-std::string DATA_DIR = "data";
-
 /*---------------------------------------------------------------*/
 
 int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {

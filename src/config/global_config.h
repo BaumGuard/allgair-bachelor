@@ -3,6 +3,9 @@
 
 #include <string>
 
+// Directory to save the tile files in and read from
+extern std::string DATA_DIR;
+
 // URLs for DGM1, DOM20 and LOD2 given by the user
 extern std::string
     chosen_url_dgm1,

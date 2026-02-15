@@ -2,6 +2,8 @@
 
 #include "../web/urls.h"
 
+std::string DATA_DIR = "data";
+
 std::string
     chosen_url_dgm1  = URL_DGM1_BAVARIA,
     chosen_url_dom20 = URL_DOM20_BAVARIA,

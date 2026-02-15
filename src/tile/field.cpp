@@ -15,8 +15,6 @@
 #include <gdal.h>
 #include <time.h>
 
-const std::string DATA_DIR = "data";
-
 /*---------------------------------------------------------------*/
 
 Field::Field ( double grid_resolution ) {

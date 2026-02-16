@@ -88,6 +88,15 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
         data_sect.f64 = polygons[i].getArea();
         fwrite( data_sect.bytes, 1, 8, file );
 
+        v = polygons[i].getCentroid();
+        data_sect.f64 = v.getX();
+        fwrite( data_sect.bytes, 1, 8, file );
+        data_sect.f64 = v.getY();
+        fwrite( data_sect.bytes, 1, 8, file );
+        data_sect.f64 = v.getZ();
+        fwrite( data_sect.bytes, 1, 8, file );
+
+
         fprintf( file, "PLAN" );
 
         p = polygons[i].getBasePlane();
@@ -198,6 +207,16 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
         fread( data.bytes, 1, 8, file );
         polygon.setArea( data.f64 );
 
+        Vector centroid;
+        fread( data.bytes, 1, 8, file );
+        centroid.setX( data.f64 );
+        fread( data.bytes, 1, 8, file );
+        centroid.setY( data.f64 );
+        fread( data.bytes, 1, 8, file );
+        centroid.setZ( data.f64 );
+
+        polygon.setCentroid( centroid );
+
         fread( data.bytes, 1, 4, file );
         if ( !STRNEQUAL(data.bytes, "PLAN", 4) )
             return FILE_CORRUPT;
@@ -297,6 +316,10 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
     int add_count = 0;
 
     for ( uint i = 0; i < len; i++ ) {
+        if ( surfaces[i].area < 1.0 ) {
+            no++;
+            continue;
+        }
 
         bool point_too_far_away = false;
 
@@ -424,6 +447,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
         if ( !point_too_far_away && polygon.getPoints().size() >= 3 ) {
 
             //if ( !isPolygonAlreadyInList(polygons, polygon) ) {
+                polygon.getCentroid();
                 polygons.push_back( polygon );
             //}
 

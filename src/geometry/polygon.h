@@ -115,22 +115,24 @@ public:
     the x, y and z coordinates of the points and return it
     as a Vector object
 
+    WARNING
+    This function assumes that all points have already been added
+    to the Polygon instance. The centroid will be calculated once
+    when this function is called for the first time and is saved
+    for later calls.
+
     Returns:
      - Centroid point of the polygon
     */
     Vector getCentroid();
 
-#if 0
     /*
-    Calculate the area of the polygon
-    WARNING: In case of highly concave polygons the function
-             might compute a wrong area
+    Set the centroid of the polygon
 
-    Returns:
-     - Area of the polygon in square meters
+    Args:
+     - centroid : Centroid as Vector
     */
-    double polygonArea ();
-#endif
+    void setCentroid( Vector& centroid );
 
     /*
     Set the area of the polygon
@@ -166,6 +168,8 @@ private:
 
     uint surface_type = 0;
 
+    bool centroid_calculated = false;
+    Vector centroid;
     double area = 0.0;
 
     std::string id = "";

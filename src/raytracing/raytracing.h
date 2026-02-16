@@ -44,6 +44,7 @@ public:
         double max_point_to_plane_distance = 0.1,
         uint fresnel_zone = 2, double freq = 868.0e6,
         double grid_resolution = 1.0,
+        double k_value = 4.0 / 3.0,
         int max_threads = 0,
 
         std::string url_dgm1  = std::string( URL_DGM1_BAVARIA ),
@@ -123,6 +124,17 @@ private:
 
     char result_file_name [64];
     FILE* result_file;
+
+
+    void calculateCounterValues (
+        std::vector<bool>& dgm_decision_array,
+        std::vector<bool>& dom_decision_array,
+        std::vector<bool>& dom_masked_decision_array,
+
+        int& ground_count,
+        int& vegetation_count,
+        int& infrastructure_count
+    );
 };
 
 #endif

@@ -12,3 +12,7 @@ std::string
 int MAX_THREADS;
 
 double GRID_RESOLUTION;
+
+double K_VALUE;
+
+double EARTH_RADIUS_EFFECTIVE;

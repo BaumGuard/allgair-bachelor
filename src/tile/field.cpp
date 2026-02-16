@@ -351,8 +351,9 @@ struct Bresenham_Thread_Data {
 
     double grid_resolution;
 
-    int* global_obstacle_count;
-    pthread_mutex_t* obstacle_count_mutex;
+    double h_curve_correction;
+
+    std::vector<bool>* decision_array;
 
     Field* field;
 };
@@ -362,7 +363,7 @@ int Field::bresenhamPseudo3D (
     Vector& start,
     Vector& end,
     float ground_level_threshold,
-    int* ground_count,
+    std::vector<bool>* decision_arrays_united,
     int tile_type,
     bool cancel_on_ground,
     int n_threads
@@ -387,7 +388,16 @@ int Field::bresenhamPseudo3D (
         dy = abs( y_end - y_start ),
         dz = abs( z_end - z_start );
 
+    // Altitude correction
+    double line_length_2d = sqrt( dx*dx + dy*dy );
+    double h_curve_correction =
+        EARTH_RADIUS_EFFECTIVE -
+        sqrt(
+            EARTH_RADIUS_EFFECTIVE * EARTH_RADIUS_EFFECTIVE -
+            line_length_2d * line_length_2d
+        );
 
+    // Length of the ray parts to perform the Bresenham algorithm on
     double
         x_step = (double)dx / (double)n_threads,
         y_step = (double)dy / (double)n_threads,
@@ -395,12 +405,11 @@ int Field::bresenhamPseudo3D (
 
     double x_start_f = 0.0, y_start_f = 0.0, z_start_f = 0.0;
 
+    std::vector<bool>* decision_arrays = new std::vector<bool> [n_threads];
+
     pthread_t* threads = new pthread_t [n_threads];
     struct Bresenham_Thread_Data* data = new Bresenham_Thread_Data [n_threads];
 
-    pthread_mutex_t obstacle_count_mutex;
-    pthread_mutex_init( &obstacle_count_mutex, NULL );
-    int global_obstacle_count = 0;
     bool intersection_found = false;
 
     for ( int i = 0; i < n_threads; i++ ) {
@@ -412,9 +421,16 @@ int Field::bresenhamPseudo3D (
         y_start_f += y_step;
         z_start_f += z_step;
 
-        data[i].x_end = (int) x_start_f + x_start - 1;
-        data[i].y_end = (int) y_start_f + y_start - 1;
-        data[i].z_end = (int) z_start_f + z_start - 1;
+        if ( i < n_threads-1 ) {
+            data[i].x_end = (int) x_start_f + x_start - 1;
+            data[i].y_end = (int) y_start_f + y_start - 1;
+            data[i].z_end = (int) z_start_f + z_start - 1;
+        }
+        else {
+            data[i].x_end = (int) x_start_f + x_start;
+            data[i].y_end = (int) y_start_f + y_start;
+            data[i].z_end = (int) z_start_f + z_start;
+        }
 
         data[i].ground_level_threshold = ground_level_threshold;
         data[i].tile_type = tile_type;
@@ -422,10 +438,9 @@ int Field::bresenhamPseudo3D (
         data[i].cancel_on_ground = cancel_on_ground;
 
         data[i].grid_resolution = grid_resolution;
+        data[i].h_curve_correction = h_curve_correction;
 
-        data[i].obstacle_count_mutex = &obstacle_count_mutex;
-        data[i].global_obstacle_count = &global_obstacle_count;
-
+        data[i].decision_array = &decision_arrays[i];
         data[i].field = this;
 
         pthread_create( &threads[i], NULL, Thread_bresenhamPseudo3D, (void*)&data[i] );
@@ -435,10 +450,16 @@ int Field::bresenhamPseudo3D (
         pthread_join( threads[i], NULL );
     }
 
-
-    if ( ground_count != nullptr ) {
-        *ground_count = global_obstacle_count;
+    for ( uint i = 0; i < n_threads; i++ ) {
+        uint len_decision_array = decision_arrays[i].size();
+        for ( uint j = 0; j < len_decision_array; j++ ) {
+            decision_arrays_united->push_back( decision_arrays[i][j] );
+        }
     }
+
+    delete[] decision_arrays;
+    delete[] threads;
+    delete[] data;
 
     if ( intersection_found ) {
         return INTERSECTION_FOUND;
@@ -549,10 +570,6 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
 
     int it = start_it;
 
-    // Counting variable to count how often the ray is below ground
-    // level taking the ground level threshold into account
-    uint internal_obstacle_count = 0;
-
     // Find an intersection between the ray and the ground
     // using Bresenham's algorithm modified for 3D
     while ( it != end_it ) {
@@ -625,24 +642,21 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
 
         // If the value of z is equal or smaller than the altitude
         // at x/y they ray has hit the ground
-        if ( altitude <= altitude_at_xy ) {
-            internal_obstacle_count++;
+        if ( altitude - data->h_curve_correction <= altitude_at_xy ) {
+            data->decision_array->push_back( true );
 
             if ( !*(data->intersection_found) ) {
-                pthread_mutex_lock( data->obstacle_count_mutex );
                 *(data->intersection_found) = true;
-                pthread_mutex_unlock( data->obstacle_count_mutex );
 
                 if ( data->cancel_on_ground ) {
                     break;
                 }
             }
         } /* if ( z <= altitude_at_xy ) */
+        else {
+            data->decision_array->push_back( false );
+        }
     } /* while ( it != end_it ) */
-
-    pthread_mutex_lock( data->obstacle_count_mutex );
-    *(data->global_obstacle_count) += internal_obstacle_count;
-    pthread_mutex_unlock( data->obstacle_count_mutex );
 
     end = clock();
     //printf("Thread duration %f\n", (double)(end-start) / (double)CLOCKS_PER_SEC);

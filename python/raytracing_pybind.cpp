@@ -1,5 +1,6 @@
 #include "../src/geometry/vector.h"
 #include "../src/raytracing/raytracing.h"
+#include "../src/utils.h"
 
 #include <tuple>
 #include <pybind11/pybind11.h>
@@ -23,6 +24,7 @@ PYBIND11_MODULE( raytracing, m ) {
             uint fresnel_zone,
             double freq,
             double grid_resolution,
+            double k_value,
             int max_threads,
 
             std::string url_dgm1  = std::string( URL_DGM1_BAVARIA ),
@@ -56,6 +58,7 @@ PYBIND11_MODULE( raytracing, m ) {
                 max_point_to_plane_distance,
                 fresnel_zone, freq,
                 grid_resolution,
+                k_value,
                 max_threads,
 
                 url_dgm1,
@@ -70,8 +73,10 @@ PYBIND11_MODULE( raytracing, m ) {
                     std::get<1>(end_points[i]),
                     std::get<2>(end_points[i])
                 );
-                printf("%d\n", i);
+                //printf("%d\n", i);
                 raytracer.raytracingWithReflection( end_point );
+
+                updateProgressBar( i, len_end_points );
 
                 if ( PyErr_CheckSignals() != 0 ) {
                     throw pybind11::error_already_set();
@@ -87,6 +92,7 @@ PYBIND11_MODULE( raytracing, m ) {
         py::arg( "fresnel_zone" ) = 2,
         py::arg( "freq" ) = 868.0e6,
         py::arg( "grid_resolution" ) = 1.0,
+        py::arg( "k_value" ) = 4.0 / 3.0,
         py::arg( "max_threads" ) = 0,
         py::arg( "url_dgm1" ) = std::string( URL_DGM1_BAVARIA ),
         py::arg( "url_dom20" ) = std::string( URL_DOM20_BAVARIA ),
@@ -100,6 +106,7 @@ PYBIND11_MODULE( raytracing, m ) {
             const std::tuple<double, double, double>& start_point,
             const std::vector<std::tuple<double, double, double>>& end_points,
             double grid_resolution,
+            double k_value,
             int max_threads,
 
             std::string url_dgm1  = std::string( URL_DGM1_BAVARIA ),
@@ -117,6 +124,7 @@ PYBIND11_MODULE( raytracing, m ) {
                 0.1,
                 2, 868.0e6,
                 grid_resolution,
+                k_value,
                 max_threads
             );
 
@@ -128,18 +136,20 @@ PYBIND11_MODULE( raytracing, m ) {
                     std::get<1>(end_points[i]),
                     std::get<2>(end_points[i])
                 );
-
+/*
                 struct timespec start, end;
                 clock_gettime(CLOCK_MONOTONIC, &start);
-
+*/
                 raytracer.raytracingDirect( _end_point );
-
+/*
                 clock_gettime(CLOCK_MONOTONIC, &end);
 
                 double elapsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
                 printf("%d\n", i);
                 printf("Duration: %f s\n", elapsed);
+*/
 
+                updateProgressBar( i, len_end_points );
 
                 if ( PyErr_CheckSignals() != 0 ) {
                     throw pybind11::error_already_set();
@@ -151,6 +161,7 @@ PYBIND11_MODULE( raytracing, m ) {
         py::arg( "start_point" ),
         py::arg( "end_points" ),
         py::arg( "grid_resolution" ) = 1.0,
+        py::arg( "k_value" ) = 4.0 / 3.0,
         py::arg( "max_threads" ) = 0,
         py::arg( "url_dgm1" ) = std::string( URL_DGM1_BAVARIA ),
         py::arg( "url_dom20" ) = std::string( URL_DOM20_BAVARIA )

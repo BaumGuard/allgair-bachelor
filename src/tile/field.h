@@ -179,7 +179,7 @@ public:
         Vector& start,
         Vector& end,
         float ground_level_threshold,
-        int* ground_count,
+        std::vector<bool>* decision_arrrays_united,
         int tile_type,
         bool cancel_on_ground = false,
         int n_threads = MAX_THREADS

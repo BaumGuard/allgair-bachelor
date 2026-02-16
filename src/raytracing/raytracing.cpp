@@ -32,6 +32,7 @@ Raytracer::Raytracer (
     double max_point_to_plane_distance,
     uint fresnel_zone, double freq,
     double grid_resolution,
+    double k_value,
     int max_threads,
 
     std::string url_dgm1,
@@ -54,6 +55,9 @@ Raytracer::Raytracer (
     else {
         MAX_THREADS = NUM_CORES;
     }
+
+    K_VALUE = k_value;
+    EARTH_RADIUS_EFFECTIVE = EARTH_RADIUS * k_value;
 
     createResultFileName( result_file_name );
     result_file = fopen( result_file_name, "w" );
@@ -82,12 +86,49 @@ Raytracer::~Raytracer () {
 
 /*---------------------------------------------------------------*/
 
+void Raytracer::calculateCounterValues (
+    std::vector<bool>& dgm_decision_array,
+    std::vector<bool>& dom_decision_array,
+    std::vector<bool>& dom_masked_decision_array,
+
+    int& ground_count,
+    int& vegetation_count,
+    int& infrastructure_count
+) {
+    uint len_decision_array = dgm_decision_array.size();
+
+    int
+        dgm_count = 0,
+        dom_count = 0,
+        dom_masked_count = 0;
+
+    for ( uint i = 0; i < len_decision_array; i++ ) {
+        if ( dgm_decision_array[i] ) {
+            dgm_count++;
+        }
+        if ( dom_decision_array[i] && !dgm_decision_array[i] ) {
+            dom_count++;
+        }
+        if ( dom_masked_decision_array[i] && !dgm_decision_array[i] ) {
+            dom_masked_count++;
+        }
+    }
+
+    ground_count += dgm_count;
+    vegetation_count += dom_masked_count;
+    infrastructure_count += dom_count - dom_masked_count;
+}
+
+
 int Raytracer::raytracingWithReflection ( Vector& end_point ) {
     int status;
-
+//clock_t start, end;
+    //start = clock();
     std::vector<Polygon> selected_polygons;
     status = grid_field->precalculate(
         selected_polygons, start_point, end_point, select_method, fresnel_zone, freq );
+    //end = clock();
+    //printf("Duration %f\n", (double)(end-start) / (double)CLOCKS_PER_SEC);
 
     if ( status != SUCCESS ) {
         return status;
@@ -97,26 +138,33 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
     for ( uint i = 0; i < n_polygons; i++ ) {
         Vector reflect_point = selected_polygons[i].getCentroid();
 
+        std::vector<bool>
+            dgm_decision_array_1, dgm_decision_array_2,
+            dom_decision_array_1, dom_decision_array_2,
+            dom_masked_decision_array_1, dom_masked_decision_array_2;
+
         int
-            count_dgm_1, count_dgm_2,
-            count_dom_1, count_dom_2,
-            count_dom_masked_1, count_dom_masked_2,
-            ground_count,
-            vegetation_count,
-            infrastructure_count;
+            ground_count = 0,
+            vegetation_count = 0,
+            infrastructure_count = 0;
 
         Vector intersection;
 
-        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dgm_1, DGM );
-        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dom_1, DOM );
-        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &count_dom_masked_1, DOM_MASKED );
-        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dgm_2, DGM );
-        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dom_2, DOM );
-        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &count_dom_masked_2, DOM_MASKED );
+        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dgm_decision_array_1, DGM );
+        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_decision_array_1, DOM );
+        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_masked_decision_array_1, DOM_MASKED );
+        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dgm_decision_array_2, DGM );
+        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_decision_array_2, DOM );
+        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_masked_decision_array_2, DOM_MASKED );
 
-        ground_count = count_dgm_1 + count_dgm_2;
-        vegetation_count = count_dom_masked_1 + count_dom_masked_2 - ground_count;
-        infrastructure_count = count_dom_1 + count_dom_2 - vegetation_count - ground_count;
+        calculateCounterValues(
+            dgm_decision_array_1, dom_decision_array_1, dom_masked_decision_array_1,
+            ground_count, vegetation_count, infrastructure_count
+        );
+        calculateCounterValues(
+            dgm_decision_array_2, dom_decision_array_2, dom_masked_decision_array_2,
+            ground_count, vegetation_count, infrastructure_count
+        );
 
         status = writeResultObject_WithReflection(
             end_point, reflect_point,
@@ -135,14 +183,24 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
 int Raytracer::raytracingDirect ( Vector& end_point ) {
     int count_dgm, count_dom, count_dom_masked;
 
-    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &count_dgm, DGM );
-    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &count_dom, DOM );
-    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &count_dom_masked, DOM_MASKED );
+    std::vector<bool>
+        dgm_decision_array,
+        dom_decision_array,
+        dom_masked_decision_array;
+
+    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dgm_decision_array, DGM );
+    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dom_decision_array, DOM );
+    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dom_masked_decision_array, DOM_MASKED );
 
     int
-        ground_count = count_dgm,
-        vegetation_count = count_dom_masked - count_dgm,
-        infrastructure_count = count_dom - vegetation_count - ground_count;
+        ground_count = 0,
+        vegetation_count = 0,
+        infrastructure_count = 0;
+
+    calculateCounterValues(
+        dgm_decision_array, dom_decision_array, dom_masked_decision_array,
+        ground_count, vegetation_count, infrastructure_count
+    );
 
     //printf("DGM %d - DOM %d  - DOM_MASKED %d\n", count_dgm, count_dom, count_dom_masked);
 

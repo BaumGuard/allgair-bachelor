@@ -26,6 +26,16 @@ Args:
 void printMessage ( int type, const char* format, ... );
 
 /*
+Show a progress bar in the terminal
+
+Args:
+ - n_done : Number of processes already done
+ - n_all  : Number of all processes
+*/
+#define PROGRESS_BAR_LENGTH 50
+void updateProgressBar( int n_done, int n_all );
+
+/*
 Clamp a double variable to a number of decimal places
 to prevent false negative comparisons
 

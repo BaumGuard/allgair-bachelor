@@ -33,6 +33,24 @@ void printMessage ( int type, const char* format, ... ) {
 
 /*---------------------------------------------------------------*/
 
+void updateProgressBar( int n_done, int n_all ) {
+    double progress = (double) n_done / (double) n_all;
+    int num_chars = (int)( progress * PROGRESS_BAR_LENGTH );
+
+    printf( "\r[" );
+    for ( int i = 0; i < num_chars; i++ ) {
+        printf( "#" );
+    }
+    for ( int i = 0; i < PROGRESS_BAR_LENGTH-num_chars; i++ ) {
+        printf( " " );
+    }
+
+    printf( "] %.02f %% (%d / %d) Done", progress * 100.0, n_done, n_all );
+    fflush( stdout );
+} /* updateProgressBar() */
+
+/*---------------------------------------------------------------*/
+
 double clampDouble ( double n, int precision ) {
     long n_long = (long) ( n * pow(10, precision) );
 

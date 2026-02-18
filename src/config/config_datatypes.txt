@@ -1,4 +1,0 @@
-option1 FLOAT
-option2 S_INT
-option3 U_INT
-option4 BOOL

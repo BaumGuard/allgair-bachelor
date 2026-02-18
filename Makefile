@@ -9,7 +9,7 @@ BUILDDIR = build
 
 all: $(TARGET)
 
-$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/field.o $(BUILDDIR)/config.o $(BUILDDIR)/fresnel_zone.o $(BUILDDIR)/precalc.o $(BUILDDIR)/raytracing.o $(BUILDDIR)/result_output.o $(BUILDDIR)/global_config.o $(BUILDDIR)/load_tile.o
+$(TARGET): $(BUILDDIR)/main.o $(SRCDIR)/status_codes.h $(BUILDDIR)/vector.o $(BUILDDIR)/line.o $(BUILDDIR)/plane.o $(BUILDDIR)/polygon.o $(BUILDDIR)/utils.o $(BUILDDIR)/gmlfile.o $(BUILDDIR)/geotiff.o $(BUILDDIR)/vector_tile.o $(BUILDDIR)/grid_tile.o $(BUILDDIR)/surface.o $(BUILDDIR)/download.o $(BUILDDIR)/field.o $(BUILDDIR)/fresnel_zone.o $(BUILDDIR)/precalc.o $(BUILDDIR)/raytracing.o $(BUILDDIR)/result_output.o $(BUILDDIR)/global_config.o $(BUILDDIR)/load_tile.o
 	$(CC) $(LDFLAGS) $(BUILDDIR)/*.o $(SRCDIR)/status_codes.h -o $(TARGET)
 
 $(BUILDDIR)/vector.o: $(SRCDIR)/geometry/vector.h $(SRCDIR)/geometry/vector.cpp
@@ -47,9 +47,6 @@ $(BUILDDIR)/download.o: $(SRCDIR)/web/download.h $(SRCDIR)/web/download.cpp
 
 $(BUILDDIR)/field.o: $(SRCDIR)/tile/field.h $(SRCDIR)/tile/field.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/tile/field.cpp -o $(BUILDDIR)/field.o
-
-$(BUILDDIR)/config.o: $(SRCDIR)/config/config.h $(SRCDIR)/config/config.cpp
-	$(CC) $(CFLAGS) $(SRCDIR)/config/config.cpp -o $(BUILDDIR)/config.o
 
 $(BUILDDIR)/fresnel_zone.o: $(SRCDIR)/precalc/fresnel_zone.h $(SRCDIR)/precalc/fresnel_zone.cpp
 	$(CC) $(CFLAGS) $(SRCDIR)/precalc/fresnel_zone.cpp -o $(BUILDDIR)/fresnel_zone.o

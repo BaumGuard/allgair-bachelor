@@ -29,6 +29,12 @@ std::vector<Polygon>& VectorTile::getPolygons () {
 
 /*---------------------------------------------------------------*/
 
+std::vector<uint>& VectorTile::getSectionStarts () {
+    return section_starts;
+} /* getSectionStarts () */
+
+/*---------------------------------------------------------------*/
+
 union data_block {
     uint8_t u8;
     uint32_t u32;
@@ -41,6 +47,7 @@ union data_block {
 
 int VectorTile::createBinaryFile ( std::string file_path ) {
     uint32_t byte_count = 0;
+    int section_index = 0;
 
     union data_block data_sect;
 
@@ -54,6 +61,21 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
 
     data_sect.u32 = 0;
     fwrite( data_sect.bytes, 1, 4, file );
+
+    data_sect.f64 = lower_corner.getX();
+    fwrite( data_sect.bytes, 1, 8, file );
+    data_sect.f64 = lower_corner.getY();
+    fwrite( data_sect.bytes, 1, 8, file );
+    data_sect.f64 = lower_corner.getZ();
+    fwrite( data_sect.bytes, 1, 8, file );
+
+    data_sect.f64 = upper_corner.getX();
+    fwrite( data_sect.bytes, 1, 8, file );
+    data_sect.f64 = upper_corner.getY();
+    fwrite( data_sect.bytes, 1, 8, file );
+    data_sect.f64 = upper_corner.getZ();
+    fwrite( data_sect.bytes, 1, 8, file );
+
 
     uint32_t len_polygons = (uint32_t) polygons.size();
     uint32_t len_point_list;
@@ -72,6 +94,11 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
     Vector point;
 
     for ( uint32_t i = 0; i < len_polygons; i++ ) {
+        if ( section_index < section_starts.size() && i == section_starts[section_index] ) {
+            while ( section_index < section_starts.size() && i == section_starts[section_index++] ) {
+                fprintf( file, "STRP" );
+            }
+        }
         fprintf( file, "PLGN" );
 
         data_sect.u32 = i;
@@ -170,6 +197,21 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
     fread( data.bytes, 1, 4, file );
     //uint32_t file_size = data.u32;
 
+    fread( data.bytes, 1, 8, file );
+    lower_corner.setX( data.f64 );
+    fread( data.bytes, 1, 8, file );
+    lower_corner.setY( data.f64 );
+    fread( data.bytes, 1, 8, file );
+    lower_corner.setZ( data.f64 );
+
+    fread( data.bytes, 1, 8, file );
+    upper_corner.setX( data.f64 );
+    fread( data.bytes, 1, 8, file );
+    upper_corner.setY( data.f64 );
+    fread( data.bytes, 1, 8, file );
+    upper_corner.setZ( data.f64 );
+
+
     fread( data.bytes, 1, 4, file );
     uint32_t n_polygons = data.u32;
 
@@ -186,8 +228,17 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
     for ( uint32_t i = 0; i < n_polygons; i++ ) {
         Polygon polygon;
 
+        while ( true ) {
+            fread( data.bytes, 1, 4, file );
+            if ( STRNEQUAL(data.bytes, "STRP", 4) ) {
+                section_starts.push_back( i );
+            }
+            else {
+                break;
+            }
+        }
 
-        fread( data.bytes, 1, 4, file );
+        //fread( data.bytes, 1, 4, file );
         if ( !STRNEQUAL(data.bytes, "PLGN", 4) ) {
             return FILE_CORRUPT;
         }
@@ -298,6 +349,9 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
     Plane base_plane;
 
     std::vector<Surface>& surfaces = gmlfile.getSurfaces();
+
+    lower_corner = gmlfile.getLowerCorner();
+    upper_corner = gmlfile.getUpperCorner();
 
     uint len = surfaces.size();
     uint len_pos_list;
@@ -421,7 +475,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
             // the base plane's normal vector
             if ( !base_plane.isPointOnPlane(pos) ) {
 
-                if ( dist < 0.1 /*< PLANE_DISTANCE_THRESHOLD*/ ) {
+                if ( dist < PLANE_DISTANCE_THRESHOLD ) {
                     corr_vec = base_plane.normalVector();
                     corr_line.createLineFromBaseAndVector( pos, corr_vec );
 
@@ -447,8 +501,8 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
         if ( !point_too_far_away && polygon.getPoints().size() >= 3 ) {
 
             //if ( !isPolygonAlreadyInList(polygons, polygon) ) {
-                polygon.getCentroid();
-                polygons.push_back( polygon );
+            polygon.getCentroid();
+            polygons.push_back( polygon );
             //}
 
             add_count++;
@@ -554,5 +608,85 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
     // successfully for statistical and debugging purposes
     error_rate = (double)no / (double)( yes + no );
 
+    orderPolygonsInStripes( 20 );
+
     return SUCCESS;
 } /* fromGmlFile() */
+
+/*---------------------------------------------------------------*/
+
+int VectorTile::partition ( int start, int end, bool by_x ) {
+    Polygon& pivot = polygons[end];
+    int i = start - 1;
+
+    for ( int j = start; j < end; j++ ) {
+        if ( by_x ) {
+            if ( polygons[j].getCentroid().getX() < pivot.getCentroid().getX() ) {
+                i++;
+
+                Polygon tmp = polygons[j];
+                polygons[j] = polygons[i];
+                polygons[i] = tmp;
+            }
+        }
+        else {
+            if ( polygons[j].getCentroid().getY() < pivot.getCentroid().getY() ) {
+                i++;
+
+                Polygon tmp = polygons[j];
+                polygons[j] = polygons[i];
+                polygons[i] = tmp;
+            }
+        }
+    }
+
+    Polygon tmp = polygons[end];
+    polygons[end] = polygons[i+1];
+    polygons[i+1] = tmp;
+
+    return i + 1;
+} /* partition () */
+
+
+void VectorTile::sortPolygons ( int start, int end, bool by_x ) {
+    if ( start < end ) {
+        int pivot = partition( start, end, by_x );
+
+        sortPolygons( start, pivot-1, by_x );
+        sortPolygons( pivot+1, end, by_x );
+    }
+} /* sortPolygons () */
+
+
+void VectorTile::orderPolygonsInStripes ( int n_stripes ) {
+    // Sort the polygons by the y coordinate of their centroid
+    sortPolygons( 0, polygons.size()-1, false );
+
+    double stripe_width =
+        ( upper_corner.getY() - lower_corner.getY() ) / (double)n_stripes;
+
+    section_starts.push_back( 0 );
+
+    int* stripe_counts = new int [n_stripes];
+    for ( int i = 0; i < n_stripes; i++ ) {
+        stripe_counts[i] = 0;
+    }
+
+    uint len_polygons = polygons.size();
+    for ( uint i = 0; i < len_polygons; i++ ) {
+        int idx = (int)( ( polygons[i].getCentroid().getY() - lower_corner.getY() ) / stripe_width );
+        stripe_counts[idx]++;
+    }
+
+    for ( uint i = 1; i < n_stripes; i++ ) {
+        section_starts.push_back( stripe_counts[i-1] + section_starts[i-1] );
+    }
+
+    delete[] stripe_counts;
+
+    uint len_sections = section_starts.size();
+    for ( uint i = 0; i < len_sections-1; i++ ) {
+        sortPolygons( section_starts[i], section_starts[i+1]-1, true );
+    }
+    sortPolygons( section_starts[len_sections-1], polygons.size()-1, true );
+} /* orderPolygonsInStripes () */

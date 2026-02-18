@@ -3,12 +3,10 @@
 
 #include "../geometry/polygon.h"
 #include "../raw_data/gmlfile.h"
+#include "../config/global_config.h"
 #include "../status_codes.h"
 
 #include <vector>
-
-
-#define PLANE_DISTANCE_THRESHOLD 0.1
 
 /*
 Class to save vector data (surfaces) read from a GML file
@@ -32,6 +30,12 @@ public:
     Return a reference to the std::vector with the Polygon objects
     */
     std::vector<Polygon>& getPolygons ();
+
+    /*
+    Return a reference to the std::vector with the start indicies of
+    all tile sections
+    */
+    std::vector<uint>& getSectionStarts ();
 
 
 
@@ -85,12 +89,34 @@ public:
 
 private:
     std::vector<Polygon> polygons;
+    std::vector<uint> section_starts;
 
     Vector
         lower_corner,
         upper_corner;
 
     float error_rate;
+
+    /*
+    Sort the list of polygons by the x or y coordinate of
+    the polygos's centroid using the Quick Sort algorithm
+
+    Args:
+     - start : Start index of the list part
+     - end   : End index of the list part
+     - by_x  : True -> sort by x coordinate, False -> sort by y coordinate
+    */
+    int partition ( int start, int end, bool by_x );
+    void sortPolygons ( int start, int end, bool by_x );
+
+    /*
+    Divide the tile into stripes and find the start of each stripe
+    in the polygon list
+
+    Args:
+     - n_stripes : Number of stripes to divide the tile into
+    */
+    void orderPolygonsInStripes ( int n_stripes );
 };
 
 #endif

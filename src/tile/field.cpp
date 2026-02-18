@@ -573,7 +573,7 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
     // Find an intersection between the ray and the ground
     // using Bresenham's algorithm modified for 3D
     while ( it != end_it ) {
-        if ( data->cancel_on_ground && data->intersection_found ) {
+        if ( data->cancel_on_ground && (*data->intersection_found) ) {
             break;
         }
 
@@ -644,14 +644,7 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
         // at x/y they ray has hit the ground
         if ( altitude - data->h_curve_correction <= altitude_at_xy ) {
             data->decision_array->push_back( true );
-
-            if ( !*(data->intersection_found) ) {
-                *(data->intersection_found) = true;
-
-                if ( data->cancel_on_ground ) {
-                    break;
-                }
-            }
+            *(data->intersection_found) = true;
         } /* if ( z <= altitude_at_xy ) */
         else {
             data->decision_array->push_back( false );
@@ -662,111 +655,6 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
     //printf("Thread duration %f\n", (double)(end-start) / (double)CLOCKS_PER_SEC);
     return NULL;
 } /* Thread_bresenhamPseudo3D() */
-
-
-/*---------------------------------------------------------------*/
-#if 0
-int Field::surfaceIntersection (
-    Coord& intersection,
-    Coord& start,
-    Coord& end
-)
-{
-    // Find all tiles in the path of the ray and load them
-    // if not already done
-    std::vector<std::string> tiles_on_ray =
-        tilesOnRay( start.lat, start.lon, end.lat, end.lon, 2 );
-
-    std::vector<VectorTile> tiles;
-
-    uint len = tiles_on_ray.size();
-    int status;
-    for ( uint i = 0; i < len; i++ ) {
-        if ( !tileAlreadyLoaded(tiles_on_ray[i], LOD2) ) {
-            status = loadTile( tiles_on_ray[i], LOD2 );
-            if ( status == TILE_NOT_AVAILABLE ) {
-                return TILE_NOT_AVAILABLE;
-            }
-        }
-        tiles.push_back( vector_tiles_lod2[tiles_on_ray[i]] );
-    }
-
-    // Transform lat/lon coordinates to UTM32 coordinates
-    double start_x, start_y, end_x, end_y;
-    LatLonToUTMXY( start.lat, start.lon, 32, start_x, start_y );
-    LatLonToUTMXY( end.lat, end.lon, 32, end_x, end_y );
-
-    Vector
-        start_point ( start_x, start_y, start.altitude ),
-        end_point ( end_x, end_y, end.altitude ),
-        intersect;
-
-
-    // Create a ray between the start and the end point
-    Line ray;
-    ray.createLineFromTwoPoints( start_point, end_point );
-
-    bool found_intersection = false;
-
-    // List for storing all intersections of the ray with surfaces
-    std::vector<Vector> intersections;
-    std::vector<Polygon> polygons;
-
-    for ( uint i = 0; i < len; i++ ) {
-        std::vector<Polygon>& surfaces = tiles[i].getPolygons();
-
-        uint surfaces_len = surfaces.size();
-        for ( uint j = 0; j < surfaces_len; j++ ) {
-            status = surfaces[j].lineIntersection( ray, intersect );
-
-            if ( status == INTERSECTION_FOUND ) {
-                intersections.push_back( intersect );
-                polygons.push_back( surfaces[j] );
-                found_intersection = true;
-            }
-        }
-    }
-
-    // Find the intersection closest to the starting point
-    if ( found_intersection ) {
-        double min_distance = ( intersections[0] - start_point ).length();
-        double current_distance;
-        uint min_index = 0;
-
-        uint intersections_len = intersections.size();
-        for ( uint i = 1; i < intersections_len; i++ ) {
-            current_distance = ( intersections[i] - start_point ).length();
-
-            if ( current_distance < min_distance ) {
-                min_distance = current_distance;
-                min_index = i;
-            }
-        }
-
-        // Transform back to lat/lon coordinates
-        double intersection_lat, intersection_lon;
-        UTMXYToLatLon(
-            intersections[min_index].getX(), intersections[min_index].getY(),
-            32, false,
-            intersection_lat, intersection_lon
-        );
-
-        intersection.lat = RAD_TO_DEG( intersection_lat );
-        intersection.lon = RAD_TO_DEG( intersection_lon );
-        intersection.altitude = intersections[min_index].getZ();
-
-        for ( size_t k = 0; k < polygons.size(); k++ ) {
-            polygons[k].printPolygon();
-            printf("------------\n");
-            intersections[k].printVector();
-        }
-
-        return INTERSECTION_FOUND;
-    }
-
-    return NO_INTERSECTION_FOUND;
-} /* surfaceIntersection() */
-#endif
 
 /*---------------------------------------------------------------*/
 
@@ -922,7 +810,7 @@ void* Thread_precalculate ( void* arg ) {
         ) {
             pthread_mutex_lock( data->selected_polygons_mutex );
             data->selected_polygons->push_back( (*data->polygons)[i] );
-            (*data->polygons)[i].printPolygon();
+            //(*data->polygons)[i].printPolygon();
             pthread_mutex_unlock( data->selected_polygons_mutex );
         }
     }
@@ -956,27 +844,52 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
     Vector test_point;
 
     std::vector<Polygon>& tile_polygons = vector_tile.getPolygons();
+    std::vector<uint>& section_starts = vector_tile.getSectionStarts();
     len_polygons = tile_polygons.size();
 
-    for ( uint j = 0; j < len_polygons; j++ ) {
-        std::vector<Vector>& points = tile_polygons[j].getPoints();
-
-        uint len_points = points.size();
-        if ( len_points > 0 ) {
-            for ( uint k = 0; k < len_points; k++ ) {
-                test_point = points[k];
-                test_point.setZ( 0.0 );
-
-                if ( data->ground_area->isPointInPolygon(test_point, true) ) {
-                    pthread_mutex_lock( data->polygon_list_mutex );
-                    data->polygon_list->push_back( tile_polygons[j] );
-                    pthread_mutex_unlock( data->polygon_list_mutex );
-                    break;
-                }
-            }
-
+/*
+    uint len_section_starts = section_starts.size();
+    for ( uint i = 0; i < len_section_starts; i++ ) {
+        int section_end;
+        if ( i < len_section_starts - 1 ) {
+            section_end = section_starts[i+1];
+        }
+        else {
+            section_end = tile_polygons.size();
         }
 
+        uint j = section_starts[i];
+        for ( ; j < section_end; j++ ) {
+            if ( data->ground_area->isPointInPolygon( tile_polygons[j].getCentroid(), true ) ) {
+                //printf("Polygon found\n");
+                pthread_mutex_lock( data->polygon_list_mutex );
+                data->polygon_list->push_back( tile_polygons[j] );
+                pthread_mutex_unlock( data->polygon_list_mutex );
+                break;
+            }
+        }
+
+        j++;
+
+        for ( ; j < section_end; j++ ) {
+            if ( data->ground_area->isPointInPolygon( tile_polygons[j].getCentroid(), true ) ) {
+                pthread_mutex_lock( data->polygon_list_mutex );
+                data->polygon_list->push_back( tile_polygons[j] );
+                pthread_mutex_unlock( data->polygon_list_mutex );
+            }
+            else {
+                break;
+            }
+        }
+    }
+*/
+
+    for ( uint i = 0; i < len_polygons; i++ ) {
+        if ( data->ground_area->isPointInPolygon( tile_polygons[i].getCentroid(), true ) ) {
+            pthread_mutex_lock( data->polygon_list_mutex );
+            data->polygon_list->push_back( tile_polygons[i] );
+            pthread_mutex_unlock( data->polygon_list_mutex );
+        }
     }
 
     return NULL;
@@ -1037,7 +950,6 @@ int Field::getPolygonsInGroundArea (
         delete[] threads;
         delete[] data;
     }
-
     polygons = polygon_list;
 
     /*

@@ -247,7 +247,7 @@ void* Thread_maskTile ( void* arg ) {
 
                     for ( int y_kernel = tile_y-10; y_kernel <= tile_y+10; y_kernel++ ) {
                         for ( int x_kernel = tile_x-10; x_kernel <= tile_x+10; x_kernel++ ) {
-                            global_grid_tile->setValue( x_kernel, y_kernel, 0.0 );
+                            global_grid_tile->setValue( x_kernel, y_kernel, -9999.0 );
                         }
                     }
 

@@ -36,6 +36,17 @@ Args:
 void updateProgressBar( int n_done, int n_all );
 
 /*
+Create the environment (directories) for the raytracer
+ - data
+ - data/DGM1
+ - data/DOM20
+ - data/DOM20_MASKED
+ - data/LOD2
+ - results
+*/
+void createEnvironment ();
+
+/*
 Clamp a double variable to a number of decimal places
 to prevent false negative comparisons
 

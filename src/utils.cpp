@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdarg>
+#include <sys/stat.h>
 
 /*---------------------------------------------------------------*/
 
@@ -48,6 +49,17 @@ void updateProgressBar( int n_done, int n_all ) {
     printf( "] %.02f %% (%d / %d) Done", progress * 100.0, n_done, n_all );
     fflush( stdout );
 } /* updateProgressBar() */
+
+/*---------------------------------------------------------------*/
+
+void createEnvironment () {
+    mkdir( "data", 0777 );
+    mkdir( "data/DGM1", 0777 );
+    mkdir( "data/DOM20", 0777 );
+    mkdir( "data/DOM20_MASKED", 0777 );
+    mkdir( "data/LOD2", 0777 );
+    mkdir( "results", 0777 );
+} /* createEnvironment () */
 
 /*---------------------------------------------------------------*/
 

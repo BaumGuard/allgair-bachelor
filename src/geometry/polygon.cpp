@@ -52,7 +52,7 @@ int Polygon::addPoint ( Vector point ) {
 
 /*---------------------------------------------------------------*/
 
-bool Polygon::isPointInPolygon ( Vector& p, bool two_d ) const {
+bool Polygon::isPointInPolygon ( Vector p, bool two_d ) const {
     // Rotated polygon points
     std::vector<Vector> mapped_points;
 

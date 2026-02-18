@@ -54,7 +54,7 @@ public:
                parallel to the xy plane, just use the x and y coordinates
                and ignore the z coordinate)
     */
-    bool isPointInPolygon ( Vector& p, bool two_d = false ) const;
+    bool isPointInPolygon ( Vector p, bool two_d = false ) const;
 
 
     /* GETTERS */

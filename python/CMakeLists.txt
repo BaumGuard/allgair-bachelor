@@ -32,7 +32,6 @@ raytracing_pybind.cpp
 ../src/raw_data/gmlfile.cpp
 ../src/raw_data/surface.cpp
 ../src/raytracing/raytracing.cpp
-../src/raytracing/result_output.cpp
 ../src/tile/grid_tile.cpp
 ../src/tile/vector_tile.cpp
 ../src/tile/field.cpp

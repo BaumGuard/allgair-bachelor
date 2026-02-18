@@ -18,10 +18,17 @@ extern int MAX_THREADS;
 // Resolution of the grid tiles in meters
 extern double GRID_RESOLUTION;
 
+// Maximum distance from a point to the polygon's ground plane
+// until which the point should be pulled into the plane
+// When the distance is larger, the polygon will be discarded
+extern double PLANE_DISTANCE_THRESHOLD;
+
 // K value to correct the altitudes
 extern double K_VALUE;
 
 #define EARTH_RADIUS 6366473.0
 extern double EARTH_RADIUS_EFFECTIVE;
+
+extern bool CANCEL_ON_GROUND;
 
 #endif

@@ -25,6 +25,7 @@ PYBIND11_MODULE( raytracing, m ) {
             double freq,
             double grid_resolution,
             double k_value,
+            bool cancel_on_ground,
             int max_threads,
 
             std::string url_dgm1  = std::string( URL_DGM1_BAVARIA ),
@@ -59,6 +60,7 @@ PYBIND11_MODULE( raytracing, m ) {
                 fresnel_zone, freq,
                 grid_resolution,
                 k_value,
+                cancel_on_ground,
                 max_threads,
 
                 url_dgm1,
@@ -76,7 +78,7 @@ PYBIND11_MODULE( raytracing, m ) {
                 //printf("%d\n", i);
                 raytracer.raytracingWithReflection( end_point );
 
-                updateProgressBar( i, len_end_points );
+                updateProgressBar( i+1, len_end_points );
 
                 if ( PyErr_CheckSignals() != 0 ) {
                     throw pybind11::error_already_set();
@@ -93,6 +95,7 @@ PYBIND11_MODULE( raytracing, m ) {
         py::arg( "freq" ) = 868.0e6,
         py::arg( "grid_resolution" ) = 1.0,
         py::arg( "k_value" ) = 4.0 / 3.0,
+        py::arg( "cancel_on_ground" ) = false,
         py::arg( "max_threads" ) = 0,
         py::arg( "url_dgm1" ) = std::string( URL_DGM1_BAVARIA ),
         py::arg( "url_dom20" ) = std::string( URL_DOM20_BAVARIA ),
@@ -107,6 +110,7 @@ PYBIND11_MODULE( raytracing, m ) {
             const std::vector<std::tuple<double, double, double>>& end_points,
             double grid_resolution,
             double k_value,
+            bool cancel_on_ground,
             int max_threads,
 
             std::string url_dgm1  = std::string( URL_DGM1_BAVARIA ),
@@ -125,6 +129,7 @@ PYBIND11_MODULE( raytracing, m ) {
                 2, 868.0e6,
                 grid_resolution,
                 k_value,
+                cancel_on_ground,
                 max_threads
             );
 
@@ -149,7 +154,7 @@ PYBIND11_MODULE( raytracing, m ) {
                 printf("Duration: %f s\n", elapsed);
 */
 
-                updateProgressBar( i, len_end_points );
+                updateProgressBar( i+1, len_end_points );
 
                 if ( PyErr_CheckSignals() != 0 ) {
                     throw pybind11::error_already_set();
@@ -162,6 +167,7 @@ PYBIND11_MODULE( raytracing, m ) {
         py::arg( "end_points" ),
         py::arg( "grid_resolution" ) = 1.0,
         py::arg( "k_value" ) = 4.0 / 3.0,
+        py::arg( "cancel_on_ground" ) = false,
         py::arg( "max_threads" ) = 0,
         py::arg( "url_dgm1" ) = std::string( URL_DGM1_BAVARIA ),
         py::arg( "url_dom20" ) = std::string( URL_DOM20_BAVARIA )

@@ -75,9 +75,9 @@ Raytracer::Raytracer (
 
     fprintf( result_file, "[\n" );
 
-    chosen_url_dgm1 = url_dgm1;
-    chosen_url_dom20 = url_dom20;
-    chosen_url_lod2 = url_lod2;
+    CHOSEN_URL_DGM1 = url_dgm1;
+    CHOSEN_URL_DOM20 = url_dom20;
+    CHOSEN_URL_LOD2 = url_lod2;
 } /* Raytracer() */
 
 /*---------------------------------------------------------------*/

@@ -97,15 +97,15 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
     std::string url;
     switch ( tile_type ) {
         case DGM1:
-            url = chosen_url_dgm1 + raw_file_name;
+            url = CHOSEN_URL_DGM1 + raw_file_name;
             break;
 
         case DOM20:
-            url = chosen_url_dom20 + raw_file_name;
+            url = CHOSEN_URL_DOM20 + raw_file_name;
             break;
 
         case DOM20_MASKED:
-            url = chosen_url_dom20 + raw_file_name;
+            url = CHOSEN_URL_DOM20 + raw_file_name;
             break;
     }
 
@@ -222,7 +222,7 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
 
 
     // Download the raw file
-    std::string url = chosen_url_lod2 + raw_file_name;
+    std::string url = CHOSEN_URL_LOD2 + raw_file_name;
 /*
     printMessage(
         NORMAL,

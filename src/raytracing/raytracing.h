@@ -4,7 +4,6 @@
 #include "selection_methods.h"
 #include "../geometry/vector.h"
 #include "../tile/field.h"
-#include "../utils.h"
 #include "../web/urls.h"
 
 #include <vector>
@@ -45,6 +44,7 @@ public:
         uint fresnel_zone = 2, double freq = 868.0e6,
         double grid_resolution = 1.0,
         double k_value = 4.0 / 3.0,
+        bool cancel_on_ground = false,
         int max_threads = 0,
 
         std::string url_dgm1  = std::string( URL_DGM1_BAVARIA ),
@@ -122,7 +122,7 @@ private:
 
     Field* grid_field;
 
-    char result_file_name [64];
+    char result_file_name [256];
     FILE* result_file;
 
 

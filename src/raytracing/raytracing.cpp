@@ -4,6 +4,7 @@
 #include "../precalc/precalc.h"
 #include "../tile/tile_types.h"
 #include "../config/global_config.h"
+#include "../utils.h"
 
 #include <unistd.h>
 #include <pthread.h>
@@ -21,7 +22,9 @@ void createResultFileName ( char* dst_string ) {
     char filename_timestamp[32];
     strftime( filename_timestamp, 32, "%Y%m%d_%H%M%S", info );
 
-    snprintf( dst_string, 64, "results/Result_%s.json", filename_timestamp );
+    snprintf( dst_string, 256, "results/Result_%s.json", filename_timestamp );
+
+    printf( "Writing to the result file: %s\n", dst_string );
 } /* createResultFileName() */
 
 /*---------------------------------------------------------------*/
@@ -33,6 +36,7 @@ Raytracer::Raytracer (
     uint fresnel_zone, double freq,
     double grid_resolution,
     double k_value,
+    bool cancel_on_ground,
     int max_threads,
 
     std::string url_dgm1,
@@ -45,7 +49,10 @@ Raytracer::Raytracer (
     this->fresnel_zone = fresnel_zone;
     this->freq = freq;
 
+    // Global settings in global_config.h
     GRID_RESOLUTION = grid_resolution;
+
+    PLANE_DISTANCE_THRESHOLD = max_point_to_plane_distance;
 
     grid_field = new Field( grid_resolution );
 
@@ -57,7 +64,11 @@ Raytracer::Raytracer (
     }
 
     K_VALUE = k_value;
+    CANCEL_ON_GROUND = cancel_on_ground;
     EARTH_RADIUS_EFFECTIVE = EARTH_RADIUS * k_value;
+
+
+    createEnvironment();
 
     createResultFileName( result_file_name );
     result_file = fopen( result_file_name, "w" );
@@ -74,11 +85,34 @@ Raytracer::Raytracer (
 Raytracer::~Raytracer () {
     fclose( result_file );
 
-    fopen( result_file_name, "r+" );
+    // Correct the end of the file
+    // Remove the comma after the last JSON object and close the list with ]
+    FILE *result_file = fopen( result_file_name, "r+" );
     fseek( result_file, 0, SEEK_END );
+
     long pos = ftell( result_file );
-    fseek( result_file, pos-2, SEEK_SET);
-    fprintf( result_file, "\n]\n" );
+
+    int ch;
+    while ( pos > 0 ) {
+        pos--;
+        fseek( result_file, pos, SEEK_SET );
+
+        ch = fgetc( result_file );
+        if ( ch == ',' || ch == '[' ) {
+            break;
+        }
+    }
+
+    if ( ch == ',' ) {
+        ftruncate(fileno( result_file), pos );
+        fseek( result_file, 0, SEEK_END );
+        fputs( "\n]", result_file );
+    }
+    else if ( ch == '[' ) {
+        fseek( result_file, 0, SEEK_END );
+        fputc( ']', result_file );
+    }
+
     fclose( result_file );
 
     delete grid_field;
@@ -122,13 +156,10 @@ void Raytracer::calculateCounterValues (
 
 int Raytracer::raytracingWithReflection ( Vector& end_point ) {
     int status;
-//clock_t start, end;
-    //start = clock();
+
     std::vector<Polygon> selected_polygons;
     status = grid_field->precalculate(
         selected_polygons, start_point, end_point, select_method, fresnel_zone, freq );
-    //end = clock();
-    //printf("Duration %f\n", (double)(end-start) / (double)CLOCKS_PER_SEC);
 
     if ( status != SUCCESS ) {
         return status;
@@ -150,12 +181,23 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
 
         Vector intersection;
 
-        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dgm_decision_array_1, DGM );
-        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_decision_array_1, DOM );
-        grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_masked_decision_array_1, DOM_MASKED );
-        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dgm_decision_array_2, DGM );
-        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_decision_array_2, DOM );
-        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_masked_decision_array_2, DOM_MASKED );
+        status = grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dgm_decision_array_1, DGM, CANCEL_ON_GROUND );
+        if ( !(CANCEL_ON_GROUND && status == INTERSECTION_FOUND) ) {
+            grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_decision_array_1, DOM );
+            grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_masked_decision_array_1, DOM_MASKED );
+        }
+        else {
+            return status;
+        }
+
+        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dgm_decision_array_2, DGM, CANCEL_ON_GROUND );
+        if ( !(CANCEL_ON_GROUND && status == INTERSECTION_FOUND) ) {
+            grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_decision_array_2, DOM );
+            grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_masked_decision_array_2, DOM_MASKED );
+        }
+        else {
+            return status;
+        }
 
         calculateCounterValues(
             dgm_decision_array_1, dom_decision_array_1, dom_masked_decision_array_1,
@@ -188,27 +230,30 @@ int Raytracer::raytracingDirect ( Vector& end_point ) {
         dom_decision_array,
         dom_masked_decision_array;
 
-    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dgm_decision_array, DGM );
-    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dom_decision_array, DOM );
-    grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dom_masked_decision_array, DOM_MASKED );
+    int status = grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dgm_decision_array, DGM, CANCEL_ON_GROUND );
 
-    int
-        ground_count = 0,
-        vegetation_count = 0,
-        infrastructure_count = 0;
+    if ( !(CANCEL_ON_GROUND && status == INTERSECTION_FOUND) ) {
+        grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dom_decision_array, DOM );
+        grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dom_masked_decision_array, DOM_MASKED );
 
-    calculateCounterValues(
-        dgm_decision_array, dom_decision_array, dom_masked_decision_array,
-        ground_count, vegetation_count, infrastructure_count
-    );
+        int
+            ground_count = 0,
+            vegetation_count = 0,
+            infrastructure_count = 0;
 
-    //printf("DGM %d - DOM %d  - DOM_MASKED %d\n", count_dgm, count_dom, count_dom_masked);
+        calculateCounterValues(
+            dgm_decision_array, dom_decision_array, dom_masked_decision_array,
+            ground_count, vegetation_count, infrastructure_count
+        );
 
-    writeResultObject_Direct(
-        end_point,
-        ( end_point - start_point ).length(),
-        ground_count, vegetation_count, infrastructure_count
-    );
+        //printf("DGM %d - DOM %d  - DOM_MASKED %d\n", count_dgm, count_dom, count_dom_masked);
+
+        writeResultObject_Direct(
+            end_point,
+            ( end_point - start_point ).length(),
+            ground_count, vegetation_count, infrastructure_count
+        );
+    }
 
     return 1;
 } /* raytracingDirect() */

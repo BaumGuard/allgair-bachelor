@@ -7,6 +7,8 @@
 #define STRNEQUAL(str1, str2, n)   !strncmp(str1, str2, n)
 #define FILE_EXISTS(file_path)     !access(file_path, F_OK)
 
+#define NUM_CORES sysconf( _SC_NPROCESSORS_ONLN )
+
 typedef unsigned int uint;
 
 enum MessageTypes {
@@ -45,19 +47,6 @@ Create the environment (directories) for the raytracer
  - results
 */
 void createEnvironment ();
-
-/*
-Clamp a double variable to a number of decimal places
-to prevent false negative comparisons
-
-Args:
- - n         : Double variable to clamp
- - precision : Decimal places
-
-Returns:
- - Clamped double value
-*/
-double clampDouble ( double n, int precision = 2 );
 
 /*
 Check if to variables are equal with a certain tolerance threshold
@@ -133,7 +122,7 @@ Args:
 void trimString ( std::string& str );
 
 /*
-Split string into two parts at the delimiter
+Split a string into two parts at the delimiter
 
 Args:
  - str          : String to split into two parts
@@ -147,10 +136,5 @@ Returns:
     - second element : Trimmed string after the delimiter
 */
 void splitString ( std::string str, std::string* strings, char delimiter );
-
-
-bool stringIsSint ( std::string str );
-bool stringIsUint ( std::string str );
-bool stringIsFloat ( std::string str );
 
 #endif

@@ -425,35 +425,6 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
         }
         p3 = surfaces[i].pos_list[p3_index];
 
-        /*
-        // Find a second point which is more than 1 m away from
-        // the base point
-        for ( int k = 1; k < len_pos_list; k++ ) {
-            p2 = surfaces[i].pos_list[k];
-            dv1 = p2 - p1;
-
-            if ( dv1.length() > 1.0 ) {
-                p2_index = k;
-                break;
-            }
-        }
-
-
-        // Find a third point which is not on the same line as
-        // the base point and the second point
-        for ( int k = 1; k < len_pos_list; k++ ) {
-            if ( k == p2_index ) {
-                continue;
-            }
-            p3 = surfaces[i].pos_list[k];
-
-            dv2 = p3 - p1;
-
-            if ( !dv1.linearDependant(dv2) && dv2.length() > 0.05 ) {
-                break;
-            }
-        }
-        */
 
         base_plane.createPlaneFromPoints( p1, p2, p3 );
 
@@ -499,11 +470,8 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
         // within the tolerance and if the Polygon object contains at
         // least three points, add it to the tile's list of polygons
         if ( !point_too_far_away && polygon.getPoints().size() >= 3 ) {
-
-            //if ( !isPolygonAlreadyInList(polygons, polygon) ) {
             polygon.getCentroid();
             polygons.push_back( polygon );
-            //}
 
             add_count++;
             yes++;
@@ -511,97 +479,6 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
         else {
             no++;
         }
-#if 0
-        else {
-            uint subpolygon_cnt = 1;
-
-            uint
-                start_dir1 = 0, end_dir1 = len_pos_list - 1,
-                start_dir2 = len_pos_list - 1;
-
-            uint dir1 = 1, dir2;
-
-
-            while ( start_dir1 != start_dir2 ) {
-                Plane subpolygon_base_plane;
-
-                Vector dir_vec1 =
-                    surfaces[i].pos_list[start_dir1 + 1] - surfaces[i].pos_list[start_dir1];
-
-                Vector dir_vec2;
-                bool linear_independent_vector_found = false;
-                for ( uint j = start_dir2; j > dir1; j-- ) {
-                    dir_vec2 = surfaces[i].pos_list[j] - surfaces[i].pos_list[start_dir1];
-
-                    if ( !dir_vec1.linearDependant(dir_vec2) ) {
-                        linear_independent_vector_found = true;
-                        break;
-                    }
-                }
-
-                if ( !linear_independent_vector_found ) {
-                    printSurfaceDescription( &surfaces[i] );
-                    no++;
-                    break;
-                }
-
-                int status = subpolygon_base_plane.createPlaneFromBaseAndVectors(
-                    surfaces[i].pos_list[start_dir1],
-                    dir_vec1,
-                    dir_vec2
-                );
-                printf("Status %d\n", status);
-
-                Polygon subpolygon;
-                subpolygon.setSurfaceType( surfaces[i].surface_type );
-                subpolygon.setID( surfaces[i].id );
-                subpolygon.initPolygonWithPlane( subpolygon_base_plane );
-
-                for ( uint j = start_dir1; j <= end_dir1; j++ ) {
-                    pos = surfaces[i].pos_list[j];
-
-                    if ( base_plane.isPointOnPlane(pos) ) {
-                        subpolygon.addPoint( pos );
-                    }
-                    else {
-                        break;
-                    }
-                    dir1 = j;
-                }
-
-                for ( uint j = start_dir2; j > dir1; j-- ) {
-                    pos = surfaces[i].pos_list[j];
-
-                    if ( !base_plane.isPointOnPlane(pos) ) {
-                        break;
-                    }
-
-                    dir2 = j;
-                }
-
-                for ( uint j = dir2; j <= start_dir2; j++ ) {
-                    pos = surfaces[i].pos_list[j];
-                    subpolygon.addPoint( pos );
-                }
-
-                start_dir1 = dir1;
-                end_dir1 = dir2;
-                start_dir2 = dir2;
-
-                if ( subpolygon.getPoints().size() >= 3 ) {
-                    subpolygon.setSubpolygonNumber( subpolygon_cnt );
-                    polygons.push_back( subpolygon );
-                    subpolygon_cnt++;
-                }
-                else {
-                    no++;
-                }
-            }
-
-            //no++;
-        }
-#endif
-
     } /* for ( int i=0; i<len; i++ ) */
 
     // Calculate how many Polygon objects could not be created

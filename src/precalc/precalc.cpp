@@ -1,15 +1,5 @@
 #include "precalc.h"
 
-#include "../status_codes.h"
-#include "../geometry/line.h"
-#include "../geometry/plane.h"
-#include "fresnel_zone.h"
-#include "../raytracing/selection_methods.h"
-#include "../config/global_config.h"
-#include "../raw_data/surface.h"
-
-#include <pthread.h>
-
 bool isPolygonInList ( std::vector<Polygon>& polygon_list, Polygon& polygon ) {
     uint len = polygon_list.size();
     if ( len == 0 ) {
@@ -22,7 +12,7 @@ bool isPolygonInList ( std::vector<Polygon>& polygon_list, Polygon& polygon ) {
         }
     }
     return true;
-}
+} /* isPolygonInList() */
 
 Polygon getPolygonWithMinDistance ( Vector& start_point, std::vector<Polygon>& polygons ) {
     uint len_polygons = polygons.size();
@@ -39,7 +29,7 @@ Polygon getPolygonWithMinDistance ( Vector& start_point, std::vector<Polygon>& p
     }
 
     return polygons[min_length_index];
-}
+} /* getPolygonWithMinDistance() */
 
 Polygon getPolygonWithMaxArea ( std::vector<Polygon>& polygons ) {
     uint len_polygons = polygons.size();
@@ -56,4 +46,4 @@ Polygon getPolygonWithMaxArea ( std::vector<Polygon>& polygons ) {
     }
 
     return polygons[max_area_index];
-}
+} /* getPolygonWithMaxArea() */

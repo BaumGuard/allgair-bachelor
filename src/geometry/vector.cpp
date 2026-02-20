@@ -91,7 +91,6 @@ void Vector::operator /= ( const double n ) {
 } /* operator /= */
 
 bool Vector::operator == ( Vector& v ) const {
-    //return x == v.getX() && y == v.getY() && z == v.getZ();
     return
         equalWithThreshold( x, v.getX(), 0.001 ) &&
         equalWithThreshold( y, v.getY(), 0.001 ) &&
@@ -125,7 +124,7 @@ Vector Vector::crossProduct( Vector v ) {
         z * v.getX() - x * v.getZ(),
         x * v.getY() - y * v.getX()
     );
-}
+} /* crossProduct() */
 
 /*---------------------------------------------------------------*/
 

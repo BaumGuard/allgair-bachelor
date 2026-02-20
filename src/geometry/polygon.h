@@ -9,7 +9,7 @@
 #include <cstdint>
 
 /*
-Class to represent polygons lying on a plane
+Class to represent polygons located on a plane
 */
 class Polygon {
 public:
@@ -143,7 +143,7 @@ public:
     void setArea ( double area );
 
     /*
-    Return the area of the polygon
+    Return the area of the polygon in m²
     */
     double getArea ();
 

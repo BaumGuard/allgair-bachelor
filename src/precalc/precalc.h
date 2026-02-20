@@ -6,7 +6,6 @@
 
 #include <vector>
 
-
 Polygon getPolygonWithMinDistance ( Vector& start_point, std::vector<Polygon>& polygons );
 
 Polygon getPolygonWithMaxArea ( std::vector<Polygon>& polygons );

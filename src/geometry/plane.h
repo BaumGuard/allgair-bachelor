@@ -30,7 +30,7 @@ public:
     int createPlaneFromPoints ( Vector& p1, Vector& p2, Vector& p3 );
 
     /*
-    Create plane from a base point and a vector
+    Create plane from a base point and two vectors
 
     Args:
      - p  : Base point as Vector

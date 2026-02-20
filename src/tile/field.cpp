@@ -1,6 +1,5 @@
 #include "field.h"
 
-#include "../geometry/vector.h"
 #include "../geometry/line.h"
 #include "../geometry/polygon.h"
 #include "load_tile.h"
@@ -113,72 +112,6 @@ bool Field::tileAlreadyLoaded ( std::string tile_name, int tile_type ) {
 } /* tileAlreadyLoaded() */
 
 /*---------------------------------------------------------------*/
-#if 0
-bool Field::tileAlreadyLoaded ( double lat, double lon, int tile_type ) {
-    double xf, yf;
-    LatLonToUTMXY( lat, lon, 32, xf, yf );
-
-    uint
-        x = (uint) ( xf / 1000.0 ),
-        y = (uint) ( yf / 1000.0 );
-
-    if ( tile_type == LOD2 ) {
-        x -= x % 2;
-        y -= y % 2;
-    }
-
-    std::string tile_name = buildTileName( x, y );
-
-    return tileAlreadyLoaded( tile_name, tile_type );
-} /* tileAlreadyLoaded() */
-
-/*---------------------------------------------------------------*/
-
-double Field::getAltitudeAtLatLon ( double lat, double lon, int tile_type ) {
-    double x, y;
-    LatLonToUTMXY( lat, lon, 32, x, y );
-
-    uint
-        tile_x = (uint) ( x / 1000.0 ),
-        tile_y = (uint) ( y / 1000.0 );
-
-    std::string tile_name = buildTileName( tile_x, tile_y );
-
-    if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
-        loadTile( tile_name, tile_type );
-    }
-
-    uint
-        easting =  (uint) fmod( x, 1000.0 ),
-        northing = (uint) fmod( y, 1000.0 );
-
-    GridTile* tile;
-    switch ( tile_type ) {
-        case DGM1:
-            tile = &grid_tiles_dgm1[tile_name];
-            break;
-
-        case DGM20:
-            tile = &grid_tiles_dgm20[tile_name];
-            break;
-
-        case DOM1:
-            tile = &grid_tiles_dom1[tile_name];
-            break;
-
-        case DOM20:
-            tile = &grid_tiles_dom20[tile_name];
-            break;
-    }
-
-
-    float value = 0.0;
-    tile->getValue( easting, northing, value );
-
-    return value;
-} /* getAltitudeAtLatLon() */
-#endif
-/*---------------------------------------------------------------*/
 
 double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
     uint
@@ -243,99 +176,6 @@ double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
 } /* getAltitudeAtXY () */
 
 /*---------------------------------------------------------------*/
-#if 0
-std::vector<std::string> Field::tilesOnRay (
-    double lat_start, double lon_start,
-    double lat_end, double lon_end,
-    uint tile_width_km
-) {
-    // UTM representation of the start and end coordinate
-    double x_start, y_start, x_end, y_end;
-    LatLonToUTMXY( lat_start, lon_start, 32, x_start, y_start );
-    LatLonToUTMXY( lat_end, lon_end, 32, x_end, y_end );
-
-    // Convert meters to kilometers (used in the tile name)
-    x_start /= 1000.0;
-    y_start /= 1000.0;
-    x_end   /= 1000.0;
-    y_end   /= 1000.0;
-
-    // Calculate m and t of the line running through the start and end
-    // coordinate
-    double m = (double)( y_end - y_start ) / (double)( x_end - x_start );
-    double t = y_start - m * x_start;
-
-    double
-        x_start_f = x_start,
-        x_end_f   = x_end;
-
-
-    if ( x_end < x_start ) {
-        x_start_f = x_end;
-        x_end_f   = x_start;
-    }
-
-    // Set the x coordinates to the left edge of the tile
-    int
-        x_start_i = (int) floor( x_start_f ),
-        x_end_i   = (int) floor( x_end_f );
-
-    // If the tile width is larger than 1 km, set the coordinates
-    // to the closest left edge
-    x_start_i -= x_start_i % tile_width_km;
-    x_end_i   -= x_end_i % tile_width_km;
-
-    std::string current_tile_name;
-    std::vector<std::string> tile_names;
-
-    int
-        y_bound1,   // y coordinate where the line starts in the
-                    // current interation
-        y_bound2;   // y coordinate where the line ends in the
-                    // current iteration
-
-    double tmp;
-
-    for ( int i = x_start_i; i < x_end_i; i += tile_width_km ) {
-        y_bound1 = (int) floor( m * i + t );
-        y_bound2 = (int) floor( m * (i+1) + t );
-
-        y_bound1 -= y_bound1 % tile_width_km;
-        y_bound2 -= y_bound2 % tile_width_km;
-
-        // Swap y_bound1 and y_bound2 if the line declines
-        if ( y_bound2 < y_bound1 ) {
-            tmp = y_bound1;
-            y_bound1 = y_bound2;
-            y_bound2 = tmp;
-        }
-
-        // Add all tiles through which the line runs to the list
-        for ( int j = y_bound1; j <= y_bound2; j += tile_width_km ) {
-            current_tile_name = buildTileName( i, j );
-            tile_names.push_back( current_tile_name );
-        }
-    }
-
-    if ( x_start < x_end ) {
-        current_tile_name = buildTileName(
-            (int)floor(x_end) - (int)floor(x_end) % tile_width_km,
-            (int)floor(y_end) - (int)floor(y_end) % tile_width_km
-        );
-        tile_names.push_back( current_tile_name );
-    }
-    else {
-        current_tile_name = buildTileName(
-            (int)floor(x_start) - (int)floor(x_start) % tile_width_km,
-            (int)floor(y_start) - (int)floor(y_start) % tile_width_km
-        );
-        tile_names.push_back( current_tile_name );
-    }
-
-    return tile_names;
-} /* tilesOnRay() */
-#endif
-/*---------------------------------------------------------------*/
 
 struct Bresenham_Thread_Data {
     int
@@ -359,7 +199,6 @@ struct Bresenham_Thread_Data {
 };
 
 int Field::bresenhamPseudo3D (
-    /*Vector& intersection,*/
     Vector& start,
     Vector& end,
     float ground_level_threshold,
@@ -412,6 +251,9 @@ int Field::bresenhamPseudo3D (
 
     bool intersection_found = false;
 
+    struct timespec start_time, finish;
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+
     for ( int i = 0; i < n_threads; i++ ) {
         data[i].x_start = (int) x_start_f + x_start;
         data[i].y_start = (int) y_start_f + y_start;
@@ -456,6 +298,13 @@ int Field::bresenhamPseudo3D (
             decision_arrays_united->push_back( decision_arrays[i][j] );
         }
     }
+
+    clock_gettime(CLOCK_MONOTONIC, &finish);
+
+    double elapsed = (finish.tv_sec - start_time.tv_sec);
+    elapsed += (finish.tv_nsec - start_time.tv_nsec) / 1000000000.0;
+
+    printf("Bresenham execution time: %f s\n", elapsed);
 
     delete[] decision_arrays;
     delete[] threads;
@@ -652,7 +501,7 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
     } /* while ( it != end_it ) */
 
     end = clock();
-    //printf("Thread duration %f\n", (double)(end-start) / (double)CLOCKS_PER_SEC);
+
     return NULL;
 } /* Thread_bresenhamPseudo3D() */
 
@@ -802,15 +651,14 @@ void* Thread_precalculate ( void* arg ) {
         //polygon_base_plane.reflectLine( center_ray, reflected_center_ray );
         //destination_plane.lineIntersection( reflected_center_ray, reflected_center_point );
 
-        // If the intersection with the destination plane of the reflected center ray
-        // is inside the reflected polygon add it to the list of the selected polygons
+        // If the end point is located inside the reflection polygon, add the polygon to
+        // the list of the selected polygons
         if (
             reflected_polygon.isPointInPolygon( data->end_point )/* &&
             !isPolygonInList(selected_polygons, polygons[i])*/
         ) {
             pthread_mutex_lock( data->selected_polygons_mutex );
             data->selected_polygons->push_back( (*data->polygons)[i] );
-            //(*data->polygons)[i].printPolygon();
             pthread_mutex_unlock( data->selected_polygons_mutex );
         }
     }
@@ -846,43 +694,6 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
     std::vector<Polygon>& tile_polygons = vector_tile.getPolygons();
     std::vector<uint>& section_starts = vector_tile.getSectionStarts();
     len_polygons = tile_polygons.size();
-
-/*
-    uint len_section_starts = section_starts.size();
-    for ( uint i = 0; i < len_section_starts; i++ ) {
-        int section_end;
-        if ( i < len_section_starts - 1 ) {
-            section_end = section_starts[i+1];
-        }
-        else {
-            section_end = tile_polygons.size();
-        }
-
-        uint j = section_starts[i];
-        for ( ; j < section_end; j++ ) {
-            if ( data->ground_area->isPointInPolygon( tile_polygons[j].getCentroid(), true ) ) {
-                //printf("Polygon found\n");
-                pthread_mutex_lock( data->polygon_list_mutex );
-                data->polygon_list->push_back( tile_polygons[j] );
-                pthread_mutex_unlock( data->polygon_list_mutex );
-                break;
-            }
-        }
-
-        j++;
-
-        for ( ; j < section_end; j++ ) {
-            if ( data->ground_area->isPointInPolygon( tile_polygons[j].getCentroid(), true ) ) {
-                pthread_mutex_lock( data->polygon_list_mutex );
-                data->polygon_list->push_back( tile_polygons[j] );
-                pthread_mutex_unlock( data->polygon_list_mutex );
-            }
-            else {
-                break;
-            }
-        }
-    }
-*/
 
     for ( uint i = 0; i < len_polygons; i++ ) {
         if ( data->ground_area->isPointInPolygon( tile_polygons[i].getCentroid(), true ) ) {
@@ -931,6 +742,7 @@ int Field::getPolygonsInGroundArea (
         struct PolygonsInGroundArea_Thread_Data* data =
             new struct PolygonsInGroundArea_Thread_Data [n_threads];
 
+
         for ( int j = 0; j < n_threads; j++ ) {
             data[j].field = this;
             data[j].ground_area = &ground_area;
@@ -947,49 +759,11 @@ int Field::getPolygonsInGroundArea (
             pthread_join( threads[j], NULL );
         }
 
+
         delete[] threads;
         delete[] data;
     }
     polygons = polygon_list;
-
-    /*
-    VectorTile vector_tile;
-
-    uint len_tiles = tile_names.size();
-    uint len_polygons;
-    int status;
-
-    Vector test_point;
-
-    for ( uint i = 0; i < len_tiles; i++ ) {
-        status = getVectorTile( vector_tile, tile_names[i] );
-        if ( status != SUCCESS ) {
-            return status;
-        }
-
-        std::vector<Polygon>& tile_polygons = vector_tile.getPolygons();
-        len_polygons = tile_polygons.size();
-
-        for ( uint j = 0; j < len_polygons; j++ ) {
-            std::vector<Vector>& points = tile_polygons[j].getPoints();
-
-            uint len_points = points.size();
-            if ( len_points > 0 ) {
-                for ( uint k = 0; k < len_points; k++ ) {
-                    test_point = points[k];
-                    test_point.setZ( 0.0 );
-
-                    if ( ground_area.isPointInPolygon(test_point) ) {
-                        polygons.push_back( tile_polygons[j] );
-                        break;
-                    }
-                }
-
-            }
-
-        }
-    }
-    */
 
     return SUCCESS;
 } /* getPolygonsInGroundArea() */

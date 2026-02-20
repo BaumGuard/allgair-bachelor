@@ -5,8 +5,6 @@
 #include "../raw_data/geotiff.h"
 #include "../config/global_config.h"
 
-
-
 enum DownsamplingMethods {
     AVG,
     MIN,
@@ -42,42 +40,8 @@ public:
     */
     void fromGeoTiffFile ( GeoTiffFile& geotiff );
 
-    /*
-    Transform a vector tile into a grid tile using raycasting
-
-    Args:
-     - vector_tile : Reference to the vector tile to be transformed
-     - width       : Width and height of the grid
-    */
-    void fromVectorTile ( VectorTile& vector_tile, uint width );
-
-
     /* DESTRUCTOR */
     ~GridTile ();
-
-#if 0
-    /*
-    Upsample or downsample a tile
-    Reduce a square of pixels into one or turn one pixel into a
-    square of pixels using interpolation
-
-    Args:
-     - factor  : Resampling factor
-                  - <1 : Downsample
-                  - >1 : Upsample
-     - *method : Function pointer to the function that computes
-                 the maximum, minimum or average pixel value of
-                 the subblock (only in case of downsampling)
-                 Default method: max
-                  - min
-                  - max
-                  - avg
-    */
-    void resampleTile (
-        float factor,
-        float (*method)(float*,uint) = max
-    );
-#endif
 
     /*
     Upsample or downsample a tile
@@ -201,14 +165,6 @@ private:
     std::string tile_name;
 
     Vector tile_origin;
-
-#if 0
-    void getBlock (
-        float* block_buf,
-        uint block_width,
-        uint x, uint y
-    ) const;
-#endif
 
     /*
     Accumulate a block of pixels for downsampling using

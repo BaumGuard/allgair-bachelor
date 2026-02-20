@@ -63,14 +63,6 @@ void createEnvironment () {
 
 /*---------------------------------------------------------------*/
 
-double clampDouble ( double n, int precision ) {
-    long n_long = (long) ( n * pow(10, precision) );
-
-    return (double) ( (double)n_long / pow(10, precision) );
-} /* clampDouble() */
-
-/*---------------------------------------------------------------*/
-
 double roundDouble ( double n, int precision ) {
     int shift = pow( 10, precision );
     return round( n * shift ) / shift;

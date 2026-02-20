@@ -59,11 +59,11 @@ public:
     Check if a vector is linear dependant on the local vector
 
     Args:
-     - v : Vector to check for linear dependancy
+     - v : Vector to check for linear dependence
 
     Returns:
-     - true  : Vector v is linear dependant on the local vector
-     - false : Vector v is not linear dependant on the local vector
+     - true  : Vector v is linear dependent on the local vector
+     - false : Vector v is not linear dependent on the local vector
     */
     bool linearDependant ( Vector v ) const;
 

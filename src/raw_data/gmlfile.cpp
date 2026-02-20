@@ -1,5 +1,3 @@
-#include <fstream>
-
 #include "gmlfile.h"
 
 #include "surface.h"
@@ -8,6 +6,7 @@
 #include "../status_codes.h"
 
 #include <iostream>
+#include <fstream>
 
 /*---------------------------------------------------------------*/
 

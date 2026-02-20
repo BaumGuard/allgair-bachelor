@@ -40,15 +40,6 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
     std::string raw_file_path = data_dir + "/" + raw_file_name;
     std::string raw_file_path_masked = data_dir_masked + "/" + raw_file_name_masked;
 
-#if 0
-    // Check for the existence of the tif file
-    printMessage(
-        NORMAL,
-        "Checking for raw file '%s' in '%s'... ",
-        raw_file_name.data(),
-        data_dir.data()
-    );
-#endif
     GeoTiffFile geotiff;
 
     if ( (tile_type == DGM1 || tile_type == DOM20) && FILE_EXISTS(raw_file_path.data()) ) {
@@ -65,8 +56,7 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
                 grid_tile.fromGeoTiffFile( geotiff );
                 break;
         }
-        //printf("TILESIZE %d\n", grid_tile.getTileWidth());
-        //printMessage( NORMAL, "Found\n" );
+
         return SUCCESS;
     }
     else if ( tile_type == DOM20_MASKED && FILE_EXISTS(raw_file_path_masked.data()) ) {
@@ -75,7 +65,6 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
 
         return SUCCESS;
     }
-    //printMessage( NORMAL, "Not found\n" );
 
     if ( tile_type == DOM20_MASKED ) {
         getGridTile( grid_tile, tile_name, DOM20 );
@@ -109,14 +98,6 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
             break;
     }
 
-#if 0
-    printMessage(
-        NORMAL,
-        "Downloading the raw file '%s' into '%s'... ",
-        raw_file_name.data(),
-        data_dir.data()
-    );
-#endif
     if ( downloadFile(url, data_dir) == SUCCESS ) {
         GeoTiffFile geotiff;
 
@@ -145,19 +126,16 @@ int getGridTile ( GridTile& grid_tile, std::string tile_name, int tile_type ) {
                 break;
         }
 
-
-        //printMessage( NORMAL, "Done\n" );
         return SUCCESS;
     }
 
-    //printMessage( NORMAL, "Error\n" );
     return TILE_NOT_AVAILABLE;
 }
 
 /*---------------------------------------------------------------*/
 
 int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
-    //printf("TILENAME BEFORE %s\n", tile_name.data());
+
     std::string tile_name_parts [2];
     splitString( tile_name, tile_name_parts, '_' );
     uint
@@ -168,6 +146,7 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
     northing = northing - (northing % 2);
 
     tile_name = buildTileName( easting, northing );
+
     // Build the file name/path of the binary file and the raw file (.gml)
 
     std::string
@@ -182,31 +161,10 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
     // Check for the existence of the binary file
     bool binary_file_exists = FILE_EXISTS( binary_file_path.data() );
     if ( binary_file_exists ) {
-        /*
-        printMessage(
-            NORMAL,
-            "Checking for binary file '%s' in '%s'... ",
-            binary_file_name.data(), data_dir.data()
-        );
-        */
-
         vector_tile.fromBinaryFile( binary_file_path );
-        //printMessage( NORMAL, "Found\n" );
         return SUCCESS;
     }
-    else if ( !binary_file_exists ) {
-        //printMessage( NORMAL, "Not found\n" );
-    }
 
-    /*
-    // Check for the existence of the gml file
-    printMessage(
-        NORMAL,
-        "Checking for raw file '%s' in '%s'... ",
-        raw_file_name.data(),
-        data_dir.data()
-    );
-    */
     if ( FILE_EXISTS(raw_file_path.data()) ) {
         // Read the gml file and generate a binary file
         GmlFile gml_file;
@@ -215,21 +173,12 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
         vector_tile.fromGmlFile( gml_file );
         vector_tile.createBinaryFile( binary_file_path );
 
-        //printMessage( NORMAL, "Found\n" );
         return SUCCESS;
     }
-    //printMessage( NORMAL, "Not found\n" );
-
 
     // Download the raw file
     std::string url = CHOSEN_URL_LOD2 + raw_file_name;
-/*
-    printMessage(
-        NORMAL,
-        "Downloading the raw file '%s' into '%s'... ",
-        raw_file_name.data(),
-        data_dir.data()
-    );*/
+
     if ( downloadFile(url, data_dir) == SUCCESS ) {
 
         // Read the gml file and generate a binary file
@@ -239,10 +188,8 @@ int getVectorTile ( VectorTile& vector_tile, std::string tile_name ) {
         vector_tile.fromGmlFile( gml_file );
         vector_tile.createBinaryFile( binary_file_path );
 
-        //printMessage( NORMAL, "Done\n" );
         return SUCCESS;
     }
 
-    //printMessage( NORMAL, "Error\n" );
     return TILE_NOT_AVAILABLE;
 }

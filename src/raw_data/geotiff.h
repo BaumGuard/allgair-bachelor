@@ -24,7 +24,7 @@ public:
 
     Args:
      - file_path : File path to the GeoTIFF file
-     - tile_type : Tile type (DGM1, DOM20)
+     - tile_type : Tile type (DGM1, DOM20, DOM20_MASKED)
 
     Returns:
      - Status code
@@ -53,14 +53,12 @@ public:
     uint getTileWidth () const;
 
     /*
-    Return the x coordinate of tile's coordinate origin
-    (lower left corner)
+    Return the x coordinate of tile's coordinate origin (lower left corner)
     */
     uint getUtmOriginX () const;
 
     /*
-    Return the y coordinate of tile's coordinate origin
-    (lower left corner)
+    Return the y coordinate of tile's coordinate origin (lower left corner)
     */
     uint getUtmOriginY () const;
 

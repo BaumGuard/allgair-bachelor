@@ -65,7 +65,12 @@ public:
     */
     bool pointIsOnLine ( Vector p ) const;
 
+    /*
+    Calculate the distance from a point to the line
 
+    Args:
+     - p : Point to calculate the distance from the line
+    */
     double distanceOfPointToLine ( Vector& p );
 
     /*
@@ -73,7 +78,7 @@ public:
 
     Args:
      - l         : Line to find the intersection with the local line
-     - intersect : Reference to the vector to save the intersection point it
+     - intersect : Reference to the vector to save the intersection point in
 
     Returns:
      - Status code

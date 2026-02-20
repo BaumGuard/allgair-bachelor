@@ -1,16 +1,12 @@
 #include "raytracing.h"
 
+#include "../geometry/vector.h"
 #include "../geometry/polygon.h"
-#include "../precalc/precalc.h"
 #include "../tile/tile_types.h"
 #include "../config/global_config.h"
 #include "../utils.h"
 
 #include <unistd.h>
-#include <pthread.h>
-
-#define NUM_CORES sysconf( _SC_NPROCESSORS_ONLN )
-
 
 void createResultFileName ( char* dst_string ) {
     time_t rawtime;
@@ -151,7 +147,7 @@ void Raytracer::calculateCounterValues (
     ground_count += dgm_count;
     vegetation_count += dom_masked_count;
     infrastructure_count += dom_count - dom_masked_count;
-}
+} /* calculateCounterValues() */
 
 
 int Raytracer::raytracingWithReflection ( Vector& end_point ) {
@@ -265,7 +261,7 @@ int Raytracer::writeResultObject_WithReflection (
     Vector& reflection_point,
     Polygon& reflecting_polygon,
     float distance,
-    uint ground_count, uint vegetation_count, uint infrastructure_count
+    int ground_count, int vegetation_count, int infrastructure_count
 ) {
     fprintf( result_file, "\t{\n" );
     //fprintf( result_file, "\t\"timestamp\": \"%s\",\n", timestamp );
@@ -316,7 +312,7 @@ int Raytracer::writeResultObject_WithReflection (
 int Raytracer::writeResultObject_Direct (
     Vector& end_point,
     float distance,
-    uint ground_count, uint vegetation_count, uint infrastructure_count
+    int ground_count, int vegetation_count, int infrastructure_count
 ) {
     fprintf( result_file, "\t{\n" );
     //fprintf( result_file, "\t\"timestamp\": \"%s\",\n", timestamp );

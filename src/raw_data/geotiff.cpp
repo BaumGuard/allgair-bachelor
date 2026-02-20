@@ -1,13 +1,11 @@
 #include "geotiff.h"
 
 #include "../status_codes.h"
-#include "../utils.h"
-#include "../tile/field.h"
 
 #include <tiffio.h>
 #include <gdal.h>
-#include <iostream>
 #include <cmath>
+#include <cstring>
 
 /*---------------------------------------------------------------*/
 

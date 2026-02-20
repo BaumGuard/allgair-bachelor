@@ -7,7 +7,6 @@
 #include "../web/urls.h"
 
 #include <vector>
-#include <cstdio>
 
 
 class Raytracer {
@@ -57,7 +56,7 @@ public:
     /*
     Perform raytracing with reflection
      1. Get all surfaces in the Fresnel zone around the start and end point
-     2. Select all surfaces within the Fresnel zone that reflect the ray in way
+     2. Select all surfaces within the Fresnel zone that reflect the ray in a way
         that it hits the end point or passes it closely
      3. Perform raytracing on the selected surfaces with their corresponding
         reflecting points (Start point to reflection point and reflecting point to end point)
@@ -82,7 +81,7 @@ public:
     Args:
      - end_point            : End point of the raytracing
      - reflection_point     : Reflecting point on a polygon
-     - reflecting_polygon   : Reflecting polygon with the poing reflection_point on it
+     - reflecting_polygon   : Reflecting polygon with the point reflection_point on it
      - distance             : Distance (Start to reflection + Reflection to end) in m
      - ground_count         : Counter of how often the ray was below ground level
      - vegetation_count     : Counter of how often the ray passes through vegetation
@@ -93,7 +92,7 @@ public:
         Vector& reflection_point,
         Polygon& reflecting_polygon,
         float distance,
-        uint ground_count, uint vegetation_count, uint infrastructure_count
+        int ground_count, int vegetation_count, int infrastructure_count
     );
 
     /*
@@ -109,7 +108,7 @@ public:
     int writeResultObject_Direct (
         Vector& end_point,
         float distance,
-        uint ground_count, uint vegetation_count, uint infrastructure_count
+        int ground_count, int vegetation_count, int infrastructure_count
     );
 
 

@@ -191,7 +191,6 @@ bool Polygon::isPointInPolygon ( Vector p, bool two_d ) const {
 
         // Test if the intersection is located between the two corners
         if ( equalWithThreshold(len_intersect_p2 + len_p1_intersect, len_p1_p2, 0.001) ) {
-        //if ( len_intersect_p2 + len_p1_intersect == len_p1_p2 ) {
             intersect_count++;
         }
     }
@@ -291,34 +290,6 @@ void Polygon::setCentroid ( Vector& centroid ) {
 
 /*---------------------------------------------------------------*/
 
-#if 0
-double Polygon::polygonArea () {
-    Vector centroid = getCentroid();
-
-    double area = 0.0;
-
-    uint len = points.size();
-    for ( uint i = 0; i < len; i++ ) {
-        // Vector between the current point and the adjacent point
-        Vector v1 = points[(i+1)%len] - points[i];
-
-        // Vector between the current point and the centroid
-        Vector v2 = centroid - points[i];
-
-        // The length of the vector resulting from the cross product
-        // of v1 and v2 is the area of the parallelogram created by
-        // the vectors v1 and v2
-        Vector product = v1.crossProduct( v2 );
-        area += product.length();
-    }
-
-    // Divide by 2 to get the area of the triangles created by v1 and v2
-    // instead of the parallelograms
-    return area / 2.0;
-} /* polygonArea () */
-#endif
-/*---------------------------------------------------------------*/
-
 void Polygon::setArea ( double area ) {
     this->area = area;
 } /* setArea() */
@@ -365,16 +336,7 @@ bool Polygon::operator != ( Polygon& polygon ) {
 
 void Polygon::printPolygon () {
     printf( "POLYGON\n" );
-/*
-    if ( hasID ) {
-        printf( "\tPolygon ID\n" );
-        printf( "\t%s\n\n", id.data() );
-    }
-    else {
-        printf( "\tPolygon ID\n" );
-        printf( "(NONE)" );
-    }
-*/
+
     printf( "\tBase plane:\n" );
     printf(
         "\tx = %f y = %f z = %f n = %f\n\n",
@@ -394,8 +356,6 @@ void Polygon::printPolygon () {
             points[i].getY(),
             points[i].getZ()
         );
-
-        //printf("%f, %f\n", points[i].getX(), points[i].getY());
     }
 
     printf( "\n" );

@@ -87,7 +87,7 @@ bool listContains ( std::vector<std::string>& list, std::string str ) {
         }
     }
     return false;
-}
+} /* listContains() */
 
 std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {
     std::vector<Vector> ground_area_points = ground_area.getPoints();
@@ -117,55 +117,8 @@ std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {
     max_utmx -= fmod( max_utmx, 2000.0 );
     min_utmy -= fmod( min_utmy, 2000.0 );
     max_utmy -= fmod( max_utmy, 2000.0 );
-    /*
-    Vector
-        coord_lower_left,
-        coord_lower_right,
-        coord_upper_left,
-        coord_upper_right;
-    */
+
     std::vector<std::string> tiles_in_ground_area;
-
-    /*
-    uint utmx_km, utmy_km;
-
-    for ( double utmy = min_utmy; utmy <= max_utmy; utmy += 2000.0 ) {
-        for ( double utmx = min_utmx; utmx <= max_utmx; utmx += 2000.0 ) {
-            coord_lower_left  = Vector( utmx,        utmy,        0.0 );
-            coord_lower_right = Vector( utmx+2000.0, utmy,        0.0 );
-            coord_upper_left  = Vector( utmx,        utmy+2000.0, 0.0 );
-            coord_upper_right = Vector( utmx+2000.0, utmy+2000.0, 0.0 );
-
-            if (
-                ground_area.isPointInPolygon( coord_lower_left,  true )  ||
-                ground_area.isPointInPolygon( coord_lower_right, true )  ||
-                ground_area.isPointInPolygon( coord_upper_left,  true )  ||
-                ground_area.isPointInPolygon( coord_upper_right, true )
-            ) {
-                utmx_km = (uint)( utmx / 1000.0 ),
-                utmy_km = (uint)( utmy / 1000.0 );
-
-                std::string tile_name = buildTileName( utmx_km, utmy_km );
-                tiles_in_ground_area.push_back( tile_name );
-            }
-        }
-    }
-
-    len = ground_area_points.size();
-    for ( uint i = 0; i < len; i++ ) {
-        utmx_km = (uint) ground_area_points[i].getX(),
-        utmy_km = (uint) ground_area_points[i].getY();
-
-        utmx_km = ( utmx_km - utmx_km % 2000 ) / 1000;
-        utmy_km = ( utmy_km - utmy_km % 2000 ) / 1000;
-
-        std::string tile_name = buildTileName( utmx_km, utmy_km );
-
-        if ( !listContains( tiles_in_ground_area, tile_name ) ) {
-            tiles_in_ground_area.push_back( tile_name );
-        }
-    }
-    */
 
     uint
         min_utmx_km = (uint) min_utmx / 1000,

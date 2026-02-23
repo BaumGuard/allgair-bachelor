@@ -2,7 +2,6 @@
 
 #include "../status_codes.h"
 #include "../utils.h"
-#include "../config/global_config.h"
 
 #include <cstdint>
 #include <iostream>

@@ -5,7 +5,7 @@
 #include "vector_tile.h"
 #include "tile_types.h"
 #include "../geometry/vector.h"
-#include "../config/global_config.h"
+#include "../shared.h"
 
 #include <unordered_map>
 #include <vector>
@@ -178,14 +178,49 @@ void* Thread_bresenhamPseudo3D ( void* arg );
 void* Thread_precalculate ( void* arg );
 void* Thread_getPolygonsInGroundArea ( void* arg );
 
-typedef struct {
-    Field& field;
-    Vector& start;
-    Vector& end;
+
+
+struct Bresenham_Thread_Data {
+    int
+        x_start, x_end,
+        y_start, y_end,
+        z_start, z_end;
+
     float ground_level_threshold;
-    int* ground_count;
     int tile_type;
+    bool* intersection_found;
+
     bool cancel_on_ground;
-} Bresenham_Data;
+
+    double grid_resolution;
+
+    double h_curve_correction;
+
+    std::vector<bool>* decision_array;
+
+    Field* field;
+};
+
+struct Precalculate_Thread_Data {
+    Vector start_point;
+    Vector end_point;
+
+    uint start_idx;
+    uint end_idx;
+
+    std::vector<Polygon>* polygons;
+    std::vector<Polygon>* selected_polygons;
+
+    pthread_mutex_t* selected_polygons_mutex;
+};
+
+struct PolygonsInGroundArea_Thread_Data {
+    Field* field;
+    Polygon* ground_area;
+
+    std::string tile_name;
+    pthread_mutex_t* polygon_list_mutex;
+    std::vector<Polygon>* polygon_list;
+};
 
 #endif

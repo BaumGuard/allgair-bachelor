@@ -177,26 +177,7 @@ double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
 
 /*---------------------------------------------------------------*/
 
-struct Bresenham_Thread_Data {
-    int
-        x_start, x_end,
-        y_start, y_end,
-        z_start, z_end;
 
-    float ground_level_threshold;
-    int tile_type;
-    bool* intersection_found;
-
-    bool cancel_on_ground;
-
-    double grid_resolution;
-
-    double h_curve_correction;
-
-    std::vector<bool>* decision_array;
-
-    Field* field;
-};
 
 int Field::bresenhamPseudo3D (
     Vector& start,
@@ -244,52 +225,45 @@ int Field::bresenhamPseudo3D (
 
     double x_start_f = 0.0, y_start_f = 0.0, z_start_f = 0.0;
 
-    std::vector<bool>* decision_arrays = new std::vector<bool> [n_threads];
-
-    pthread_t* threads = new pthread_t [n_threads];
-    struct Bresenham_Thread_Data* data = new Bresenham_Thread_Data [n_threads];
-
     bool intersection_found = false;
 
-    struct timespec start_time, finish;
-    clock_gettime(CLOCK_MONOTONIC, &start_time);
-
     for ( int i = 0; i < n_threads; i++ ) {
-        data[i].x_start = (int) x_start_f + x_start;
-        data[i].y_start = (int) y_start_f + y_start;
-        data[i].z_start = (int) z_start_f + z_start;
+        bresenham_data[i].x_start = (int) x_start_f + x_start;
+        bresenham_data[i].y_start = (int) y_start_f + y_start;
+        bresenham_data[i].z_start = (int) z_start_f + z_start;
 
         x_start_f += x_step;
         y_start_f += y_step;
         z_start_f += z_step;
 
         if ( i < n_threads-1 ) {
-            data[i].x_end = (int) x_start_f + x_start - 1;
-            data[i].y_end = (int) y_start_f + y_start - 1;
-            data[i].z_end = (int) z_start_f + z_start - 1;
+            bresenham_data[i].x_end = (int) x_start_f + x_start - 1;
+            bresenham_data[i].y_end = (int) y_start_f + y_start - 1;
+            bresenham_data[i].z_end = (int) z_start_f + z_start - 1;
         }
         else {
-            data[i].x_end = (int) x_start_f + x_start;
-            data[i].y_end = (int) y_start_f + y_start;
-            data[i].z_end = (int) z_start_f + z_start;
+            bresenham_data[i].x_end = (int) x_start_f + x_start;
+            bresenham_data[i].y_end = (int) y_start_f + y_start;
+            bresenham_data[i].z_end = (int) z_start_f + z_start;
         }
 
-        data[i].ground_level_threshold = ground_level_threshold;
-        data[i].tile_type = tile_type;
-        data[i].intersection_found = &intersection_found;
-        data[i].cancel_on_ground = cancel_on_ground;
+        bresenham_data[i].ground_level_threshold = ground_level_threshold;
+        bresenham_data[i].tile_type = tile_type;
+        bresenham_data[i].intersection_found = &intersection_found;
+        bresenham_data[i].cancel_on_ground = cancel_on_ground;
 
-        data[i].grid_resolution = grid_resolution;
-        data[i].h_curve_correction = h_curve_correction;
+        bresenham_data[i].grid_resolution = grid_resolution;
+        bresenham_data[i].h_curve_correction = h_curve_correction;
 
-        data[i].decision_array = &decision_arrays[i];
-        data[i].field = this;
+        decision_arrays[i].clear();
+        bresenham_data[i].decision_array = &decision_arrays[i];
+        bresenham_data[i].field = this;
 
-        pthread_create( &threads[i], NULL, Thread_bresenhamPseudo3D, (void*)&data[i] );
+        pthread_create( &bresenham_threads[i], NULL, Thread_bresenhamPseudo3D, (void*)&bresenham_data[i] );
     }
 
     for ( int i = 0; i < n_threads; i++ ) {
-        pthread_join( threads[i], NULL );
+        pthread_join( bresenham_threads[i], NULL );
     }
 
     for ( uint i = 0; i < n_threads; i++ ) {
@@ -298,17 +272,6 @@ int Field::bresenhamPseudo3D (
             decision_arrays_united->push_back( decision_arrays[i][j] );
         }
     }
-
-    clock_gettime(CLOCK_MONOTONIC, &finish);
-
-    double elapsed = (finish.tv_sec - start_time.tv_sec);
-    elapsed += (finish.tv_nsec - start_time.tv_nsec) / 1000000000.0;
-
-    printf("Bresenham execution time: %f s\n", elapsed);
-
-    delete[] decision_arrays;
-    delete[] threads;
-    delete[] data;
 
     if ( intersection_found ) {
         return INTERSECTION_FOUND;
@@ -507,19 +470,6 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
 
 /*---------------------------------------------------------------*/
 
-struct Precalculate_Thread_Data {
-    Vector start_point;
-    Vector end_point;
-
-    uint start_idx;
-    uint end_idx;
-
-    std::vector<Polygon>* polygons;
-    std::vector<Polygon>* selected_polygons;
-
-    pthread_mutex_t* selected_polygons_mutex;
-};
-
 int Field::precalculate (
     std::vector<Polygon>& selected_polygons,
     Vector& start_point, Vector& end_point,
@@ -529,44 +479,57 @@ int Field::precalculate (
     std::vector<Polygon> polygons_in_ground_area;
     std::vector<Polygon> global_selected_polygons;
 
+
+    struct timespec start, end;
+    clock_gettime( CLOCK_MONOTONIC, &start );
+
     Polygon ground_area = fresnelZone( start_point, end_point, fresnel_zone, 868.0e6, 16 );
+
+    clock_gettime( CLOCK_MONOTONIC, &end );
+    double time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
+    time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
+    printf("Fresnel zone: %.10f\n", time_elapsed);
+
+
+    clock_gettime( CLOCK_MONOTONIC, &start );
+
     getPolygonsInGroundArea( polygons_in_ground_area, ground_area );
+
+    clock_gettime( CLOCK_MONOTONIC, &end );
+    time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
+    time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
+    printf("PolygonsInGroundArea: %.10f\n", time_elapsed);
+
+
 
     double part_size = (double)polygons_in_ground_area.size() / (double)MAX_THREADS;
 
-    pthread_mutex_t selected_polygons_mutex;
-    pthread_mutex_init( &selected_polygons_mutex, NULL );
-
-    struct Precalculate_Thread_Data* data =
-        new struct Precalculate_Thread_Data [MAX_THREADS];
-
     double start_idx = 0.0;
 
-    pthread_t* precalc_threads = new pthread_t [MAX_THREADS];
+
+    clock_gettime( CLOCK_MONOTONIC, &start );
+
     for ( int i = 0; i < MAX_THREADS; i++ ) {
-        data[i].start_idx = (uint) start_idx;
+        precalc_data[i].start_idx = (uint) start_idx;
         start_idx += part_size;
-        data[i].end_idx = (uint) start_idx;
+        precalc_data[i].end_idx = (uint) start_idx;
 
-        data[i].start_point = start_point;
-        data[i].end_point = end_point;
+        precalc_data[i].start_point = start_point;
+        precalc_data[i].end_point = end_point;
 
-        data[i].polygons = &polygons_in_ground_area;
-        data[i].selected_polygons = &global_selected_polygons;
+        precalc_data[i].polygons = &polygons_in_ground_area;
+        precalc_data[i].selected_polygons = &global_selected_polygons;
 
-        data[i].selected_polygons_mutex = &selected_polygons_mutex;
+        precalc_data[i].selected_polygons_mutex = &selected_polygons_mutex;
 
 
-        pthread_create( &precalc_threads[i], NULL, Thread_precalculate, (void*)&data[i] );
+        pthread_create( &precalc_threads[i], NULL, Thread_precalculate, (void*)&precalc_data[i] );
     }
 
     for ( int i = 0; i < MAX_THREADS; i++ ) {
         pthread_join( precalc_threads[i], NULL );
     }
 
-    pthread_mutex_destroy( &selected_polygons_mutex );
-    delete[] data;
-    delete[] precalc_threads;
 
     if ( global_selected_polygons.size() > 0 ) {
         switch ( select_method ) {
@@ -577,6 +540,11 @@ int Field::precalculate (
                 return SUCCESS;
 
             case BY_MAX_AREA:
+                clock_gettime( CLOCK_MONOTONIC, &end );
+                time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
+                time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
+                printf("Precalc: %.10f\n", time_elapsed);
+
                 selected_polygons.push_back( getPolygonWithMaxArea( global_selected_polygons ) );
                 return SUCCESS;
 
@@ -668,16 +636,6 @@ void* Thread_precalculate ( void* arg ) {
 
 /*---------------------------------------------------------------*/
 
-struct PolygonsInGroundArea_Thread_Data {
-    Field* field;
-    Polygon* ground_area;
-
-    std::string tile_name;
-    pthread_mutex_t* polygon_list_mutex;
-    std::vector<Polygon>* polygon_list;
-};
-
-
 void* Thread_getPolygonsInGroundArea ( void* arg ) {
     struct PolygonsInGroundArea_Thread_Data* data =
         (struct PolygonsInGroundArea_Thread_Data*) arg;
@@ -723,8 +681,6 @@ int Field::getPolygonsInGroundArea (
 
     int list_index = 0;
 
-    pthread_mutex_t polygon_list_mutex;
-    pthread_mutex_init( &polygon_list_mutex, NULL );
 
     int n_threads = MAX_THREADS;
 
@@ -738,30 +694,23 @@ int Field::getPolygonsInGroundArea (
             n_threads = n_tiles;
         }
 
-        pthread_t* threads = new pthread_t [n_threads];
-        struct PolygonsInGroundArea_Thread_Data* data =
-            new struct PolygonsInGroundArea_Thread_Data [n_threads];
-
 
         for ( int j = 0; j < n_threads; j++ ) {
-            data[j].field = this;
-            data[j].ground_area = &ground_area;
-            data[j].polygon_list = &polygon_list;
-            data[j].tile_name = tile_names[list_index++];
-            data[j].polygon_list_mutex = &polygon_list_mutex;
+            ground_area_data[j].field = this;
+            ground_area_data[j].ground_area = &ground_area;
+            ground_area_data[j].polygon_list = &polygon_list;
+            ground_area_data[j].tile_name = tile_names[list_index++];
+            ground_area_data[j].polygon_list_mutex = &polygon_list_mutex;
 
             pthread_create(
-                &threads[j], NULL,
-                Thread_getPolygonsInGroundArea, (void*)&data[j]
+                &ground_area_threads[j], NULL,
+                Thread_getPolygonsInGroundArea, (void*)&ground_area_data[j]
             );
         }
         for ( int j = 0; j < n_threads; j++ ) {
-            pthread_join( threads[j], NULL );
+            pthread_join( ground_area_threads[j], NULL );
         }
 
-
-        delete[] threads;
-        delete[] data;
     }
     polygons = polygon_list;
 

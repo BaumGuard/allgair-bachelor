@@ -1,6 +1,7 @@
 #include "geotiff.h"
 
 #include "../status_codes.h"
+#include "../tile/tile_types.h"
 
 #include <tiffio.h>
 #include <gdal.h>

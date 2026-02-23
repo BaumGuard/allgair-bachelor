@@ -3,7 +3,7 @@
 
 #include "vector_tile.h"
 #include "../raw_data/geotiff.h"
-#include "../config/global_config.h"
+#include "../shared.h"
 
 enum DownsamplingMethods {
     AVG,

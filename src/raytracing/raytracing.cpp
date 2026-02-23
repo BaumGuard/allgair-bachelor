@@ -3,7 +3,7 @@
 #include "../geometry/vector.h"
 #include "../geometry/polygon.h"
 #include "../tile/tile_types.h"
-#include "../config/global_config.h"
+#include "../shared.h"
 #include "../utils.h"
 
 #include <unistd.h>
@@ -45,7 +45,7 @@ Raytracer::Raytracer (
     this->fresnel_zone = fresnel_zone;
     this->freq = freq;
 
-    // Global settings in global_config.h
+    // Global variables in shared.h
     GRID_RESOLUTION = grid_resolution;
 
     PLANE_DISTANCE_THRESHOLD = max_point_to_plane_distance;
@@ -74,6 +74,19 @@ Raytracer::Raytracer (
     CHOSEN_URL_DGM1 = url_dgm1;
     CHOSEN_URL_DOM20 = url_dom20;
     CHOSEN_URL_LOD2 = url_lod2;
+
+    bresenham_threads = new pthread_t [MAX_THREADS];
+    bresenham_data = new Bresenham_Thread_Data [MAX_THREADS];
+    decision_arrays = new std::vector<bool> [MAX_THREADS];
+
+    pthread_mutex_init( &selected_polygons_mutex, NULL );
+
+    precalc_threads = new pthread_t [MAX_THREADS];
+    precalc_data = new struct Precalculate_Thread_Data [MAX_THREADS];
+
+    pthread_mutex_init( &polygon_list_mutex, NULL );
+    ground_area_threads = new pthread_t [MAX_THREADS];
+    ground_area_data = new struct PolygonsInGroundArea_Thread_Data [MAX_THREADS];
 } /* Raytracer() */
 
 /*---------------------------------------------------------------*/
@@ -112,6 +125,18 @@ Raytracer::~Raytracer () {
     fclose( result_file );
 
     delete grid_field;
+
+    pthread_mutex_destroy( &selected_polygons_mutex );
+    pthread_mutex_destroy( &polygon_list_mutex );
+
+    delete[] bresenham_data;
+    delete[] bresenham_threads;
+    delete[] decision_arrays;
+    delete[] ground_area_data;
+    delete[] ground_area_threads;
+    delete[] precalc_data;
+    delete[] precalc_threads;
+
 } /* ~Raytracer() */
 
 /*---------------------------------------------------------------*/
@@ -161,6 +186,10 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
         return status;
     }
 
+    struct timespec start, end;
+    double time_elapsed;
+    clock_gettime( CLOCK_MONOTONIC, &start );
+
     uint n_polygons = selected_polygons.size();
     for ( uint i = 0; i < n_polygons; i++ ) {
         Vector reflect_point = selected_polygons[i].getCentroid();
@@ -204,6 +233,14 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
             ground_count, vegetation_count, infrastructure_count
         );
 
+        clock_gettime( CLOCK_MONOTONIC, &end );
+        time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
+        time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
+        printf("Bresenham: %.10f\n", time_elapsed);
+
+
+        clock_gettime( CLOCK_MONOTONIC, &start );
+
         status = writeResultObject_WithReflection(
             end_point, reflect_point,
             selected_polygons[i],
@@ -211,7 +248,14 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
             ground_count, vegetation_count, infrastructure_count
         );
 
+
+        clock_gettime( CLOCK_MONOTONIC, &end );
+        time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
+        time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
+        printf("Output: %.10f\n", time_elapsed);
+
     }
+
 
     return status;
 } /* raytracingWithReflection() */

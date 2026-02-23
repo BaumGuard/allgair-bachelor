@@ -3,7 +3,7 @@
 
 #include "../geometry/polygon.h"
 #include "../raw_data/gmlfile.h"
-#include "../config/global_config.h"
+#include "../shared.h"
 #include "../status_codes.h"
 
 #include <vector>

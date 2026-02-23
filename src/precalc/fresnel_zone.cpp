@@ -7,7 +7,7 @@
 #include "../raw_data/gmlfile.h"
 #include "../tile/vector_tile.h"
 #include "../tile/load_tile.h"
-#include "../config/global_config.h"
+#include "../shared.h"
 
 #include <cmath>
 #include <pthread.h>

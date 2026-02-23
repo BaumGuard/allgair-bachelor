@@ -83,6 +83,8 @@ PYBIND11_MODULE( raytracing, m ) {
                 if ( PyErr_CheckSignals() != 0 ) {
                     throw pybind11::error_already_set();
                 }
+
+                printf("\n");
             }
 
             return 0;

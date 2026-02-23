@@ -2,7 +2,7 @@
 
 #include "../raw_data/geotiff.h"
 #include "../web/download.h"
-#include "../config/global_config.h"
+#include "../shared.h"
 #include "../utils.h"
 #include "../tile/tile_types.h"
 

@@ -37,7 +37,7 @@ raytracing_pybind.cpp
 ../src/tile/field.cpp
 ../src/tile/load_tile.cpp
 ../src/web/download.cpp
-../src/config/global_config.cpp
+../src/shared.cpp
 ../src/utils.cpp
 )
 

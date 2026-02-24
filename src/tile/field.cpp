@@ -14,6 +14,95 @@
 #include <gdal.h>
 #include <time.h>
 
+
+std::vector<std::string> tilesOnRay (
+    double x_start, double y_start,
+    double x_end, double y_end,
+    uint tile_width_km
+) {
+    // Convert meters to kilometers (used in the tile name)
+    x_start /= 1000.0;
+    y_start /= 1000.0;
+    x_end   /= 1000.0;
+    y_end   /= 1000.0;
+
+    // Calculate m and t of the line running through the start and end
+    // coordinate
+    double m = (double)( y_end - y_start ) / (double)( x_end - x_start );
+    double t = y_start - m * x_start;
+
+    double
+        x_start_f = x_start,
+        x_end_f   = x_end;
+
+
+    if ( x_end < x_start ) {
+        x_start_f = x_end;
+        x_end_f   = x_start;
+    }
+
+    // Set the x coordinates to the left edge of the tile
+    int
+        x_start_i = (int) floor( x_start_f ),
+        x_end_i   = (int) floor( x_end_f );
+
+    // If the tile width is larger than 1 km, set the coordinates
+    // to the closest left edge
+    x_start_i -= x_start_i % tile_width_km;
+    x_end_i   -= x_end_i % tile_width_km;
+
+    std::string current_tile_name;
+    std::vector<std::string> tile_names;
+
+    int
+        y_bound1,   // y coordinate where the line starts in the
+                    // current interation
+        y_bound2;   // y coordinate where the line ends in the
+                    // current iteration
+
+    double tmp;
+
+    for ( int i = x_start_i; i < x_end_i; i += tile_width_km ) {
+        y_bound1 = (int) floor( m * i + t );
+        y_bound2 = (int) floor( m * (i+1) + t );
+
+        y_bound1 -= y_bound1 % tile_width_km;
+        y_bound2 -= y_bound2 % tile_width_km;
+
+        // Swap y_bound1 and y_bound2 if the line declines
+        if ( y_bound2 < y_bound1 ) {
+            tmp = y_bound1;
+            y_bound1 = y_bound2;
+            y_bound2 = tmp;
+        }
+
+        // Add all tiles through which the line runs to the list
+        for ( int j = y_bound1; j <= y_bound2; j += tile_width_km ) {
+            current_tile_name = buildTileName( i, j );
+            tile_names.push_back( current_tile_name );
+        }
+    }
+
+    if ( x_start < x_end ) {
+        current_tile_name = buildTileName(
+            (int)floor(x_end) - (int)floor(x_end) % tile_width_km,
+            (int)floor(y_end) - (int)floor(y_end) % tile_width_km
+        );
+        tile_names.push_back( current_tile_name );
+    }
+    else {
+        current_tile_name = buildTileName(
+            (int)floor(x_start) - (int)floor(x_start) % tile_width_km,
+            (int)floor(y_start) - (int)floor(y_start) % tile_width_km
+        );
+        tile_names.push_back( current_tile_name );
+    }
+
+    return tile_names;
+} /* tilesOnRay() */
+
+
+
 /*---------------------------------------------------------------*/
 
 Field::Field ( double grid_resolution ) {
@@ -46,6 +135,7 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
                 }
                 resample_factor = 1.0 / grid_resolution;
                 grid_tile.resampleTile( resample_factor );
+
                 grid_tiles_dgm.insert( {tile_name, grid_tile} );
 
                 break;
@@ -57,6 +147,7 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
                 }
                 resample_factor = 0.2 / grid_resolution;
                 grid_tile.resampleTile( resample_factor );
+
                 grid_tiles_dom.insert( {tile_name, grid_tile} );
 
                 break;
@@ -68,6 +159,7 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
                 }
                 resample_factor = 0.2 / grid_resolution;
                 grid_tile.resampleTile( resample_factor );
+
                 grid_tiles_dom_masked.insert( {tile_name, grid_tile} );
 
                 break;
@@ -122,30 +214,33 @@ double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
 
     switch ( tile_type ) {
         case DGM:
-            pthread_mutex_lock( &dgm_mutex );
             if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
-                loadTile( tile_name, tile_type );
+                pthread_mutex_lock( &dgm_mutex );
+                if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
+                    loadTile( tile_name, tile_type );
+                }
+                pthread_mutex_unlock( &dgm_mutex );
             }
-            pthread_mutex_unlock( &dgm_mutex );
-
             break;
 
         case DOM:
-            pthread_mutex_lock( &dom_mutex );
             if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
-                loadTile( tile_name, tile_type );
+                pthread_mutex_lock( &dom_mutex );
+                if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
+                    loadTile( tile_name, tile_type );
+                }
+                pthread_mutex_unlock( &dom_mutex );
             }
-            pthread_mutex_unlock( &dom_mutex );
-
             break;
 
         case DOM_MASKED:
-            pthread_mutex_lock( &dom_masked_mutex );
             if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
-                loadTile( tile_name, tile_type );
+                pthread_mutex_lock( &dom_masked_mutex );
+                if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
+                    loadTile( tile_name, tile_type );
+                }
+                pthread_mutex_unlock( &dom_masked_mutex );
             }
-            pthread_mutex_unlock( &dom_masked_mutex );
-
             break;
     }
 
@@ -192,7 +287,17 @@ int Field::bresenhamPseudo3D (
     if ( tile_type != DGM && tile_type != DOM && tile_type != DOM_MASKED ) {
         return INVALID_TILE_TYPE;
     }
-
+/*
+    std::vector<std::string> tiles_on_ray = tilesOnRay(
+        start.getX(), start.getY(), end.getX(), end.getY(), 1
+    );
+    for ( uint i = 0; i < tiles_on_ray.size(); i++ ) {
+        if ( !tileAlreadyLoaded( tiles_on_ray[i], tile_type ) ) {
+            loadTile( tiles_on_ray[i], tile_type );
+            //printf("TILE %s\n", tiles_on_ray[i].data());
+        }
+    }
+*/
     // Cast start and end values to integers
     int
         x_start = (int) ( start.getX() / grid_resolution ),
@@ -653,6 +758,7 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
     std::vector<uint>& section_starts = vector_tile.getSectionStarts();
     len_polygons = tile_polygons.size();
 
+
     for ( uint i = 0; i < len_polygons; i++ ) {
         if ( data->ground_area->isPointInPolygon( tile_polygons[i].getCentroid(), true ) ) {
             pthread_mutex_lock( data->polygon_list_mutex );
@@ -661,6 +767,100 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
         }
     }
 
+#if 0
+    std::string utm_parts [2];
+    splitString( data->tile_name, utm_parts, '_' );
+
+    double fresnel_min_y, fresnel_max_y;
+
+    double tile_lower = std::stoi( utm_parts[1] ) * 1000.0;
+    double tile_upper = tile_lower + 2000.0;
+    double tile_left  = std::stoi( utm_parts[0] ) * 1000.0;
+    double tile_right = tile_left  + 2000.0;
+
+    Plane ground_plane;
+    ground_plane.createPlaneFromCoordinates( 0.0, 0.0, 1.0, 0.0 );
+
+    Polygon tile_polygon;
+    tile_polygon.initPolygonWithPlane( ground_plane );
+
+    tile_polygon.addPoint( Vector(tile_left, tile_lower, 0.0) );
+    tile_polygon.addPoint( Vector(tile_left, tile_upper, 0.0) );
+    tile_polygon.addPoint( Vector(tile_right, tile_upper, 0.0) );
+    tile_polygon.addPoint( Vector(tile_right, tile_lower, 0.0) );
+
+    std::vector<Vector>& fresnel_points = data->ground_area->getPoints();
+    uint len_fresnel_points = fresnel_points.size();
+
+    fresnel_min_y = fresnel_points[0].getY();
+    fresnel_max_y = fresnel_points[0].getY();
+
+
+    for ( uint i = 1; i < len_fresnel_points; i++ ) {
+        if ( tile_polygon.isPointInPolygon( fresnel_points[i], true ) ) {
+            if ( fresnel_points[i].getY() < fresnel_min_y ) {
+                fresnel_min_y = fresnel_points[i].getY();
+            }
+            if ( fresnel_points[i].getY() > fresnel_max_y ) {
+                fresnel_max_y = fresnel_points[i].getY();
+            }
+        }
+    }
+
+    fresnel_min_y -= tile_lower;
+    fresnel_max_y -= tile_lower;
+
+    printf("MIN_Y %f MAX_Y %f\n", fresnel_min_y, fresnel_max_y);
+
+    uint start_row = (uint)( fresnel_min_y / 100.0 );
+    uint end_row =   (uint)( fresnel_max_y / 100.0 );
+
+    printf("START_ROW %d END_ROW %d\n", start_row, end_row);
+
+
+    uint len_section_starts = section_starts.size();
+    printf("LEN_SECTION_STARTS %d\n", len_section_starts);
+    for ( uint i = start_row; i <= end_row; i++ ) {
+        int section_end;
+        if ( i < len_section_starts - 1 ) {
+            section_end = section_starts[i+1];
+        }
+        else {
+            section_end = tile_polygons.size();
+        }
+
+        uint j = section_starts[i];
+        for ( ; j < section_end; j++ ) {
+            if ( data->ground_area->isPointInPolygon( tile_polygons[j].getCentroid(), true ) ) {
+                //printf("Polygon found\n");
+                pthread_mutex_lock( data->polygon_list_mutex );
+                data->polygon_list->push_back( tile_polygons[j] );
+                pthread_mutex_unlock( data->polygon_list_mutex );
+                break;
+            }
+        }
+
+        j++;
+
+        uint outside_count = 0;
+        for ( ; j < section_end; j++ ) {
+            if ( data->ground_area->isPointInPolygon( tile_polygons[j].getCentroid(), true ) ) {
+                pthread_mutex_lock( data->polygon_list_mutex );
+                data->polygon_list->push_back( tile_polygons[j] );
+                pthread_mutex_unlock( data->polygon_list_mutex );
+            }
+            /*
+            else if ( outside_count < 1 ) {
+                outside_count++;
+                //break;
+            }
+            */
+            else {
+                break;
+            }
+        }
+    }
+#endif
     return NULL;
 } /* Thread_getPolygonsInGroundArea() */
 

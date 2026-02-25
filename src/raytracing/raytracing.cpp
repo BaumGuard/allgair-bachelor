@@ -190,6 +190,13 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
         return status;
     }
 
+    if ( select_method == BY_MAX_AREA ) {
+        sortSelectedPolygons( selected_polygons, 0, selected_polygons.size()-1, true );
+    }
+    else if ( select_method == BY_MIN_DISTANCE ) {
+        sortSelectedPolygons( selected_polygons, 0, selected_polygons.size()-1, true );
+    }
+
     struct timespec start, end;
     double time_elapsed;
     clock_gettime( CLOCK_MONOTONIC, &start );
@@ -216,7 +223,7 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
             grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_masked_decision_array_1, DOM_MASKED );
         }
         else {
-            return status;
+            continue;
         }
 
         grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dgm_decision_array_2, DGM, CANCEL_ON_GROUND );
@@ -225,7 +232,7 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
             grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_masked_decision_array_2, DOM_MASKED );
         }
         else {
-            return status;
+            continue;
         }
 
         calculateCounterValues(
@@ -258,6 +265,7 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
         time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
         printf("Output: %.10f\n", time_elapsed);
 
+        return SUCCESS;
     }
 
 
@@ -397,3 +405,48 @@ int Raytracer::writeResultObject_Direct (
 
     return SUCCESS;
 } /* writeResultObject_Direct() */
+
+
+
+
+int Raytracer::partition ( std::vector<Polygon>& polygons, int start, int end, bool by_max_area ) {
+    Polygon& pivot = polygons[end];
+    int i = start - 1;
+
+    for ( int j = start; j < end; j++ ) {
+        if ( by_max_area ) {
+            if ( polygons[j].getArea() > pivot.getArea() ) {
+                i++;
+
+                Polygon tmp = polygons[j];
+                polygons[j] = polygons[i];
+                polygons[i] = tmp;
+            }
+        }
+        else {
+            if ( (polygons[j].getCentroid() - start_point).length() < (pivot.getCentroid() - start_point).length() ) {
+                i++;
+
+                Polygon tmp = polygons[j];
+                polygons[j] = polygons[i];
+                polygons[i] = tmp;
+            }
+        }
+    }
+
+    Polygon tmp = polygons[end];
+    polygons[end] = polygons[i+1];
+    polygons[i+1] = tmp;
+
+    return i + 1;
+} /* partition () */
+
+
+void Raytracer::sortSelectedPolygons ( std::vector<Polygon>& polygons, int start, int end, bool by_max_area ) {
+    if ( start < end ) {
+        int pivot = partition( polygons, start, end, by_max_area );
+
+        sortSelectedPolygons( polygons, start, pivot-1, by_max_area );
+        sortSelectedPolygons( polygons, pivot+1, end, by_max_area );
+    }
+} /* sortPolygons () */

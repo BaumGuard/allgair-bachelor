@@ -135,6 +135,20 @@ private:
         int& vegetation_count,
         int& infrastructure_count
     );
+
+    /*
+    Sort the polygons by their area or distance to the starting point
+    depending on select_method
+
+    Args:
+     - polygons    : Reference to the list of polygons to be sorted
+     - start       : Start index of the list chunk to be sorted
+     - end         : End index of the list chunk to be sorted
+     - by_max_area : True - Sort by area (Descending),
+                     False - Sort by distance to the starting point (Ascending)
+    */
+    int partition ( std::vector<Polygon>& polygons, int start, int end, bool by_max_area );
+    void sortSelectedPolygons ( std::vector<Polygon>& polygons, int start, int end, bool by_max_area );
 };
 
 #endif

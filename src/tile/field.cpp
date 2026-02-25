@@ -635,7 +635,8 @@ int Field::precalculate (
         pthread_join( precalc_threads[i], NULL );
     }
 
-
+    selected_polygons = global_selected_polygons;
+/*
     if ( global_selected_polygons.size() > 0 ) {
         switch ( select_method ) {
             case BY_MIN_DISTANCE:
@@ -658,7 +659,7 @@ int Field::precalculate (
                 return SUCCESS;
         }
     }
-
+*/
     return NO_POLYGON_FOUND;
 } /* precalculate() */
 
@@ -667,13 +668,6 @@ void* Thread_precalculate ( void* arg ) {
     struct Precalculate_Thread_Data* data = (struct Precalculate_Thread_Data*) arg;
 
     for ( uint i = data->start_idx; i < data->end_idx; i++ ) {
-        /*
-        // Ignore ground surface (only use walls and roofs)
-        if ( (*data->polygons)[i].getSurfaceType() == GROUND ) {
-            continue;
-        }
-        */
-
         // Get the center point (centroid) of the current polygon
         Vector centroid = (*data->polygons)[i].getCentroid();
 

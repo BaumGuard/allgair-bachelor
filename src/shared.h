@@ -1,5 +1,7 @@
-#ifndef GLOBAL_CONFIG
-#define GLOBAL_CONFIG
+#ifndef SHARED_H
+#define SHARED_H
+
+#include "geometry/polygon.h"
 
 #include <string>
 #include <pthread.h>
@@ -26,6 +28,9 @@ extern double GRID_RESOLUTION;
 // When the distance is larger, the polygon will be discarded
 extern double PLANE_DISTANCE_THRESHOLD;
 
+// Minimum area of the polygons to use for finding reflections
+extern double MIN_AREA;
+
 // K value to correct the altitudes
 extern double K_VALUE;
 
@@ -46,5 +51,6 @@ extern pthread_t* precalc_threads;
 extern pthread_mutex_t polygon_list_mutex;
 extern pthread_t* ground_area_threads;
 extern struct PolygonsInGroundArea_Thread_Data* ground_area_data;
+extern std::vector<Polygon>* ground_area_polygons;
 
 #endif

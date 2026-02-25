@@ -29,6 +29,7 @@ Raytracer::Raytracer (
     Vector& start_point,
     int select_method,
     double max_point_to_plane_distance,
+    double min_area,
     uint fresnel_zone, double freq,
     double grid_resolution,
     double k_value,
@@ -49,6 +50,7 @@ Raytracer::Raytracer (
     GRID_RESOLUTION = grid_resolution;
 
     PLANE_DISTANCE_THRESHOLD = max_point_to_plane_distance;
+    MIN_AREA = min_area;
 
     grid_field = new Field( grid_resolution );
 
@@ -87,6 +89,7 @@ Raytracer::Raytracer (
     pthread_mutex_init( &polygon_list_mutex, NULL );
     ground_area_threads = new pthread_t [MAX_THREADS];
     ground_area_data = new struct PolygonsInGroundArea_Thread_Data [MAX_THREADS];
+    ground_area_polygons = new std::vector<Polygon> [MAX_THREADS];
 } /* Raytracer() */
 
 /*---------------------------------------------------------------*/
@@ -134,6 +137,7 @@ Raytracer::~Raytracer () {
     delete[] decision_arrays;
     delete[] ground_area_data;
     delete[] ground_area_threads;
+    delete[] ground_area_polygons;
     delete[] precalc_data;
     delete[] precalc_threads;
 
@@ -269,7 +273,11 @@ int Raytracer::raytracingDirect ( Vector& end_point ) {
         dgm_decision_array,
         dom_decision_array,
         dom_masked_decision_array;
-
+/*
+    struct timespec start, end;
+    double time_elapsed;
+    clock_gettime( CLOCK_MONOTONIC, &start );
+*/
     int status = grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dgm_decision_array, DGM, CANCEL_ON_GROUND );
 
     if ( !(CANCEL_ON_GROUND && status == INTERSECTION_FOUND) ) {
@@ -294,7 +302,13 @@ int Raytracer::raytracingDirect ( Vector& end_point ) {
             ground_count, vegetation_count, infrastructure_count
         );
     }
+/*
+    clock_gettime( CLOCK_MONOTONIC, &end );
 
+    time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
+    time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
+    printf("Bresenham: %f s\n", time_elapsed);
+*/
     return 1;
 } /* raytracingDirect() */
 

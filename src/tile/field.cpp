@@ -667,10 +667,12 @@ void* Thread_precalculate ( void* arg ) {
     struct Precalculate_Thread_Data* data = (struct Precalculate_Thread_Data*) arg;
 
     for ( uint i = data->start_idx; i < data->end_idx; i++ ) {
+        /*
         // Ignore ground surface (only use walls and roofs)
         if ( (*data->polygons)[i].getSurfaceType() == GROUND ) {
             continue;
         }
+        */
 
         // Get the center point (centroid) of the current polygon
         Vector centroid = (*data->polygons)[i].getCentroid();
@@ -760,10 +762,23 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
 
 
     for ( uint i = 0; i < len_polygons; i++ ) {
-        if ( data->ground_area->isPointInPolygon( tile_polygons[i].getCentroid(), true ) ) {
-            pthread_mutex_lock( data->polygon_list_mutex );
+        if ( tile_polygons[i].getSurfaceType() == GROUND ) {
+            continue;
+        }
+
+        Vector centroid = tile_polygons[i].getCentroid();
+
+        if (
+            centroid.getX() < data->ground_area->getMinX() ||
+            centroid.getX() > data->ground_area->getMaxX() ||
+            centroid.getY() < data->ground_area->getMinY() ||
+            centroid.getY() > data->ground_area->getMaxY()
+        ) {
+            continue;
+        }
+
+        if ( data->ground_area->isPointInPolygon( centroid, true ) ) {
             data->polygon_list->push_back( tile_polygons[i] );
-            pthread_mutex_unlock( data->polygon_list_mutex );
         }
     }
 
@@ -871,8 +886,6 @@ int Field::getPolygonsInGroundArea (
 ) {
     std::vector<std::string> tile_names = tilesInGroundArea( ground_area );
 
-    std::vector<Polygon> polygon_list;
-
     int n_tiles = tile_names.size();
     int n_thread_blocks = n_tiles / MAX_THREADS;
     if ( n_tiles < MAX_THREADS ) {
@@ -885,6 +898,9 @@ int Field::getPolygonsInGroundArea (
     int n_threads = MAX_THREADS;
 
 
+    for ( int i = 0; i < MAX_THREADS; i++ ) {
+        ground_area_polygons[i].clear();
+    }
 
     for ( int i = 0; i < n_thread_blocks; i++ ) {
         if ( n_tiles / MAX_THREADS > 0 ) {
@@ -898,7 +914,7 @@ int Field::getPolygonsInGroundArea (
         for ( int j = 0; j < n_threads; j++ ) {
             ground_area_data[j].field = this;
             ground_area_data[j].ground_area = &ground_area;
-            ground_area_data[j].polygon_list = &polygon_list;
+            ground_area_data[j].polygon_list = &ground_area_polygons[j];
             ground_area_data[j].tile_name = tile_names[list_index++];
             ground_area_data[j].polygon_list_mutex = &polygon_list_mutex;
 
@@ -912,7 +928,10 @@ int Field::getPolygonsInGroundArea (
         }
 
     }
-    polygons = polygon_list;
+
+    for ( int i = 0; i < MAX_THREADS; i++ ) {
+         polygons.insert( polygons.end(), ground_area_polygons[i].begin(), ground_area_polygons[i].end() );
+    }
 
     return SUCCESS;
 } /* getPolygonsInGroundArea() */

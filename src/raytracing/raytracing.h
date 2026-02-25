@@ -40,6 +40,7 @@ public:
         Vector& start_point,
         int select_method,
         double max_point_to_plane_distance = 0.1,
+        double min_area = 1.0,
         uint fresnel_zone = 2, double freq = 868.0e6,
         double grid_resolution = 1.0,
         double k_value = 4.0 / 3.0,

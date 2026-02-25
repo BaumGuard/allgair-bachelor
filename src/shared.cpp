@@ -15,6 +15,8 @@ double GRID_RESOLUTION;
 
 double PLANE_DISTANCE_THRESHOLD;
 
+double MIN_AREA;
+
 double K_VALUE;
 
 double EARTH_RADIUS_EFFECTIVE;
@@ -33,3 +35,4 @@ pthread_t* precalc_threads;
 pthread_mutex_t polygon_list_mutex;
 pthread_t* ground_area_threads;
 struct PolygonsInGroundArea_Thread_Data* ground_area_data;
+std::vector<Polygon>* ground_area_polygons;

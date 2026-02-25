@@ -5,6 +5,7 @@
 #include "../geometry/plane.h"
 #include "../raw_data/surface.h"
 #include "../utils.h"
+#include "../shared.h"
 
 #include <cstdint>
 #include <iostream>
@@ -370,7 +371,7 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
     int add_count = 0;
 
     for ( uint i = 0; i < len; i++ ) {
-        if ( surfaces[i].area < 1.0 ) {
+        if ( surfaces[i].area < MIN_AREA ) {
             no++;
             continue;
         }

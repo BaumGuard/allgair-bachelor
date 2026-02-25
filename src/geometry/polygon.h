@@ -154,6 +154,14 @@ public:
     bool operator != ( Polygon& polygon );
 
     /*
+    Return the minimum, maximum x or y value
+    */
+    double getMinX ();
+    double getMaxX ();
+    double getMinY ();
+    double getMaxY ();
+
+    /*
     Print a description of the polygon with the base plane
     and the points
     */
@@ -174,6 +182,8 @@ private:
 
     std::string id = "";
 
+    double x_min, x_max, y_min, y_max;
+    bool limits_calculated = false;
 
     /*
     Check if a point is already in the polygon
@@ -187,6 +197,16 @@ private:
     Check if two std::vector<Vector> of points are equal
     */
     bool pointListsEqual( std::vector<Vector>& other_list );
+
+    /*
+    Calculate minimum x and y and maximum x and y values
+
+    WARNING
+    This function calculates the limit values only once when
+    this function is called for the first time and not after
+    adding more points!
+    */
+    void calculateLimits ();
 };
 
 #endif

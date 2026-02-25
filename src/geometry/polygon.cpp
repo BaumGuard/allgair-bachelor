@@ -334,6 +334,71 @@ bool Polygon::operator != ( Polygon& polygon ) {
 
 /*---------------------------------------------------------------*/
 
+void Polygon::calculateLimits () {
+    if ( limits_calculated ) {
+        return;
+    }
+
+    x_min = points[0].getX();
+    x_max = points[0].getX();
+    y_min = points[0].getY();
+    y_max = points[0].getY();
+
+    uint len_points = points.size();
+    for ( uint i = 1; i < len_points; i++ ) {
+        if ( points[i].getX() < x_min ) {
+            x_min = points[i].getX();
+        }
+        if ( points[i].getX() > x_max ) {
+            x_max = points[i].getX();
+        }
+        if ( points[i].getY() < y_min ) {
+            y_min = points[i].getY();
+        }
+        if ( points[i].getY() > y_max ) {
+            y_max = points[i].getY();
+        }
+    }
+
+    limits_calculated = true;
+} /* calculateLimits () */
+
+
+double Polygon::getMinX () {
+    if ( !limits_calculated ) {
+        calculateLimits();
+    }
+
+    return x_min;
+} /* getMinX() */
+
+double Polygon::getMaxX () {
+    if ( !limits_calculated ) {
+        calculateLimits();
+    }
+
+    return x_max;
+} /* getMaxX() */
+
+double Polygon::getMinY () {
+    if ( !limits_calculated ) {
+        calculateLimits();
+    }
+
+    return y_min;
+} /* getMinY() */
+
+double Polygon::getMaxY () {
+    if ( !limits_calculated ) {
+        calculateLimits();
+    }
+
+    return y_max;
+} /* getMaxY() */
+
+
+/*---------------------------------------------------------------*/
+
 void Polygon::printPolygon () {
     printf( "POLYGON\n" );
 

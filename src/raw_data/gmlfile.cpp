@@ -213,44 +213,10 @@ int GmlFile::readGmlFile ( std::string file_path ) {
             surface.surface_type = OTHER;
         }
 
-
-        if ( surface.surface_type == ROOF ) {
-            getNextLineWithXmlTag( gmlfile, "<gen:stringAttribute name=\"Dachneigung\">" );
-            line = getNextLineWithXmlTag( gmlfile, "<gen:value>" );
-            line_content = getTextBetweenXmlTags( line );
-            surface.roof_tilt = stod( line_content );
-
-            getNextLineWithXmlTag( gmlfile, "<gen:stringAttribute name=\"Dachorientierung\">" );
-            line = getNextLineWithXmlTag( gmlfile, "<gen:value>" );
-            line_content = getTextBetweenXmlTags( line );
-            surface.roof_orientation = stod( line_content );
-        }
-
         getNextLineWithXmlTag( gmlfile, "<gen:stringAttribute name=\"Flaeche\">" );
         line = getNextLineWithXmlTag( gmlfile, "<gen:value>" );
         line_content = getTextBetweenXmlTags( line );
         surface.area = stod( line_content );
-
-
-        getNextLineWithXmlTag( gmlfile, "<gen:stringAttribute name=\"Z_MAX\">" );
-        line = getNextLineWithXmlTag( gmlfile, "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        surface.z_max = stod( line_content );
-
-        getNextLineWithXmlTag( gmlfile, "<gen:stringAttribute name=\"Z_MAX_ASL\">" );
-        line = getNextLineWithXmlTag( gmlfile, "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        surface.z_max_asl = stod( line_content );
-
-        getNextLineWithXmlTag( gmlfile, "<gen:stringAttribute name=\"Z_MIN\">" );
-        line = getNextLineWithXmlTag( gmlfile, "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        surface.z_min = stod( line_content );
-
-        getNextLineWithXmlTag( gmlfile, "<gen:stringAttribute name=\"Z_MIN_ASL\">" );
-        line = getNextLineWithXmlTag( gmlfile, "<gen:value>" );
-        line_content = getTextBetweenXmlTags( line );
-        surface.z_min_asl = stod( line_content );
 
         line = getNextLineWithXmlTag( gmlfile, "<gml:Polygon" );
         line_content = getXmlAttribute( line, "gml:id" );

@@ -25,20 +25,8 @@ struct Surface to store surface properties
 */
 typedef struct {
     std::string id;
-
     int surface_type;
-
-    double
-        area,
-        z_max,
-        z_max_asl,
-        z_min,
-        z_min_asl;
-
-    double
-        roof_tilt,
-        roof_orientation;
-
+    double area;
     std::vector<Vector> pos_list;
 } Surface;
 

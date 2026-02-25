@@ -7,13 +7,7 @@
 bool surfacesEqual ( Surface& surface1, Surface& surface2 ) {
     if (
         surface1.surface_type       != surface2.surface_type        ||
-        surface1.area               != surface2.area                ||
-        surface1.z_max              != surface2.z_max               ||
-        surface1.z_max_asl          != surface2.z_max_asl           ||
-        surface1.z_min              != surface2.z_min               ||
-        surface1.z_min_asl          != surface2.z_min_asl           ||
-        surface1.roof_tilt          != surface2.roof_tilt           ||
-        surface1.roof_orientation   != surface2.roof_orientation
+        surface1.area               != surface2.area
     ) {
         return false;
     }
@@ -73,11 +67,7 @@ void printSurfaceDescription ( Surface* surface ) {
         << "Surface ID   : " << surface->id    << '\n'
         << "Surface Type : " << surface_type   << '\n'
         << "\n"
-        << "Area         : " << surface->area  << " m²\n"
-        << "Z_MAX        : " << surface->z_max << '\n'
-        << "Z_MAX_ASL    : " << surface->z_max_asl << '\n'
-        << "Z_MIN        : " << surface->z_min << '\n'
-        << "Z_MIN_ASL    : " << surface->z_min_asl << "\n\n";
+        << "Area         : " << surface->area  << " m²\n\n";
 
     std::cout << "Points:\n";
 
@@ -87,12 +77,6 @@ void printSurfaceDescription ( Surface* surface ) {
             << "    ( " << surface->pos_list[i].getX() << ", "
             << surface->pos_list[i].getY() << ", "
             << surface->pos_list[i].getZ() << " )\n";
-    }
-
-    if ( surface->surface_type == ROOF ) {
-        std::cout
-            << "Roof tilt : " << surface->roof_tilt << '\n'
-            << "Roof orientation : " << surface->roof_orientation << "\n\n";
     }
 
 } /* printSurfaceDescription() */

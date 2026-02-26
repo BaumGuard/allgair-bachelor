@@ -2,7 +2,7 @@
 
 #include "../geometry/line.h"
 #include "load_tile.h"
-#include "../precalc/fresnel_zone.h"
+#include "../raytracing/fresnel_zone.h"
 #include "../raytracing/selection_methods.h"
 #include "tile_types.h"
 #include "../status_codes.h"

@@ -26,8 +26,7 @@ raytracing_pybind.cpp
 ../src/geometry/line.cpp
 ../src/geometry/plane.cpp
 ../src/geometry/polygon.cpp
-../src/precalc/fresnel_zone.cpp
-../src/precalc/precalc.cpp
+../src/raytracing/fresnel_zone.cpp
 ../src/raw_data/geotiff.cpp
 ../src/raw_data/gmlfile.cpp
 ../src/raw_data/surface.cpp

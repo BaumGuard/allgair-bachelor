@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.5...3.18)
 set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ..)
 
 project(Raytracing)
 
-add_compile_options(-g -O0)
+add_compile_options(-g)
 
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
@@ -21,23 +22,23 @@ find_package(TIFF REQUIRED)
 find_package(GDAL REQUIRED)
 
 pybind11_add_module(raytracing SHARED
-raytracing_pybind.cpp
-../src/geometry/vector.cpp
-../src/geometry/line.cpp
-../src/geometry/plane.cpp
-../src/geometry/polygon.cpp
-../src/raytracing/fresnel_zone.cpp
-../src/raw_data/geotiff.cpp
-../src/raw_data/gmlfile.cpp
-../src/raw_data/surface.cpp
-../src/raytracing/raytracing.cpp
-../src/tile/grid_tile.cpp
-../src/tile/vector_tile.cpp
-../src/tile/field.cpp
-../src/tile/load_tile.cpp
-../src/web/download.cpp
-../src/shared.cpp
-../src/utils.cpp
+src/raytracing/raytracing_pybind.cpp
+src/geometry/vector.cpp
+src/geometry/line.cpp
+src/geometry/plane.cpp
+src/geometry/polygon.cpp
+src/raytracing/fresnel_zone.cpp
+src/raw_data/geotiff.cpp
+src/raw_data/gmlfile.cpp
+src/raw_data/surface.cpp
+src/raytracing/raytracing.cpp
+src/tile/grid_tile.cpp
+src/tile/vector_tile.cpp
+src/tile/field.cpp
+src/tile/load_tile.cpp
+src/web/download.cpp
+src/shared.cpp
+src/utils.cpp
 )
 
 target_link_libraries(raytracing PRIVATE

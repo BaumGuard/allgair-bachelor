@@ -1,0 +1,130 @@
+#include "fresnel_zone.h"
+
+#include "../geometry/plane.h"
+#include "../status_codes.h"
+
+#include <cmath>
+
+#define LIGHT_SPEED 300000000.0
+
+/*---------------------------------------------------------------*/
+
+Polygon fresnelZone (
+    Vector& start_point, Vector& end_point,
+    int nth_zone,
+    double freq,
+    uint n_samples
+) {
+    Vector diff = end_point - start_point;
+    Vector ellipse_center = start_point + diff / 2.0;
+    double distance = diff.length();
+
+    double radius = sqrt( (nth_zone*LIGHT_SPEED/freq*distance) / 4.0 );
+
+    double e = distance / 2.0;
+    double b = radius;
+    double a = sqrt( b*b + e*e );
+
+    double step = 4.0 * a / (double)n_samples;
+
+    Polygon ground_area;
+    Plane base_plane;
+    base_plane.createPlaneFromCoordinates( 0.0, 0.0, 1.0, 0.0 );
+    ground_area.initPolygonWithPlane( base_plane );
+
+    for ( double x = -a; x < a; x += step ) {
+        double y = b / a * sqrt( a*a - x*x );
+        Vector sample( x, y, 0.0 );
+        ground_area.addPoint( sample );
+    }
+    for ( double x = a; x > -a; x -= step ) {
+        double y = -b / a * sqrt( a*a - x*x );
+        Vector sample( x, y, 0.0 );
+        ground_area.addPoint( sample );
+    }
+
+    double
+        delta_x = diff.getX(),
+        delta_y = diff.getY();
+
+    double rotation_angle = atan2( delta_y, delta_x );
+
+    std::vector<Vector>& points = ground_area.getPoints();
+    uint len = points.size();
+    double x, y;
+    for ( uint i = 0; i < len; i++ ) {
+        x = points[i].getX() * cos(rotation_angle) -
+            points[i].getY() * sin(rotation_angle);
+
+        y = points[i].getX() * sin(rotation_angle) +
+            points[i].getY() * cos(rotation_angle);
+
+        x += ellipse_center.getX();
+        y += ellipse_center.getY();
+
+        points[i].setX( x );
+        points[i].setY( y );
+    }
+
+    return ground_area;
+} /* fresnelZone() */
+
+
+/*---------------------------------------------------------------*/
+
+bool listContains ( std::vector<std::string>& list, std::string str ) {
+    uint len = list.size();
+    for ( uint i = 0; i < len; i++ ) {
+        if ( list[i] == str ) {
+            return true;
+        }
+    }
+    return false;
+} /* listContains() */
+
+std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {
+    std::vector<Vector> ground_area_points = ground_area.getPoints();
+    double
+        min_utmx = ground_area_points[0].getX(),
+        max_utmx = ground_area_points[0].getX(),
+        min_utmy = ground_area_points[0].getY(),
+        max_utmy = ground_area_points[0].getY();
+
+    uint len = ground_area_points.size();
+    for ( uint i = 1; i < len; i++ ) {
+        if ( ground_area_points[i].getX() < min_utmx ) {
+            min_utmx = ground_area_points[i].getX();
+        }
+        if ( ground_area_points[i].getX() > max_utmx ) {
+            max_utmx = ground_area_points[i].getX();
+        }
+        if ( ground_area_points[i].getY() < min_utmy ) {
+            min_utmy = ground_area_points[i].getY();
+        }
+        if ( ground_area_points[i].getY() > max_utmy ) {
+            max_utmy = ground_area_points[i].getY();
+        }
+    }
+
+    min_utmx -= fmod( min_utmx, 2000.0 );
+    max_utmx -= fmod( max_utmx, 2000.0 );
+    min_utmy -= fmod( min_utmy, 2000.0 );
+    max_utmy -= fmod( max_utmy, 2000.0 );
+
+    std::vector<std::string> tiles_in_ground_area;
+
+    uint
+        min_utmx_km = (uint) min_utmx / 1000,
+        max_utmx_km = (uint) max_utmx / 1000,
+        min_utmy_km = (uint) min_utmy / 1000,
+        max_utmy_km = (uint) max_utmy / 1000;
+
+
+    for ( uint y = min_utmy_km; y <= max_utmy_km; y += 2 ) {
+        for ( uint x = min_utmx_km; x <= max_utmx_km; x += 2 ) {
+            std::string tile_name = buildTileName( x, y );
+            tiles_in_ground_area.push_back( tile_name );
+        }
+    }
+    return tiles_in_ground_area;
+} /* tilesInGroundArea() */

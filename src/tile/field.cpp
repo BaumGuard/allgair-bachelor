@@ -345,6 +345,8 @@ int Field::bresenhamPseudo3D (
         bresenham_data[i].tile_type = tile_type;
         bresenham_data[i].intersection_found = &intersection_found;
 
+        bresenham_data[i].cancel_on_ground = cancel_on_ground;
+
         bresenham_data[i].h_curve_correction = h_curve_correction;
 
         decision_arrays[i].clear();
@@ -477,7 +479,7 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
     // Find an intersection between the ray and the ground
     // using Bresenham's algorithm modified for 3D
     while ( it != end_it ) {
-        if ( CANCEL_ON_GROUND && (*data->intersection_found) ) {
+        if ( data->cancel_on_ground && (*data->intersection_found) ) {
             break;
         }
 
@@ -874,7 +876,6 @@ int Field::getPolygonsInGroundArea (
             ground_area_data[j].ground_area = &ground_area;
             ground_area_data[j].polygon_list = &ground_area_polygons[j];
             ground_area_data[j].tile_name = tile_names[list_index++];
-            ground_area_data[j].polygon_list_mutex = &polygon_list_mutex;
 
             pthread_create(
                 &ground_area_threads[j], NULL,

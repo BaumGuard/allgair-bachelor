@@ -193,6 +193,8 @@ struct Bresenham_Thread_Data {
     int tile_type;
     bool* intersection_found;
 
+    bool cancel_on_ground;
+
     double h_curve_correction;
 
     std::vector<bool>* decision_array;
@@ -218,7 +220,6 @@ struct PolygonsInGroundArea_Thread_Data {
     Polygon* ground_area;
 
     std::string tile_name;
-    pthread_mutex_t* polygon_list_mutex;
     std::vector<Polygon>* polygon_list;
 };
 

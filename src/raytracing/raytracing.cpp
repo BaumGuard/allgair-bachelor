@@ -89,7 +89,6 @@ Raytracer::Raytracer (
     precalc_threads = new pthread_t [MAX_THREADS];
     precalc_data = new struct Precalculate_Thread_Data [MAX_THREADS];
 
-    pthread_mutex_init( &polygon_list_mutex, NULL );
     ground_area_threads = new pthread_t [MAX_THREADS];
     ground_area_data = new struct PolygonsInGroundArea_Thread_Data [MAX_THREADS];
     ground_area_polygons = new std::vector<Polygon> [MAX_THREADS];
@@ -133,7 +132,6 @@ Raytracer::~Raytracer () {
     delete grid_field;
 
     pthread_mutex_destroy( &selected_polygons_mutex );
-    pthread_mutex_destroy( &polygon_list_mutex );
 
     delete[] bresenham_data;
     delete[] bresenham_threads;

@@ -36,3 +36,8 @@ pthread_mutex_t polygon_list_mutex;
 pthread_t* ground_area_threads;
 struct PolygonsInGroundArea_Thread_Data* ground_area_data;
 std::vector<Polygon>* ground_area_polygons;
+
+double
+    fresnel_time, ground_area_time, precalc_time, bresenham_time, output_time;
+
+FILE* time_file;

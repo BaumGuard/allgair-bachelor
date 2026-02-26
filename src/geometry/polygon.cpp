@@ -1,6 +1,5 @@
 #include "polygon.h"
 
-#include "line.h"
 #include "../status_codes.h"
 
 #include <iostream>

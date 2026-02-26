@@ -3,7 +3,8 @@
 
 #include "grid_tile.h"
 #include "vector_tile.h"
-#include "../web/urls.h"
+
+#include <string>
 
 /*
 Create an instance of GridTile from a tif file

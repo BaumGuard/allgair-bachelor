@@ -1,12 +1,13 @@
 #ifndef VECTOR_TILE_H
 #define VECTOR_TILE_H
 
+#include "../geometry/vector.h"
 #include "../geometry/polygon.h"
 #include "../raw_data/gmlfile.h"
-#include "../shared.h"
-#include "../status_codes.h"
+#include "../utils.h"
 
 #include <vector>
+#include <string>
 
 /*
 Class to save vector data (surfaces) read from a GML file

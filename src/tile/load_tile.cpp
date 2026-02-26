@@ -2,9 +2,11 @@
 
 #include "../raw_data/geotiff.h"
 #include "../web/download.h"
+#include "../web/urls.h"
 #include "../shared.h"
 #include "../utils.h"
 #include "../tile/tile_types.h"
+#include "../status_codes.h"
 
 #include <unistd.h>
 #include <cstdlib>

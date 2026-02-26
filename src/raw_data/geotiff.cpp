@@ -5,8 +5,8 @@
 
 #include <tiffio.h>
 #include <gdal.h>
-#include <cmath>
 #include <cstring>
+#include <cstdint>
 
 /*---------------------------------------------------------------*/
 

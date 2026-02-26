@@ -1,16 +1,9 @@
 #include "fresnel_zone.h"
 
-#include "../geometry/vector.h"
 #include "../geometry/plane.h"
-#include "../utils.h"
 #include "../status_codes.h"
-#include "../raw_data/gmlfile.h"
-#include "../tile/vector_tile.h"
-#include "../tile/load_tile.h"
-#include "../shared.h"
 
 #include <cmath>
-#include <pthread.h>
 
 #define LIGHT_SPEED 300000000.0
 

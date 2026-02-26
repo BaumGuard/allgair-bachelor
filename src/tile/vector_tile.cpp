@@ -1,13 +1,13 @@
 #include "vector_tile.h"
 
-#include "../geometry/vector.h"
 #include "../geometry/line.h"
 #include "../geometry/plane.h"
 #include "../raw_data/surface.h"
-#include "../utils.h"
 #include "../shared.h"
+#include "../status_codes.h"
 
 #include <cstdint>
+#include <cstdio>
 #include <iostream>
 
 /*---------------------------------------------------------------*/

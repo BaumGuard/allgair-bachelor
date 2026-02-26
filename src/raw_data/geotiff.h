@@ -3,6 +3,8 @@
 
 #include "../utils.h"
 
+#include <string>
+
 /*
 Class to read and save the content of a GeoTIFF file
 */

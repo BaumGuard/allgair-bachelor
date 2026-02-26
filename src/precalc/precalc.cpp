@@ -1,5 +1,7 @@
 #include "precalc.h"
 
+#include "../utils.h"
+
 bool isPolygonInList ( std::vector<Polygon>& polygon_list, Polygon& polygon ) {
     uint len = polygon_list.size();
     if ( len == 0 ) {

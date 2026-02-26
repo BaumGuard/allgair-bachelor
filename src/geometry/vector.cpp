@@ -1,8 +1,8 @@
 #include "vector.h"
 
-#include <cmath>
-
 #include "../utils.h"
+
+#include <cmath>
 
 /*---------------------------------------------------------------*/
 

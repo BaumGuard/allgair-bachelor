@@ -1,10 +1,15 @@
 #ifndef FIELD_H
 #define FIELD_H
 
+#include "../geometry/vector.h"
+#include "../geometry/line.h"
+#include "../geometry/plane.h"
+#include "../geometry/polygon.h"
 #include "grid_tile.h"
 #include "vector_tile.h"
-#include "tile_types.h"
-#include "../geometry/vector.h"
+
+
+#include "../utils.h"
 #include "../shared.h"
 
 #include <unordered_map>
@@ -117,7 +122,6 @@ public:
                                 in whether the ray was below the terrain at a point
      - tile_type              : Tile type (DGM, DOM)
      - cancel_on_ground       : Stop the algorithm when the ray has hit the ground
-     - n_threads              : Number of threads for parallel Bresenham algorithm
 
     Returns:
      - Status code
@@ -132,8 +136,7 @@ public:
         float ground_level_threshold,
         std::vector<bool>* decision_arrays_united,
         int tile_type,
-        bool cancel_on_ground = false,
-        int n_threads = MAX_THREADS
+        bool cancel_on_ground = false
     );
 
 
@@ -189,10 +192,6 @@ struct Bresenham_Thread_Data {
     float ground_level_threshold;
     int tile_type;
     bool* intersection_found;
-
-    bool cancel_on_ground;
-
-    double grid_resolution;
 
     double h_curve_correction;
 

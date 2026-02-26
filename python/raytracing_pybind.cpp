@@ -1,11 +1,11 @@
 #include "../src/geometry/vector.h"
 #include "../src/raytracing/raytracing.h"
+#include "../src/raytracing/selection_methods.h"
 #include "../src/utils.h"
 
 #include <tuple>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
 #include <time.h>
 #include <stdio.h>
 

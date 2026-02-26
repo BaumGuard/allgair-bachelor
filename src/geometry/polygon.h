@@ -2,9 +2,11 @@
 #define POLYGON_H
 
 #include "vector.h"
+#include "line.h"
 #include "plane.h"
 #include "../utils.h"
 
+#include <string>
 #include <vector>
 #include <cstdint>
 

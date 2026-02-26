@@ -1,13 +1,15 @@
 #ifndef RAYTRACING_H
 #define RAYTRACING_H
 
-#include "selection_methods.h"
 #include "../geometry/vector.h"
+#include "../geometry/polygon.h"
 #include "../tile/field.h"
 #include "../web/urls.h"
+#include "../utils.h"
 
 #include <vector>
-
+#include <string>
+#include <cstdio>
 
 class Raytracer {
 public:

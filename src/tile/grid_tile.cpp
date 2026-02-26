@@ -1,14 +1,15 @@
 #include "grid_tile.h"
 
+#include "../geometry/polygon.h"
+#include "../raw_data/surface.h"
 #include "../status_codes.h"
-#include "../utils.h"
 
 #include <cstdint>
-#include <iostream>
 #include <cstring>
 #include <tiffio.h>
 #include <cmath>
 #include <pthread.h>
+#include <vector>
 
 /*---------------------------------------------------------------*/
 

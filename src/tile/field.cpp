@@ -1,12 +1,12 @@
 #include "field.h"
 
 #include "../geometry/line.h"
-#include "../geometry/polygon.h"
 #include "load_tile.h"
-#include "../utils.h"
 #include "../precalc/fresnel_zone.h"
-#include "../precalc/precalc.h"
 #include "../raytracing/selection_methods.h"
+#include "tile_types.h"
+#include "../status_codes.h"
+#include "../raw_data/surface.h"
 
 #include <unistd.h>
 #include <iostream>
@@ -280,24 +280,13 @@ int Field::bresenhamPseudo3D (
     float ground_level_threshold,
     std::vector<bool>* decision_arrays_united,
     int tile_type,
-    bool cancel_on_ground,
-    int n_threads
+    bool cancel_on_ground
 )
 {
     if ( tile_type != DGM && tile_type != DOM && tile_type != DOM_MASKED ) {
         return INVALID_TILE_TYPE;
     }
-/*
-    std::vector<std::string> tiles_on_ray = tilesOnRay(
-        start.getX(), start.getY(), end.getX(), end.getY(), 1
-    );
-    for ( uint i = 0; i < tiles_on_ray.size(); i++ ) {
-        if ( !tileAlreadyLoaded( tiles_on_ray[i], tile_type ) ) {
-            loadTile( tiles_on_ray[i], tile_type );
-            //printf("TILE %s\n", tiles_on_ray[i].data());
-        }
-    }
-*/
+    
     // Cast start and end values to integers
     int
         x_start = (int) ( start.getX() / grid_resolution ),
@@ -324,15 +313,15 @@ int Field::bresenhamPseudo3D (
 
     // Length of the ray parts to perform the Bresenham algorithm on
     double
-        x_step = (double)dx / (double)n_threads,
-        y_step = (double)dy / (double)n_threads,
-        z_step = (double)dz / (double)n_threads;
+        x_step = (double)dx / (double)MAX_THREADS,
+        y_step = (double)dy / (double)MAX_THREADS,
+        z_step = (double)dz / (double)MAX_THREADS;
 
     double x_start_f = 0.0, y_start_f = 0.0, z_start_f = 0.0;
 
     bool intersection_found = false;
 
-    for ( int i = 0; i < n_threads; i++ ) {
+    for ( int i = 0; i < MAX_THREADS; i++ ) {
         bresenham_data[i].x_start = (int) x_start_f + x_start;
         bresenham_data[i].y_start = (int) y_start_f + y_start;
         bresenham_data[i].z_start = (int) z_start_f + z_start;
@@ -341,7 +330,7 @@ int Field::bresenhamPseudo3D (
         y_start_f += y_step;
         z_start_f += z_step;
 
-        if ( i < n_threads-1 ) {
+        if ( i < MAX_THREADS-1 ) {
             bresenham_data[i].x_end = (int) x_start_f + x_start - 1;
             bresenham_data[i].y_end = (int) y_start_f + y_start - 1;
             bresenham_data[i].z_end = (int) z_start_f + z_start - 1;
@@ -355,9 +344,7 @@ int Field::bresenhamPseudo3D (
         bresenham_data[i].ground_level_threshold = ground_level_threshold;
         bresenham_data[i].tile_type = tile_type;
         bresenham_data[i].intersection_found = &intersection_found;
-        bresenham_data[i].cancel_on_ground = cancel_on_ground;
 
-        bresenham_data[i].grid_resolution = grid_resolution;
         bresenham_data[i].h_curve_correction = h_curve_correction;
 
         decision_arrays[i].clear();
@@ -367,11 +354,11 @@ int Field::bresenhamPseudo3D (
         pthread_create( &bresenham_threads[i], NULL, Thread_bresenhamPseudo3D, (void*)&bresenham_data[i] );
     }
 
-    for ( int i = 0; i < n_threads; i++ ) {
+    for ( int i = 0; i < MAX_THREADS; i++ ) {
         pthread_join( bresenham_threads[i], NULL );
     }
 
-    for ( uint i = 0; i < n_threads; i++ ) {
+    for ( uint i = 0; i < MAX_THREADS; i++ ) {
         uint len_decision_array = decision_arrays[i].size();
         for ( uint j = 0; j < len_decision_array; j++ ) {
             decision_arrays_united->push_back( decision_arrays[i][j] );
@@ -490,7 +477,7 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
     // Find an intersection between the ray and the ground
     // using Bresenham's algorithm modified for 3D
     while ( it != end_it ) {
-        if ( data->cancel_on_ground && (*data->intersection_found) ) {
+        if ( CANCEL_ON_GROUND && (*data->intersection_found) ) {
             break;
         }
 
@@ -548,10 +535,10 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
         } /* switch ( axis ) */
 
 
-        utm_x = x * data->grid_resolution;
-        utm_y = y * data->grid_resolution;
+        utm_x = x * GRID_RESOLUTION;
+        utm_y = y * GRID_RESOLUTION;
 
-        altitude = z * data->grid_resolution;
+        altitude = z * GRID_RESOLUTION;
 
         // Get the altitude at the current x/y position
         float altitude_at_xy =
@@ -636,30 +623,7 @@ int Field::precalculate (
     }
 
     selected_polygons = global_selected_polygons;
-/*
-    if ( global_selected_polygons.size() > 0 ) {
-        switch ( select_method ) {
-            case BY_MIN_DISTANCE:
-                selected_polygons.push_back(
-                    getPolygonWithMinDistance( start_point, global_selected_polygons )
-                );
-                return SUCCESS;
 
-            case BY_MAX_AREA:
-                clock_gettime( CLOCK_MONOTONIC, &end );
-                time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
-                time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-                printf("Precalc: %.10f\n", time_elapsed);
-
-                selected_polygons.push_back( getPolygonWithMaxArea( global_selected_polygons ) );
-                return SUCCESS;
-
-            case ALL:
-                selected_polygons = global_selected_polygons;
-                return SUCCESS;
-        }
-    }
-*/
     return NO_POLYGON_FOUND;
 } /* precalculate() */
 

@@ -1,8 +1,9 @@
 #ifndef FRESNEL_ZONE_H
 #define FRESNEL_ZONE_H
 
-#include "../geometry/line.h"
+#include "../geometry/vector.h"
 #include "../geometry/polygon.h"
+#include "../utils.h"
 
 #include <vector>
 #include <string>

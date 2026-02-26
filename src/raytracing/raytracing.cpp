@@ -1,12 +1,15 @@
 #include "raytracing.h"
 
-#include "../geometry/vector.h"
-#include "../geometry/polygon.h"
+#include "../geometry/line.h"
+#include "../geometry/plane.h"
 #include "../tile/tile_types.h"
 #include "../shared.h"
-#include "../utils.h"
+#include "../status_codes.h"
+#include "selection_methods.h"
 
+#include <time.h>
 #include <unistd.h>
+#include <pthread.h>
 
 void createResultFileName ( char* dst_string ) {
     time_t rawtime;
@@ -407,6 +410,7 @@ int Raytracer::writeResultObject_Direct (
 } /* writeResultObject_Direct() */
 
 
+/*---------------------------------------------------------------*/
 
 
 int Raytracer::partition ( std::vector<Polygon>& polygons, int start, int end, bool by_max_area ) {

@@ -95,11 +95,13 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
     Vector point;
 
     for ( uint32_t i = 0; i < len_polygons; i++ ) {
+        /*
         if ( section_index < section_starts.size() && i == section_starts[section_index] ) {
             while ( section_index < section_starts.size() && i == section_starts[section_index++] ) {
                 fprintf( file, "STRP" );
             }
         }
+        */
         fprintf( file, "PLGN" );
 
         data_sect.u32 = i;
@@ -228,7 +230,7 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
 
     for ( uint32_t i = 0; i < n_polygons; i++ ) {
         Polygon polygon;
-
+/*
         while ( true ) {
             fread( data.bytes, 1, 4, file );
             if ( STRNEQUAL(data.bytes, "STRP", 4) ) {
@@ -238,8 +240,8 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
                 break;
             }
         }
-
-        //fread( data.bytes, 1, 4, file );
+*/
+        fread( data.bytes, 1, 4, file );
         if ( !STRNEQUAL(data.bytes, "PLGN", 4) ) {
             return FILE_CORRUPT;
         }
@@ -486,13 +488,13 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
     // successfully for statistical and debugging purposes
     error_rate = (double)no / (double)( yes + no );
 
-    orderPolygonsInStripes( 20 );
+    //orderPolygonsInStripes( 20 );
 
     return SUCCESS;
 } /* fromGmlFile() */
 
 /*---------------------------------------------------------------*/
-
+#if 0
 int VectorTile::partition ( int start, int end, bool by_x ) {
     Polygon& pivot = polygons[end];
     int i = start - 1;
@@ -568,3 +570,4 @@ void VectorTile::orderPolygonsInStripes ( int n_stripes ) {
     }
     sortPolygons( section_starts[len_sections-1], polygons.size()-1, true );
 } /* orderPolygonsInStripes () */
+#endif

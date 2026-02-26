@@ -97,7 +97,7 @@ private:
         upper_corner;
 
     float error_rate;
-
+#if 0
     /*
     Sort the list of polygons by the x or y coordinate of
     the polygos's centroid using the Quick Sort algorithm
@@ -118,6 +118,7 @@ private:
      - n_stripes : Number of stripes to divide the tile into
     */
     void orderPolygonsInStripes ( int n_stripes );
+#endif
 };
 
 #endif

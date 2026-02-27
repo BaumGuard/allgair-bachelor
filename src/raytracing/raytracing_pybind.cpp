@@ -77,7 +77,6 @@ PYBIND11_MODULE( raytracing, m ) {
                     std::get<1>(end_points[i]),
                     std::get<2>(end_points[i])
                 );
-                //printf("%d\n", i);
                 raytracer.raytracingWithReflection( end_point );
 
                 updateProgressBar( i+1, len_end_points );
@@ -85,8 +84,6 @@ PYBIND11_MODULE( raytracing, m ) {
                 if ( PyErr_CheckSignals() != 0 ) {
                     throw pybind11::error_already_set();
                 }
-
-                printf("\n");
             }
 
             return 0;
@@ -147,18 +144,8 @@ PYBIND11_MODULE( raytracing, m ) {
                     std::get<1>(end_points[i]),
                     std::get<2>(end_points[i])
                 );
-/*
-                struct timespec start, end;
-                clock_gettime(CLOCK_MONOTONIC, &start);
-*/
-                raytracer.raytracingDirect( _end_point );
-/*
-                clock_gettime(CLOCK_MONOTONIC, &end);
 
-                double elapsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
-                printf("%d\n", i);
-                printf("Duration: %f s\n", elapsed);
-*/
+                raytracer.raytracingDirect( _end_point );
 
                 updateProgressBar( i+1, len_end_points );
 

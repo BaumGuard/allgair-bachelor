@@ -582,8 +582,7 @@ int Field::precalculate (
     clock_gettime( CLOCK_MONOTONIC, &end );
     double time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
     time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-    //printf("TIME SEGMENT\n");
-    //printf("TIME - Fresnel zone: %.10f\n", time_elapsed);
+
     fresnel_time = time_elapsed;
 
 
@@ -594,7 +593,7 @@ int Field::precalculate (
     clock_gettime( CLOCK_MONOTONIC, &end );
     time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
     time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-    //printf("TIME - PolygonsInGroundArea: %.10f\n", time_elapsed);
+
     ground_area_time = time_elapsed;
 
 
@@ -630,7 +629,7 @@ int Field::precalculate (
     clock_gettime( CLOCK_MONOTONIC, &end );
     time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
     time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-    //printf("TIME - Precalculate: %.10f\n", time_elapsed);
+
     precalc_time = time_elapsed;
 
     selected_polygons = global_selected_polygons;

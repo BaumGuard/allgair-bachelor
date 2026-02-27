@@ -11,22 +11,6 @@
 
 typedef unsigned int uint;
 
-enum MessageTypes {
-    NORMAL,
-    DEBUG,
-    ERROR
-};
-
-/*
-Print a message to a specified output sink
-
-Args:
- - type     : Output type (NORMAL, DEBUG, ERROR)
- - format   : printf format string
- - ...      : Variable argument list for printf
-*/
-void printMessage ( int type, const char* format, ... );
-
 /*
 Show a progress bar in the terminal
 

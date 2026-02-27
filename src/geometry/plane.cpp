@@ -278,5 +278,5 @@ double Plane::distanceOfPointToPlane ( Vector& p ) const {
 /*---------------------------------------------------------------*/
 
 void Plane::printPlane() const {
-    printMessage( NORMAL, "x=%f y=%f z=%f n=%f\n", x, y, z, n );
+    printf( "x=%f y=%f z=%f n=%f\n", x, y, z, n );
 } /* printPlane() */

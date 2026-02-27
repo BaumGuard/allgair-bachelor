@@ -183,15 +183,13 @@ bool Line::operator == ( Line& l ) const {
 /*---------------------------------------------------------------*/
 
 void Line::printLine () const {
-    printMessage(
-        NORMAL,
+    printf(
         "x_base=%f y_base=%f z_base=%f\n",
         base.getX(),
         base.getY(),
         base.getZ()
     );
-    printMessage(
-        NORMAL,
+    printf(
         "x_dir=%f y_dir=%f z_dir=%f\n",
         direction.getX(),
         direction.getY(),

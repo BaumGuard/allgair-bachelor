@@ -8,32 +8,6 @@
 
 /*---------------------------------------------------------------*/
 
-void printMessage ( int type, const char* format, ... ) {
-    va_list argptr;
-
-    switch ( type ) {
-        case NORMAL:
-            va_start( argptr, format );
-            vfprintf( stdout, format, argptr );
-            va_end( argptr );
-            break;
-
-        case DEBUG:
-            va_start( argptr, format );
-            vfprintf( stdout, format, argptr );
-            va_end( argptr );
-            break;
-
-        case ERROR:
-            va_start( argptr, format );
-            vfprintf( stderr, format, argptr );
-            va_end( argptr );
-            break;
-    }
-} /* printMessage() */
-
-/*---------------------------------------------------------------*/
-
 void updateProgressBar( int n_done, int n_all ) {
     double progress = (double) n_done / (double) n_all;
     int num_chars = (int)( progress * PROGRESS_BAR_LENGTH );

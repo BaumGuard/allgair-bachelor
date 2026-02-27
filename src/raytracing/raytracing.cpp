@@ -380,6 +380,8 @@ int Raytracer::writeResultObject_WithReflection (
             break;
     }
 
+    fprintf( result_file, "\t\t\"grid_resolution\": %.2f,\n", GRID_RESOLUTION );
+
     fprintf( result_file, "\t\t\"counters\": {\n" );
     fprintf( result_file, "\t\t\t\"ground\": %d,\n", ground_count );
     fprintf( result_file, "\t\t\t\"vegetation\": %d,\n", vegetation_count );
@@ -412,6 +414,7 @@ int Raytracer::writeResultObject_Direct (
 
     fprintf( result_file, "\t\t\"distance\": %.3f,\n", distance );
 
+    fprintf( result_file, "\t\t\"grid_resolution\": %.2f,\n", GRID_RESOLUTION );
 
     fprintf( result_file, "\t\t\"counters\": {\n" );
     fprintf( result_file, "\t\t\t\"ground\": %d,\n", ground_count );

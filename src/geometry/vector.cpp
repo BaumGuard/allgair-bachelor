@@ -207,7 +207,7 @@ Vector Vector::getUnitVector () const {
 /*---------------------------------------------------------------*/
 
 void Vector::printVector () const {
-    printMessage( NORMAL, "x=%f y=%f z=%f\n", x, y, z );
+    printf( "x=%f y=%f z=%f\n", x, y, z );
 } /* printVector() */
 
 /*---------------------------------------------------------------*/

@@ -70,7 +70,6 @@ int downloadFile ( std::string url, std::string dir, bool force ) {
     curl_easy_getinfo ( curl, CURLINFO_RESPONSE_CODE, &http_code );
 
     if ( http_code != 200 || err != CURLE_OK ) {
-        printMessage( ERROR, "ERROR: Could not download file from '%s'\n", url.data() );
         std::remove( out_path.data() );
         return FILE_NOT_FOUND;
     }

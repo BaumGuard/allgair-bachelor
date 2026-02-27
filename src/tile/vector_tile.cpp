@@ -95,13 +95,6 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
     Vector point;
 
     for ( uint32_t i = 0; i < len_polygons; i++ ) {
-        /*
-        if ( section_index < section_starts.size() && i == section_starts[section_index] ) {
-            while ( section_index < section_starts.size() && i == section_starts[section_index++] ) {
-                fprintf( file, "STRP" );
-            }
-        }
-        */
         fprintf( file, "PLGN" );
 
         data_sect.u32 = i;
@@ -158,7 +151,6 @@ int VectorTile::createBinaryFile ( std::string file_path ) {
 
             data_sect.f64 = point.getX();
             fwrite( data_sect.bytes, 1, 8, file );
-            //printf("%f\n", data_sect.f64);
 
             data_sect.f64 = point.getY();
             fwrite( data_sect.bytes, 1, 8, file );

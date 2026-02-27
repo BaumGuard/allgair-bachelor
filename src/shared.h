@@ -49,7 +49,6 @@ extern pthread_mutex_t selected_polygons_mutex;
 extern struct Precalculate_Thread_Data* precalc_data;
 extern pthread_t* precalc_threads;
 
-extern pthread_mutex_t polygon_list_mutex;
 extern pthread_t* ground_area_threads;
 extern struct PolygonsInGroundArea_Thread_Data* ground_area_data;
 extern std::vector<Polygon>* ground_area_polygons;

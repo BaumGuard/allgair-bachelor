@@ -32,7 +32,6 @@ pthread_mutex_t selected_polygons_mutex;
 struct Precalculate_Thread_Data* precalc_data;
 pthread_t* precalc_threads;
 
-pthread_mutex_t polygon_list_mutex;
 pthread_t* ground_area_threads;
 struct PolygonsInGroundArea_Thread_Data* ground_area_data;
 std::vector<Polygon>* ground_area_polygons;

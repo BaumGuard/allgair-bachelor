@@ -72,16 +72,6 @@ Polygon fresnelZone (
 
 /*---------------------------------------------------------------*/
 
-bool listContains ( std::vector<std::string>& list, std::string str ) {
-    uint len = list.size();
-    for ( uint i = 0; i < len; i++ ) {
-        if ( list[i] == str ) {
-            return true;
-        }
-    }
-    return false;
-} /* listContains() */
-
 std::vector<std::string> tilesInGroundArea ( Polygon& ground_area ) {
     std::vector<Vector> ground_area_points = ground_area.getPoints();
     double

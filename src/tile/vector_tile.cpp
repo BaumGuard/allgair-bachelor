@@ -30,12 +30,6 @@ std::vector<Polygon>& VectorTile::getPolygons () {
 
 /*---------------------------------------------------------------*/
 
-std::vector<uint>& VectorTile::getSectionStarts () {
-    return section_starts;
-} /* getSectionStarts () */
-
-/*---------------------------------------------------------------*/
-
 union data_block {
     uint8_t u8;
     uint32_t u32;
@@ -48,7 +42,6 @@ union data_block {
 
 int VectorTile::createBinaryFile ( std::string file_path ) {
     uint32_t byte_count = 0;
-    int section_index = 0;
 
     union data_block data_sect;
 
@@ -222,17 +215,7 @@ int VectorTile::fromBinaryFile ( std::string file_path ) {
 
     for ( uint32_t i = 0; i < n_polygons; i++ ) {
         Polygon polygon;
-/*
-        while ( true ) {
-            fread( data.bytes, 1, 4, file );
-            if ( STRNEQUAL(data.bytes, "STRP", 4) ) {
-                section_starts.push_back( i );
-            }
-            else {
-                break;
-            }
-        }
-*/
+
         fread( data.bytes, 1, 4, file );
         if ( !STRNEQUAL(data.bytes, "PLGN", 4) ) {
             return FILE_CORRUPT;
@@ -480,86 +463,5 @@ int VectorTile::fromGmlFile ( GmlFile& gmlfile ) {
     // successfully for statistical and debugging purposes
     error_rate = (double)no / (double)( yes + no );
 
-    //orderPolygonsInStripes( 20 );
-
     return SUCCESS;
 } /* fromGmlFile() */
-
-/*---------------------------------------------------------------*/
-#if 0
-int VectorTile::partition ( int start, int end, bool by_x ) {
-    Polygon& pivot = polygons[end];
-    int i = start - 1;
-
-    for ( int j = start; j < end; j++ ) {
-        if ( by_x ) {
-            if ( polygons[j].getCentroid().getX() < pivot.getCentroid().getX() ) {
-                i++;
-
-                Polygon tmp = polygons[j];
-                polygons[j] = polygons[i];
-                polygons[i] = tmp;
-            }
-        }
-        else {
-            if ( polygons[j].getCentroid().getY() < pivot.getCentroid().getY() ) {
-                i++;
-
-                Polygon tmp = polygons[j];
-                polygons[j] = polygons[i];
-                polygons[i] = tmp;
-            }
-        }
-    }
-
-    Polygon tmp = polygons[end];
-    polygons[end] = polygons[i+1];
-    polygons[i+1] = tmp;
-
-    return i + 1;
-} /* partition () */
-
-
-void VectorTile::sortPolygons ( int start, int end, bool by_x ) {
-    if ( start < end ) {
-        int pivot = partition( start, end, by_x );
-
-        sortPolygons( start, pivot-1, by_x );
-        sortPolygons( pivot+1, end, by_x );
-    }
-} /* sortPolygons () */
-
-
-void VectorTile::orderPolygonsInStripes ( int n_stripes ) {
-    // Sort the polygons by the y coordinate of their centroid
-    sortPolygons( 0, polygons.size()-1, false );
-
-    double stripe_width =
-        ( upper_corner.getY() - lower_corner.getY() ) / (double)n_stripes;
-
-    section_starts.push_back( 0 );
-
-    int* stripe_counts = new int [n_stripes];
-    for ( int i = 0; i < n_stripes; i++ ) {
-        stripe_counts[i] = 0;
-    }
-
-    uint len_polygons = polygons.size();
-    for ( uint i = 0; i < len_polygons; i++ ) {
-        int idx = (int)( ( polygons[i].getCentroid().getY() - lower_corner.getY() ) / stripe_width );
-        stripe_counts[idx]++;
-    }
-
-    for ( uint i = 1; i < n_stripes; i++ ) {
-        section_starts.push_back( stripe_counts[i-1] + section_starts[i-1] );
-    }
-
-    delete[] stripe_counts;
-
-    uint len_sections = section_starts.size();
-    for ( uint i = 0; i < len_sections-1; i++ ) {
-        sortPolygons( section_starts[i], section_starts[i+1]-1, true );
-    }
-    sortPolygons( section_starts[len_sections-1], polygons.size()-1, true );
-} /* orderPolygonsInStripes () */
-#endif

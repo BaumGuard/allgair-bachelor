@@ -55,7 +55,7 @@ Raytracer::Raytracer (
     PLANE_DISTANCE_THRESHOLD = max_point_to_plane_distance;
     MIN_AREA = min_area;
 
-    grid_field = new Field( grid_resolution );
+    field = new Field( grid_resolution );
 
     if ( max_threads >= 1 ) {
         MAX_THREADS = max_threads;
@@ -132,7 +132,7 @@ Raytracer::~Raytracer () {
 
     fclose( result_file );
 
-    delete grid_field;
+    delete field;
 
     pthread_mutex_destroy( &selected_polygons_mutex );
 
@@ -184,7 +184,7 @@ void Raytracer::calculateCounterValues (
 } /* calculateCounterValues() */
 
 
-int Raytracer::raytracingWithReflection ( Vector& end_point ) {
+void Raytracer::raytracingWithReflection ( Vector& end_point ) {
     fresnel_time = -1.0;
     ground_area_time = -1.0;
     precalc_time = -1.0;
@@ -198,11 +198,11 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
     struct timespec start, end;
     double time_elapsed;
 
-    status = grid_field->precalculate(
+    status = field->precalculate(
         selected_polygons, start_point, end_point, select_method, fresnel_zone, freq );
 
     if ( status != SUCCESS ) {
-        return status;
+        return;
     }
 
     if ( select_method == BY_MAX_AREA ) {
@@ -231,19 +231,19 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
 
         Vector intersection;
 
-        status = grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dgm_decision_array_1, DGM, CANCEL_ON_GROUND );
+        status = field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dgm_decision_array_1, DGM, CANCEL_ON_GROUND );
         if ( !(CANCEL_ON_GROUND && status == INTERSECTION_FOUND) ) {
-            grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_decision_array_1, DOM );
-            grid_field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_masked_decision_array_1, DOM_MASKED );
+            field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_decision_array_1, DOM );
+            field->bresenhamPseudo3D( start_point, reflect_point, 1.0, &dom_masked_decision_array_1, DOM_MASKED );
         }
         else {
             continue;
         }
 
-        grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dgm_decision_array_2, DGM, CANCEL_ON_GROUND );
+        field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dgm_decision_array_2, DGM, CANCEL_ON_GROUND );
         if ( !(CANCEL_ON_GROUND && status == INTERSECTION_FOUND) ) {
-            grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_decision_array_2, DOM );
-            grid_field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_masked_decision_array_2, DOM_MASKED );
+            field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_decision_array_2, DOM );
+            field->bresenhamPseudo3D( reflect_point, end_point, 1.0, &dom_masked_decision_array_2, DOM_MASKED );
         }
         else {
             continue;
@@ -261,13 +261,12 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
         clock_gettime( CLOCK_MONOTONIC, &end );
         time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
         time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-        //printf("TIME - Bresenham: %.10f\n", time_elapsed);
         bresenham_time = time_elapsed;
 
 
         clock_gettime( CLOCK_MONOTONIC, &start );
 
-        status = writeResultObject_WithReflection(
+        writeResultObject_WithReflection(
             end_point, reflect_point,
             selected_polygons[i],
             ( reflect_point - start_point ).length(),
@@ -283,32 +282,25 @@ int Raytracer::raytracingWithReflection ( Vector& end_point ) {
 
         fprintf( time_file, "%.10f,%.10f,%.10f,%.10f,%.10f\n", fresnel_time, ground_area_time, precalc_time, bresenham_time, output_time );
 
-        return SUCCESS;
+        return;
     }
-
-
-    return status;
 } /* raytracingWithReflection() */
 
 /*---------------------------------------------------------------*/
 
-int Raytracer::raytracingDirect ( Vector& end_point ) {
+void Raytracer::raytracingDirect ( Vector& end_point ) {
     int count_dgm, count_dom, count_dom_masked;
 
     std::vector<bool>
         dgm_decision_array,
         dom_decision_array,
         dom_masked_decision_array;
-/*
-    struct timespec start, end;
-    double time_elapsed;
-    clock_gettime( CLOCK_MONOTONIC, &start );
-*/
-    int status = grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dgm_decision_array, DGM, CANCEL_ON_GROUND );
+
+    int status = field->bresenhamPseudo3D( start_point, end_point, 1.0, &dgm_decision_array, DGM, CANCEL_ON_GROUND );
 
     if ( !(CANCEL_ON_GROUND && status == INTERSECTION_FOUND) ) {
-        grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dom_decision_array, DOM );
-        grid_field->bresenhamPseudo3D( start_point, end_point, 1.0, &dom_masked_decision_array, DOM_MASKED );
+        field->bresenhamPseudo3D( start_point, end_point, 1.0, &dom_decision_array, DOM );
+        field->bresenhamPseudo3D( start_point, end_point, 1.0, &dom_masked_decision_array, DOM_MASKED );
 
         int
             ground_count = 0,
@@ -320,22 +312,12 @@ int Raytracer::raytracingDirect ( Vector& end_point ) {
             ground_count, vegetation_count, infrastructure_count
         );
 
-        //printf("DGM %d - DOM %d  - DOM_MASKED %d\n", count_dgm, count_dom, count_dom_masked);
-
         writeResultObject_Direct(
             end_point,
             ( end_point - start_point ).length(),
             ground_count, vegetation_count, infrastructure_count
         );
     }
-/*
-    clock_gettime( CLOCK_MONOTONIC, &end );
-
-    time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
-    time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-    printf("Bresenham: %f s\n", time_elapsed);
-*/
-    return 1;
 } /* raytracingDirect() */
 
 /*---------------------------------------------------------------*/
@@ -348,7 +330,6 @@ int Raytracer::writeResultObject_WithReflection (
     int ground_count, int vegetation_count, int infrastructure_count
 ) {
     fprintf( result_file, "\t{\n" );
-    //fprintf( result_file, "\t\"timestamp\": \"%s\",\n", timestamp );
 
     fprintf( result_file, "\t\t\"raytracing_method\": \"REFLECTION\",\n" );
 
@@ -401,7 +382,6 @@ int Raytracer::writeResultObject_Direct (
     int ground_count, int vegetation_count, int infrastructure_count
 ) {
     fprintf( result_file, "\t{\n" );
-    //fprintf( result_file, "\t\"timestamp\": \"%s\",\n", timestamp );
 
     fprintf( result_file, "\t\t\"raytracing_method\": \"DIRECT\",\n" );
 

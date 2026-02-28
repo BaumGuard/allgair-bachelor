@@ -32,13 +32,6 @@ public:
     */
     std::vector<Polygon>& getPolygons ();
 
-    /*
-    Return a reference to the std::vector with the start indicies of
-    all tile sections
-    */
-    std::vector<uint>& getSectionStarts ();
-
-
 
     /* INPUT / OUTPUT */
 
@@ -90,35 +83,12 @@ public:
 
 private:
     std::vector<Polygon> polygons;
-    std::vector<uint> section_starts;
 
     Vector
         lower_corner,
         upper_corner;
 
     float error_rate;
-#if 0
-    /*
-    Sort the list of polygons by the x or y coordinate of
-    the polygos's centroid using the Quick Sort algorithm
-
-    Args:
-     - start : Start index of the list part
-     - end   : End index of the list part
-     - by_x  : True -> sort by x coordinate, False -> sort by y coordinate
-    */
-    int partition ( int start, int end, bool by_x );
-    void sortPolygons ( int start, int end, bool by_x );
-
-    /*
-    Divide the tile into stripes and find the start of each stripe
-    in the polygon list
-
-    Args:
-     - n_stripes : Number of stripes to divide the tile into
-    */
-    void orderPolygonsInStripes ( int n_stripes );
-#endif
 };
 
 #endif

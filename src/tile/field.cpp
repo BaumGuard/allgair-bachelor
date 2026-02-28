@@ -8,99 +8,12 @@
 #include "../status_codes.h"
 #include "../raw_data/surface.h"
 
+#include <exception>
 #include <unistd.h>
 #include <iostream>
 #include <cmath>
 #include <gdal.h>
 #include <time.h>
-
-
-std::vector<std::string> tilesOnRay (
-    double x_start, double y_start,
-    double x_end, double y_end,
-    uint tile_width_km
-) {
-    // Convert meters to kilometers (used in the tile name)
-    x_start /= 1000.0;
-    y_start /= 1000.0;
-    x_end   /= 1000.0;
-    y_end   /= 1000.0;
-
-    // Calculate m and t of the line running through the start and end
-    // coordinate
-    double m = (double)( y_end - y_start ) / (double)( x_end - x_start );
-    double t = y_start - m * x_start;
-
-    double
-        x_start_f = x_start,
-        x_end_f   = x_end;
-
-
-    if ( x_end < x_start ) {
-        x_start_f = x_end;
-        x_end_f   = x_start;
-    }
-
-    // Set the x coordinates to the left edge of the tile
-    int
-        x_start_i = (int) floor( x_start_f ),
-        x_end_i   = (int) floor( x_end_f );
-
-    // If the tile width is larger than 1 km, set the coordinates
-    // to the closest left edge
-    x_start_i -= x_start_i % tile_width_km;
-    x_end_i   -= x_end_i % tile_width_km;
-
-    std::string current_tile_name;
-    std::vector<std::string> tile_names;
-
-    int
-        y_bound1,   // y coordinate where the line starts in the
-                    // current interation
-        y_bound2;   // y coordinate where the line ends in the
-                    // current iteration
-
-    double tmp;
-
-    for ( int i = x_start_i; i < x_end_i; i += tile_width_km ) {
-        y_bound1 = (int) floor( m * i + t );
-        y_bound2 = (int) floor( m * (i+1) + t );
-
-        y_bound1 -= y_bound1 % tile_width_km;
-        y_bound2 -= y_bound2 % tile_width_km;
-
-        // Swap y_bound1 and y_bound2 if the line declines
-        if ( y_bound2 < y_bound1 ) {
-            tmp = y_bound1;
-            y_bound1 = y_bound2;
-            y_bound2 = tmp;
-        }
-
-        // Add all tiles through which the line runs to the list
-        for ( int j = y_bound1; j <= y_bound2; j += tile_width_km ) {
-            current_tile_name = buildTileName( i, j );
-            tile_names.push_back( current_tile_name );
-        }
-    }
-
-    if ( x_start < x_end ) {
-        current_tile_name = buildTileName(
-            (int)floor(x_end) - (int)floor(x_end) % tile_width_km,
-            (int)floor(y_end) - (int)floor(y_end) % tile_width_km
-        );
-        tile_names.push_back( current_tile_name );
-    }
-    else {
-        current_tile_name = buildTileName(
-            (int)floor(x_start) - (int)floor(x_start) % tile_width_km,
-            (int)floor(y_start) - (int)floor(y_start) % tile_width_km
-        );
-        tile_names.push_back( current_tile_name );
-    }
-
-    return tile_names;
-} /* tilesOnRay() */
-
 
 
 /*---------------------------------------------------------------*/
@@ -212,12 +125,14 @@ double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
 
     std::string tile_name = buildTileName( tile_x, tile_y );
 
+    int status;
+
     switch ( tile_type ) {
         case DGM:
             if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
                 pthread_mutex_lock( &dgm_mutex );
                 if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
-                    loadTile( tile_name, tile_type );
+                    status = loadTile( tile_name, tile_type );
                 }
                 pthread_mutex_unlock( &dgm_mutex );
             }
@@ -227,7 +142,7 @@ double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
             if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
                 pthread_mutex_lock( &dom_mutex );
                 if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
-                    loadTile( tile_name, tile_type );
+                    status = loadTile( tile_name, tile_type );
                 }
                 pthread_mutex_unlock( &dom_mutex );
             }
@@ -237,13 +152,16 @@ double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
             if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
                 pthread_mutex_lock( &dom_masked_mutex );
                 if ( !tileAlreadyLoaded(tile_name, tile_type) ) {
-                    loadTile( tile_name, tile_type );
+                    status = loadTile( tile_name, tile_type );
                 }
                 pthread_mutex_unlock( &dom_masked_mutex );
             }
             break;
     }
 
+    if ( status != SUCCESS ) {
+        throw std::runtime_error( "ERROR: Unable to load tile \"" + tile_name + "\"! Exiting...\n" );
+    }
 
     GridTile* tile;
     switch ( tile_type ) {
@@ -271,8 +189,6 @@ double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
 } /* getAltitudeAtXY () */
 
 /*---------------------------------------------------------------*/
-
-
 
 int Field::bresenhamPseudo3D (
     Vector& start,

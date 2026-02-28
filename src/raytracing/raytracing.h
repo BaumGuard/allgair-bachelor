@@ -67,7 +67,7 @@ public:
     Args:
      - end_point : End point of the raytracing
     */
-    int raytracingWithReflection( Vector& end_point );
+    void raytracingWithReflection( Vector& end_point );
 
     /*
     Perform raytracing on the direct line between the start and end point
@@ -75,7 +75,7 @@ public:
     Args:
      - end_point : End point of the raytracing
     */
-    int raytracingDirect( Vector& end_point );
+    void raytracingDirect( Vector& end_point );
 
 
     /*
@@ -90,7 +90,7 @@ public:
      - vegetation_count     : Counter of how often the ray passes through vegetation
      - infrastructure_count : Counter of how often the ray passes through infrastructure
     */
-    int writeResultObject_WithReflection (
+    void writeResultObject_WithReflection (
         Vector& end_point,
         Vector& reflection_point,
         Polygon& reflecting_polygon,
@@ -108,7 +108,7 @@ public:
      - vegetation_count     : Counter of how often the ray passes through vegetation
      - infrastructure_count : Counter of how often the ray passes through infrastructure
     */
-    int writeResultObject_Direct (
+    void writeResultObject_Direct (
         Vector& end_point,
         float distance,
         int ground_count, int vegetation_count, int infrastructure_count
@@ -122,7 +122,7 @@ private:
     uint fresnel_zone;
     double freq;
 
-    Field* grid_field;
+    Field* field;
 
     char result_file_name [256];
     FILE* result_file;
@@ -140,7 +140,7 @@ private:
 
     /*
     Sort the polygons by their area or distance to the starting point
-    depending on select_method
+    depending on select_method using the Quicksort algorithm
 
     Args:
      - polygons    : Reference to the list of polygons to be sorted

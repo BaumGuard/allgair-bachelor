@@ -54,6 +54,12 @@ bool equalWithThreshold ( double n1, double n2, double threshold ) {
 
 /*---------------------------------------------------------------*/
 
+bool inRange ( double n, double threshold ) {
+    return fabs(n) < threshold;
+} /* inRange() */
+
+/*---------------------------------------------------------------*/
+
 std::string buildTileName ( uint x, uint y ) {
     return std::to_string(x) + "_" + std::to_string(y);
 } /* buildTileName() */
@@ -83,12 +89,6 @@ std::string buildFilepath ( std::string dir, std::string file_name ) {
 
     return dir + file_name;
 } /* buildFilepath() */
-
-/*---------------------------------------------------------------*/
-
-bool inRange ( double n, double threshold ) {
-    return fabs(n) < threshold;
-} /* inRange() */
 
 /*---------------------------------------------------------------*/
 

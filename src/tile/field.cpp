@@ -38,8 +38,6 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
     if ( tile_type == DGM || tile_type == DOM || tile_type == DOM_MASKED ) {
         double resample_factor;
 
-        clock_t start, end;
-
         switch ( tile_type ) {
             case DGM:
                 status = getGridTile( grid_tile, tile_name, DGM1 );
@@ -125,7 +123,7 @@ double Field::getAltitudeAtXY ( double x, double y, int tile_type ) {
 
     std::string tile_name = buildTileName( tile_x, tile_y );
 
-    int status;
+    int status = 1;
 
     switch ( tile_type ) {
         case DGM:
@@ -276,7 +274,7 @@ int Field::bresenhamPseudo3D (
         pthread_join( bresenham_threads[i], NULL );
     }
 
-    for ( uint i = 0; i < MAX_THREADS; i++ ) {
+    for ( int i = 0; i < MAX_THREADS; i++ ) {
         uint len_decision_array = decision_arrays[i].size();
         for ( uint j = 0; j < len_decision_array; j++ ) {
             decision_arrays_united->push_back( decision_arrays[i][j] );
@@ -291,8 +289,7 @@ int Field::bresenhamPseudo3D (
 
 
 void* Thread_bresenhamPseudo3D ( void* arg ) {
-    clock_t start, end;
-    start = clock();
+
     Bresenham_Thread_Data* data = (Bresenham_Thread_Data*) arg;
 
     // Cast start and end values to integers
@@ -473,8 +470,6 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
         }
     } /* while ( it != end_it ) */
 
-    end = clock();
-
     return NULL;
 } /* Thread_bresenhamPseudo3D() */
 
@@ -599,6 +594,26 @@ void* Thread_precalculate ( void* arg ) {
             Vector dest_intersect;
             destination_plane.lineIntersection( second_ray, dest_intersect );
 
+            double
+                dx = dest_intersect.getX() - points[j].getX(),
+                dy = dest_intersect.getY() - points[j].getY();
+
+            // Altitude correction
+            double line_length_2d = sqrt( dx*dx + dy*dy );
+            double h_curve_correction =
+                EARTH_RADIUS_EFFECTIVE -
+                sqrt(
+                    EARTH_RADIUS_EFFECTIVE * EARTH_RADIUS_EFFECTIVE -
+                    line_length_2d * line_length_2d
+                );
+
+            dest_intersect.setZ( dest_intersect.getZ() - h_curve_correction );
+
+            Line altitude_corrected_line;
+            altitude_corrected_line.createLineFromTwoPoints( points[j], dest_intersect );
+
+            destination_plane.lineIntersection( altitude_corrected_line, dest_intersect );
+
             reflected_polygon.addPoint( dest_intersect );
         }
 
@@ -641,7 +656,6 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
     Vector test_point;
 
     std::vector<Polygon>& tile_polygons = vector_tile.getPolygons();
-    std::vector<uint>& section_starts = vector_tile.getSectionStarts();
     len_polygons = tile_polygons.size();
 
 

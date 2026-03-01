@@ -484,37 +484,11 @@ int Field::precalculate (
     std::vector<Polygon> polygons_in_ground_area;
     std::vector<Polygon> global_selected_polygons;
 
-
-    struct timespec start, end;
-    clock_gettime( CLOCK_MONOTONIC, &start );
-
     Polygon ground_area = fresnelZone( start_point, end_point, fresnel_zone, 868.0e6, 16 );
-
-    clock_gettime( CLOCK_MONOTONIC, &end );
-    double time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
-    time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-
-    fresnel_time = time_elapsed;
-
-
-    clock_gettime( CLOCK_MONOTONIC, &start );
-
-    getPolygonsInGroundArea( polygons_in_ground_area, ground_area );
-
-    clock_gettime( CLOCK_MONOTONIC, &end );
-    time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
-    time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-
-    ground_area_time = time_elapsed;
-
-
 
     double part_size = (double)polygons_in_ground_area.size() / (double)MAX_THREADS;
 
     double start_idx = 0.0;
-
-
-    clock_gettime( CLOCK_MONOTONIC, &start );
 
     for ( int i = 0; i < MAX_THREADS; i++ ) {
         precalc_data[i].start_idx = (uint) start_idx;
@@ -536,12 +510,6 @@ int Field::precalculate (
     for ( int i = 0; i < MAX_THREADS; i++ ) {
         pthread_join( precalc_threads[i], NULL );
     }
-
-    clock_gettime( CLOCK_MONOTONIC, &end );
-    time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
-    time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-
-    precalc_time = time_elapsed;
 
     selected_polygons = global_selected_polygons;
 

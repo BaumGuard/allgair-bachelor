@@ -92,9 +92,6 @@ Raytracer::Raytracer (
     ground_area_threads = new pthread_t [MAX_THREADS];
     ground_area_data = new struct PolygonsInGroundArea_Thread_Data [MAX_THREADS];
     ground_area_polygons = new std::vector<Polygon> [MAX_THREADS];
-
-    time_file = fopen( "times.csv", "w" );
-    fprintf( time_file, "fresnel_time,ground_area_time,precalc_time,bresenham_time,output_time\n" );
 } /* Raytracer() */
 
 /*---------------------------------------------------------------*/
@@ -144,8 +141,6 @@ Raytracer::~Raytracer () {
     delete[] ground_area_polygons;
     delete[] precalc_data;
     delete[] precalc_threads;
-
-    fclose( time_file );
 } /* ~Raytracer() */
 
 /*---------------------------------------------------------------*/
@@ -185,18 +180,9 @@ void Raytracer::calculateCounterValues (
 
 
 void Raytracer::raytracingWithReflection ( Vector& end_point ) {
-    fresnel_time = -1.0;
-    ground_area_time = -1.0;
-    precalc_time = -1.0;
-    bresenham_time = -1.0;
-    output_time = -1.0;
-
     int status;
 
     std::vector<Polygon> selected_polygons;
-
-    struct timespec start, end;
-    double time_elapsed;
 
     status = field->precalculate(
         selected_polygons, start_point, end_point, select_method, fresnel_zone, freq );
@@ -211,9 +197,6 @@ void Raytracer::raytracingWithReflection ( Vector& end_point ) {
     else if ( select_method == BY_MIN_DISTANCE ) {
         sortSelectedPolygons( selected_polygons, 0, selected_polygons.size()-1, true );
     }
-
-
-    clock_gettime( CLOCK_MONOTONIC, &start );
 
     uint n_polygons = selected_polygons.size();
     for ( uint i = 0; i < n_polygons; i++ ) {
@@ -258,29 +241,12 @@ void Raytracer::raytracingWithReflection ( Vector& end_point ) {
             ground_count, vegetation_count, infrastructure_count
         );
 
-        clock_gettime( CLOCK_MONOTONIC, &end );
-        time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
-        time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-        bresenham_time = time_elapsed;
-
-
-        clock_gettime( CLOCK_MONOTONIC, &start );
-
         writeResultObject_WithReflection(
             end_point, reflect_point,
             selected_polygons[i],
             ( reflect_point - start_point ).length(),
             ground_count, vegetation_count, infrastructure_count
         );
-
-
-        clock_gettime( CLOCK_MONOTONIC, &end );
-        time_elapsed = (double)end.tv_sec + (double)end.tv_nsec / 1.0e9;
-        time_elapsed -= (double)start.tv_sec + (double)start.tv_nsec / 1.0e9;
-        //printf("TIME - Output: %.10f\n", time_elapsed);
-        output_time = time_elapsed;
-
-        fprintf( time_file, "%.10f,%.10f,%.10f,%.10f,%.10f\n", fresnel_time, ground_area_time, precalc_time, bresenham_time, output_time );
 
         return;
     }

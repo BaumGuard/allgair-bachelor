@@ -53,9 +53,4 @@ extern pthread_t* ground_area_threads;
 extern struct PolygonsInGroundArea_Thread_Data* ground_area_data;
 extern std::vector<Polygon>* ground_area_polygons;
 
-extern double
-    fresnel_time, ground_area_time, precalc_time, bresenham_time, output_time;
-
-extern FILE* time_file;
-
 #endif

@@ -289,7 +289,6 @@ void Raytracer::raytracingWithReflection ( Vector& end_point ) {
 /*---------------------------------------------------------------*/
 
 void Raytracer::raytracingDirect ( Vector& end_point ) {
-    int count_dgm, count_dom, count_dom_masked;
 
     std::vector<bool>
         dgm_decision_array,
@@ -322,7 +321,7 @@ void Raytracer::raytracingDirect ( Vector& end_point ) {
 
 /*---------------------------------------------------------------*/
 
-int Raytracer::writeResultObject_WithReflection (
+void Raytracer::writeResultObject_WithReflection (
     Vector& end_point,
     Vector& reflection_point,
     Polygon& reflecting_polygon,
@@ -370,13 +369,11 @@ int Raytracer::writeResultObject_WithReflection (
     fprintf( result_file, "\t\t}\n" );
 
     fprintf( result_file, "\t},\n" );
-
-    return SUCCESS;
 } /* writeResultObject_WithReflection() */
 
 /*---------------------------------------------------------------*/
 
-int Raytracer::writeResultObject_Direct (
+void Raytracer::writeResultObject_Direct (
     Vector& end_point,
     float distance,
     int ground_count, int vegetation_count, int infrastructure_count
@@ -403,8 +400,6 @@ int Raytracer::writeResultObject_Direct (
     fprintf( result_file, "\t\t}\n" );
 
     fprintf( result_file, "\t},\n" );
-
-    return SUCCESS;
 } /* writeResultObject_Direct() */
 
 

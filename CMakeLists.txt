@@ -4,7 +4,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ..)
 
 project(Raytracing)
 
-add_compile_options(-g)
+add_compile_options(-g -Wall)
 
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 

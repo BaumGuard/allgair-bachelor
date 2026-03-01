@@ -136,7 +136,6 @@ PYBIND11_MODULE( raytracing, m ) {
                 max_threads
             );
 
-            clock_t start, end;
             uint len_end_points = end_points.size();
             for ( uint i = 0; i < len_end_points; i++ ) {
                 Vector _end_point(

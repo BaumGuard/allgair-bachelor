@@ -19,6 +19,8 @@ double MIN_AREA;
 
 double K_VALUE;
 
+double FRESNEL_EXTENSION_FACTOR;
+
 double EARTH_RADIUS_EFFECTIVE;
 
 bool CANCEL_ON_GROUND;

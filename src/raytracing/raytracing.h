@@ -27,6 +27,8 @@ public:
                                       in meters when creating polygon objects from LOD2 data
      - fresnel_zone                 : Number of the Fresnel zone around the start and the end
                                       point to use for filtering surfaces
+     - fresnel_extension            : Fraction by which to extend the Fresnel zone around the
+                                      start and end point (must be between 0 and 1)
      - freq                         : Signal frequency of the drone in Hz for calculating the
                                       Fresnel zone
      - grid_resolution              : Resolution of the DGM and DOM grid in meters
@@ -43,7 +45,7 @@ public:
         int select_method,
         double max_point_to_plane_distance = 0.1,
         double min_area = 1.0,
-        uint fresnel_zone = 2, double freq = 868.0e6,
+        uint fresnel_zone = 2, double fresnel_extension = 1.0, double freq = 868.0e6,
         double grid_resolution = 1.0,
         double k_value = 4.0 / 3.0,
         bool cancel_on_ground = false,
@@ -114,7 +116,7 @@ public:
         int ground_count, int vegetation_count, int infrastructure_count
     );
 
-
+Field* field;
 private:
     Vector start_point;
     int select_method;
@@ -122,7 +124,7 @@ private:
     uint fresnel_zone;
     double freq;
 
-    Field* field;
+
 
     char result_file_name [256];
     FILE* result_file;

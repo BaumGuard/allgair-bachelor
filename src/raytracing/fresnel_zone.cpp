@@ -2,6 +2,7 @@
 
 #include "../geometry/plane.h"
 #include "../status_codes.h"
+#include "../shared.h"
 
 #include <cmath>
 
@@ -15,8 +16,13 @@ Polygon fresnelZone (
     double freq,
     uint n_samples
 ) {
-    Vector diff = end_point - start_point;
-    Vector ellipse_center = start_point + diff / 2.0;
+    Vector center = ( end_point + start_point ) / 2.0;
+
+    Vector new_start_point = center + ( start_point - center ) * FRESNEL_EXTENSION_FACTOR;
+    Vector new_end_point   = center + ( end_point   - center ) * FRESNEL_EXTENSION_FACTOR;
+
+    Vector diff = new_end_point - new_start_point;
+    Vector ellipse_center = new_start_point + diff / 2.0;
     double distance = diff.length();
 
     double radius = sqrt( (nth_zone*LIGHT_SPEED/freq*distance) / 4.0 );

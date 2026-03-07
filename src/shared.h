@@ -35,6 +35,9 @@ extern double MIN_AREA;
 // K value to correct the altitudes
 extern double K_VALUE;
 
+// Factor by which the Fresnel zone should be extended
+extern double FRESNEL_EXTENSION_FACTOR;
+
 #define EARTH_RADIUS 6366473.0
 extern double EARTH_RADIUS_EFFECTIVE;
 

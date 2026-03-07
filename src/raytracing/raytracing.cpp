@@ -33,7 +33,7 @@ Raytracer::Raytracer (
     int select_method,
     double max_point_to_plane_distance,
     double min_area,
-    uint fresnel_zone, double freq,
+    uint fresnel_zone, double fresnel_extension, double freq,
     double grid_resolution,
     double k_value,
     bool cancel_on_ground,
@@ -68,6 +68,7 @@ Raytracer::Raytracer (
     CANCEL_ON_GROUND = cancel_on_ground;
     EARTH_RADIUS_EFFECTIVE = EARTH_RADIUS * k_value;
 
+    FRESNEL_EXTENSION_FACTOR = 1.0 + fresnel_extension;
 
     createEnvironment();
 

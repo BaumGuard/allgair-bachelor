@@ -401,6 +401,8 @@ int GridTile::createTifFile ( std::string file_path ) {
     TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
     TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
 
+    TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
+
     for ( uint row = 0; row < width; row++ ) {
         float* row_data = &tile[(width-row-1) * width];
         if ( TIFFWriteScanline(tif, row_data, row, 0) < 0 ) {

@@ -200,7 +200,7 @@ int Field::bresenhamPseudo3D (
     if ( tile_type != DGM && tile_type != DOM && tile_type != DOM_MASKED ) {
         return INVALID_TILE_TYPE;
     }
-    
+
     // Cast start and end values to integers
     int
         x_start = (int) ( start.getX() / grid_resolution ),
@@ -325,7 +325,7 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
 
     int
         e1, e2,                // Bresenham error (if 0 increment/decrement dep1/dep2)
-        it1, it2,              // Iterators to subtract from e1/e2
+        step1, step2,              // Iterators to subtract from e1/e2
         corr,                  // Correction value to add to e1/e2 when they become negative
         start_it, end_it,      // Start/End value on the iteration axis
         dep1, dep2,            // Values dependant on the iteration axis (the other two axes)
@@ -346,8 +346,8 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
             end_dep1    = y_end;
             start_dep2  = z_start;
             end_dep2    = z_end;
-            it1         = 2 * dy;
-            it2         = 2 * dz;
+            step1       = 2 * dy;
+            step2       = 2 * dz;
             corr        = 2 * dx;
             dep1        = y_start;
             dep2        = z_start;
@@ -362,8 +362,8 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
             end_dep1    = x_end;
             start_dep2  = z_start;
             end_dep2    = z_end;
-            it1         = 2 * dx;
-            it2         = 2 * dz;
+            step1       = 2 * dx;
+            step2       = 2 * dz;
             corr        = 2 * dy;
             dep1        = x_start;
             dep2        = z_start;
@@ -378,8 +378,8 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
             end_dep1    = x_end;
             start_dep2  = y_start;
             end_dep2    = y_end;
-            it1         = 2 * dx;
-            it2         = 2 * dy;
+            step1       = 2 * dx;
+            step2       = 2 * dy;
             corr        = 2 * dz;
             dep1        = x_start;
             dep2        = y_start;
@@ -396,8 +396,8 @@ void* Thread_bresenhamPseudo3D ( void* arg ) {
             break;
         }
 
-        e1 -= it1;
-        e2 -= it2;
+        e1 -= step1;
+        e2 -= step2;
 
         if ( e1 < 0 ) {
             if ( start_dep1 < end_dep1 ) {
@@ -485,6 +485,7 @@ int Field::precalculate (
     std::vector<Polygon> global_selected_polygons;
 
     Polygon ground_area = fresnelZone( start_point, end_point, fresnel_zone, 868.0e6, 16 );
+    getPolygonsInGroundArea( polygons_in_ground_area, ground_area );
 
     double part_size = (double)polygons_in_ground_area.size() / (double)MAX_THREADS;
 
@@ -648,100 +649,6 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
         }
     }
 
-#if 0
-    std::string utm_parts [2];
-    splitString( data->tile_name, utm_parts, '_' );
-
-    double fresnel_min_y, fresnel_max_y;
-
-    double tile_lower = std::stoi( utm_parts[1] ) * 1000.0;
-    double tile_upper = tile_lower + 2000.0;
-    double tile_left  = std::stoi( utm_parts[0] ) * 1000.0;
-    double tile_right = tile_left  + 2000.0;
-
-    Plane ground_plane;
-    ground_plane.createPlaneFromCoordinates( 0.0, 0.0, 1.0, 0.0 );
-
-    Polygon tile_polygon;
-    tile_polygon.initPolygonWithPlane( ground_plane );
-
-    tile_polygon.addPoint( Vector(tile_left, tile_lower, 0.0) );
-    tile_polygon.addPoint( Vector(tile_left, tile_upper, 0.0) );
-    tile_polygon.addPoint( Vector(tile_right, tile_upper, 0.0) );
-    tile_polygon.addPoint( Vector(tile_right, tile_lower, 0.0) );
-
-    std::vector<Vector>& fresnel_points = data->ground_area->getPoints();
-    uint len_fresnel_points = fresnel_points.size();
-
-    fresnel_min_y = fresnel_points[0].getY();
-    fresnel_max_y = fresnel_points[0].getY();
-
-
-    for ( uint i = 1; i < len_fresnel_points; i++ ) {
-        if ( tile_polygon.isPointInPolygon( fresnel_points[i], true ) ) {
-            if ( fresnel_points[i].getY() < fresnel_min_y ) {
-                fresnel_min_y = fresnel_points[i].getY();
-            }
-            if ( fresnel_points[i].getY() > fresnel_max_y ) {
-                fresnel_max_y = fresnel_points[i].getY();
-            }
-        }
-    }
-
-    fresnel_min_y -= tile_lower;
-    fresnel_max_y -= tile_lower;
-
-    printf("MIN_Y %f MAX_Y %f\n", fresnel_min_y, fresnel_max_y);
-
-    uint start_row = (uint)( fresnel_min_y / 100.0 );
-    uint end_row =   (uint)( fresnel_max_y / 100.0 );
-
-    printf("START_ROW %d END_ROW %d\n", start_row, end_row);
-
-
-    uint len_section_starts = section_starts.size();
-    printf("LEN_SECTION_STARTS %d\n", len_section_starts);
-    for ( uint i = start_row; i <= end_row; i++ ) {
-        int section_end;
-        if ( i < len_section_starts - 1 ) {
-            section_end = section_starts[i+1];
-        }
-        else {
-            section_end = tile_polygons.size();
-        }
-
-        uint j = section_starts[i];
-        for ( ; j < section_end; j++ ) {
-            if ( data->ground_area->isPointInPolygon( tile_polygons[j].getCentroid(), true ) ) {
-                //printf("Polygon found\n");
-                pthread_mutex_lock( data->polygon_list_mutex );
-                data->polygon_list->push_back( tile_polygons[j] );
-                pthread_mutex_unlock( data->polygon_list_mutex );
-                break;
-            }
-        }
-
-        j++;
-
-        uint outside_count = 0;
-        for ( ; j < section_end; j++ ) {
-            if ( data->ground_area->isPointInPolygon( tile_polygons[j].getCentroid(), true ) ) {
-                pthread_mutex_lock( data->polygon_list_mutex );
-                data->polygon_list->push_back( tile_polygons[j] );
-                pthread_mutex_unlock( data->polygon_list_mutex );
-            }
-            /*
-            else if ( outside_count < 1 ) {
-                outside_count++;
-                //break;
-            }
-            */
-            else {
-                break;
-            }
-        }
-    }
-#endif
     return NULL;
 } /* Thread_getPolygonsInGroundArea() */
 

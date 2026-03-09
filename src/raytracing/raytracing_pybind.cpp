@@ -95,7 +95,7 @@ PYBIND11_MODULE( raytracing, m ) {
         py::arg( "max_point_to_plane_distance" ) = 0.1,
         py::arg( "min_area" ) = 1.0,
         py::arg( "fresnel_zone" ) = 2,
-        py::arg( "fresnel_extension" ) = 0.0,
+        py::arg( "fresnel_extension" ) = 0.1,
         py::arg( "freq" ) = 868.0e6,
         py::arg( "grid_resolution" ) = 1.0,
         py::arg( "k_value" ) = 4.0 / 3.0,

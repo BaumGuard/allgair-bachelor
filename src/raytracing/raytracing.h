@@ -45,7 +45,7 @@ public:
         int select_method,
         double max_point_to_plane_distance = 0.1,
         double min_area = 1.0,
-        uint fresnel_zone = 2, double fresnel_extension = 1.0, double freq = 868.0e6,
+        uint fresnel_zone = 2, double fresnel_extension = 0.1, double freq = 868.0e6,
         double grid_resolution = 1.0,
         double k_value = 4.0 / 3.0,
         bool cancel_on_ground = false,

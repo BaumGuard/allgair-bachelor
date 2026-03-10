@@ -1,4 +1,4 @@
-#include "raytracing.h"
+#include "raytracer.h"
 
 #include "../geometry/line.h"
 #include "../geometry/plane.h"

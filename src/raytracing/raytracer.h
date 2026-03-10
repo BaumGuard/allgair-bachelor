@@ -1,9 +1,9 @@
-#ifndef RAYTRACING_H
-#define RAYTRACING_H
+#ifndef RAYTRACER_H
+#define RAYTRACER_H
 
 #include "../geometry/vector.h"
 #include "../geometry/polygon.h"
-#include "../tile/field.h"
+#include "field.h"
 #include "../web/urls.h"
 #include "../utils.h"
 

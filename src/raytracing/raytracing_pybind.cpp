@@ -1,5 +1,5 @@
 #include "../geometry/vector.h"
-#include "raytracing.h"
+#include "raytracer.h"
 #include "selection_methods.h"
 #include "../utils.h"
 

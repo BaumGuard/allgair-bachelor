@@ -5,8 +5,8 @@
 #include "../geometry/line.h"
 #include "../geometry/plane.h"
 #include "../geometry/polygon.h"
-#include "grid_tile.h"
-#include "vector_tile.h"
+#include "../tile/grid_tile.h"
+#include "../tile/vector_tile.h"
 
 
 #include "../utils.h"
@@ -35,8 +35,6 @@ private:
     std::unordered_map<std::string, VectorTile> vector_tiles_lod2;
 
     pthread_mutex_t dgm_mutex, dom_mutex, dom_masked_mutex;
-
-    double grid_resolution;
 
     /*
     Check if a tile has already been loaded into the hashmaps using a tile name
@@ -107,7 +105,7 @@ private:
 
 
 public:
-    Field ( double grid_resolution );
+    Field ();
 
     /*
     Perform the Bresenham algorithm in pseudo 3D space

@@ -23,22 +23,22 @@ find_package(GDAL REQUIRED)
 
 pybind11_add_module(raytracing SHARED
 src/raytracing/raytracing_pybind.cpp
+src/shared.cpp
+src/utils.cpp
 src/geometry/vector.cpp
 src/geometry/line.cpp
 src/geometry/plane.cpp
 src/geometry/polygon.cpp
-src/raytracing/fresnel_zone.cpp
 src/raw_data/geotiff.cpp
 src/raw_data/gmlfile.cpp
 src/raw_data/surface.cpp
-src/raytracing/raytracing.cpp
 src/tile/grid_tile.cpp
 src/tile/vector_tile.cpp
-src/tile/field.cpp
 src/tile/load_tile.cpp
 src/web/download.cpp
-src/shared.cpp
-src/utils.cpp
+src/raytracing/fresnel_zone.cpp
+src/raytracing/field.cpp
+src/raytracing/raytracer.cpp
 )
 
 target_link_libraries(raytracing PRIVATE

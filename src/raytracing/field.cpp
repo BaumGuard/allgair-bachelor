@@ -1,10 +1,10 @@
 #include "field.h"
 
 #include "../geometry/line.h"
-#include "load_tile.h"
+#include "../tile/load_tile.h"
 #include "../raytracing/fresnel_zone.h"
 #include "../raytracing/selection_methods.h"
-#include "tile_types.h"
+#include "../tile/tile_types.h"
 #include "../status_codes.h"
 #include "../raw_data/surface.h"
 
@@ -18,9 +18,7 @@
 
 /*---------------------------------------------------------------*/
 
-Field::Field ( double grid_resolution ) {
-    this->grid_resolution = grid_resolution;
-
+Field::Field () {
     pthread_mutex_init( &dgm_mutex, NULL );
     pthread_mutex_init( &dom_mutex, NULL );
     pthread_mutex_init( &dom_masked_mutex, NULL );
@@ -44,7 +42,7 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
                 if ( status != SUCCESS ) {
                     return status;
                 }
-                resample_factor = 1.0 / grid_resolution;
+                resample_factor = 1.0 / GRID_RESOLUTION;
                 grid_tile.resampleTile( resample_factor );
 
                 grid_tiles_dgm.insert( {tile_name, grid_tile} );
@@ -56,7 +54,7 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
                 if ( status != SUCCESS ) {
                     return status;
                 }
-                resample_factor = 0.2 / grid_resolution;
+                resample_factor = 0.2 / GRID_RESOLUTION;
                 grid_tile.resampleTile( resample_factor );
 
                 grid_tiles_dom.insert( {tile_name, grid_tile} );
@@ -68,7 +66,7 @@ int Field::loadTile ( std::string tile_name, int tile_type ) {
                 if ( status != SUCCESS ) {
                     return status;
                 }
-                resample_factor = 0.2 / grid_resolution;
+                resample_factor = 0.2 / GRID_RESOLUTION;
                 grid_tile.resampleTile( resample_factor );
 
                 grid_tiles_dom_masked.insert( {tile_name, grid_tile} );
@@ -203,12 +201,12 @@ int Field::bresenhamPseudo3D (
 
     // Cast start and end values to integers
     int
-        x_start = (int) ( start.getX() / grid_resolution ),
-        y_start = (int) ( start.getY() / grid_resolution ),
-        z_start = (int) ( round( start.getZ() ) / grid_resolution ),
-        x_end   = (int) ( end.getX() / grid_resolution ),
-        y_end   = (int) ( end.getY() / grid_resolution ),
-        z_end   = (int) ( round( end.getZ() ) / grid_resolution );
+        x_start = (int) ( start.getX() / GRID_RESOLUTION ),
+        y_start = (int) ( start.getY() / GRID_RESOLUTION ),
+        z_start = (int) ( round( start.getZ() ) / GRID_RESOLUTION ),
+        x_end   = (int) ( end.getX() / GRID_RESOLUTION ),
+        y_end   = (int) ( end.getY() / GRID_RESOLUTION ),
+        z_end   = (int) ( round( end.getZ() ) / GRID_RESOLUTION );
 
     // Distances between the start and end coordinate
     int
@@ -591,15 +589,9 @@ void* Thread_precalculate ( void* arg ) {
         Vector reflected_center_point;
         Line reflected_center_ray;
 
-        //polygon_base_plane.reflectLine( center_ray, reflected_center_ray );
-        //destination_plane.lineIntersection( reflected_center_ray, reflected_center_point );
-
         // If the end point is located inside the reflection polygon, add the polygon to
         // the list of the selected polygons
-        if (
-            reflected_polygon.isPointInPolygon( data->end_point )/* &&
-            !isPolygonInList(selected_polygons, polygons[i])*/
-        ) {
+        if ( reflected_polygon.isPointInPolygon( data->end_point ) ) {
             pthread_mutex_lock( data->selected_polygons_mutex );
             data->selected_polygons->push_back( (*data->polygons)[i] );
             pthread_mutex_unlock( data->selected_polygons_mutex );

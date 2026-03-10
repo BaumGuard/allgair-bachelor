@@ -55,7 +55,7 @@ Raytracer::Raytracer (
     PLANE_DISTANCE_THRESHOLD = max_point_to_plane_distance;
     MIN_AREA = min_area;
 
-    field = new Field( grid_resolution );
+    field = new Field();
 
     if ( max_threads >= 1 ) {
         MAX_THREADS = max_threads;

@@ -663,7 +663,7 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
         if ( tile_polygons[i].getSurfaceType() == GROUND ) {
             continue;
         }
-
+/*
         Vector centroid = tile_polygons[i].getCentroid();
 
         if (
@@ -678,6 +678,8 @@ void* Thread_getPolygonsInGroundArea ( void* arg ) {
         if ( data->ground_area->isPointInPolygon( centroid, true ) ) {
             data->polygon_list->push_back( tile_polygons[i] );
         }
+*/
+        data->polygon_list->push_back( tile_polygons[i] );
     }
 
 #if 0
